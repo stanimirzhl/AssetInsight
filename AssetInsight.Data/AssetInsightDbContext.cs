@@ -58,16 +58,23 @@ namespace AssetInsight.Data
 				.OnDelete(DeleteBehavior.Cascade);
 
 			modelBuilder.Entity<Comment>()
-				.HasMany(x => x.Replies)
-				.WithOne(x => x.ParentComment)
-				.HasForeignKey(x => x.ParentCommentId)
-				.OnDelete(DeleteBehavior.Cascade);
+				.HasOne(c => c.ParentComment)
+				.WithMany(c => c.Replies)
+				.HasForeignKey(c => c.ParentCommentId)
+				.OnDelete(DeleteBehavior.NoAction);
+
 
 			modelBuilder.Entity<Comment>()
 				.HasMany(x => x.Reactions)
 				.WithOne(x => x.Comment)
 				.HasForeignKey(x => x.CommentId)
 				.OnDelete(DeleteBehavior.Cascade);
+
+			modelBuilder.Entity<Comment>()
+				.HasOne(x => x.ParentComment)
+				.WithMany(x => x.Replies)
+				.HasForeignKey(x => x.ParentCommentId)
+				.OnDelete(DeleteBehavior.NoAction);
 
 			modelBuilder.Entity<User>()
 				.HasMany(x => x.SavedPosts)

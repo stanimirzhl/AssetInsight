@@ -8,6 +8,11 @@ namespace AssetInsight.Data.Constants
 {
 	public static class DataConstants
 	{
+		public static class TagConstants
+		{
+			public const int TagNameMaxLength = 25;
+		}
+
 		public static class PostConstants
 		{
 			public const int PostTitleMaxLength = 300;

@@ -1,0 +1,114 @@
+﻿body {
+    background-color: #f6f7f8;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.forum-container {
+    width: 800px;
+    margin: 30px auto;
+}
+
+.forum-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.btn-create {
+    background-color: #ff4500;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.post-card {
+    display: flex;
+    background: white;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: 0.2s ease-in-out;
+}
+
+    .post-card:hover {
+        transform: translateY(-2px);
+    }
+
+    .post-card.locked {
+        opacity: 0.75;
+    }
+
+.post-votes {
+    width: 60px;
+    background-color: #f0f2f5;
+    text-align: center;
+    padding: 15px 5px;
+    font-weight: bold;
+    color: #ff4500;
+}
+
+.post-content {
+    flex: 1;
+    padding: 15px;
+}
+
+.post-meta {
+    font-size: 0.85rem;
+    color: #777;
+    margin-bottom: 8px;
+}
+
+.locked-badge {
+    color: #d9534f;
+    font-weight: 600;
+    margin-left: 10px;
+}
+
+.post-content h4 {
+    margin: 5px 0 10px 0;
+}
+
+    .post-content h4 a {
+        text-decoration: none;
+        color: #222;
+    }
+
+        .post-content h4 a:hover {
+            color: #ff4500;
+        }
+
+.post-preview {
+    font-size: 0.95rem;
+    color: #444;
+    margin-bottom: 10px;
+}
+
+.post-footer {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.btn-save {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #555;
+}
+
+    .btn-save:hover {
+        color: #ff4500;
+    }
+
+.tag {
+    background-color: #e9ecef;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    margin-right: 5px;
+}

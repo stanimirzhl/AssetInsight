@@ -17,8 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Interfaces\" />
-    <Folder Include="Implementations\" />
+    <ProjectReference Include="..\AssetInsight.Data\AssetInsight.Data.csproj" />
   </ItemGroup>
 
 </Project>

@@ -5,12 +5,14 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbServices(builder.Configuration);
+builder.Services.AddCoreServices();
 builder.Services.AddIdentityServices();
+builder.Services.Localization();
 
-// Add services to the container.
-builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
+
+app.UseAppLocalization();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

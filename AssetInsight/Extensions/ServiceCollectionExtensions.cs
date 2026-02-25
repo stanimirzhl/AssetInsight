@@ -1,14 +1,32 @@
-﻿using AssetInsight.Data;
+﻿using AssetInsight.Core.Implementations;
+using AssetInsight.Core.Interfaces;
+using AssetInsight.Data;
 using AssetInsight.Data.Common;
 using AssetInsight.Data.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
 namespace AssetInsight.Extensions
 {
 	public static class ServiceCollectionExtensions
 	{
+		public static IServiceCollection AddCoreServices(this IServiceCollection services)
+		{
+			services.AddScoped<IPostService, PostService>();
+
+			services.AddMvc(options =>
+				options
+				.Filters
+				.Add(new AutoValidateAntiforgeryTokenAttribute()));
+
+			services.AddResponseCompression();
+
+			return services;
+		}
+
 		public static IServiceCollection AddDbServices(this IServiceCollection services, IConfiguration config)
 		{
 			string connectionString = config.GetConnectionString("AssetInsightContextConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
@@ -35,6 +53,43 @@ namespace AssetInsight.Extensions
 			.AddEntityFrameworkStores<AssetInsightDbContext>();
 
 			return services;
+		}
+
+		public static IServiceCollection Localization(this IServiceCollection services)
+		{
+			services.AddLocalization(options =>
+			   options.ResourcesPath = "Resources");
+
+			services.AddControllersWithViews()
+				.AddViewLocalization()
+				.AddDataAnnotationsLocalization();
+
+			return services;
+		}
+
+		public static IApplicationBuilder UseAppLocalization(this IApplicationBuilder app)
+		{
+			var supportedCultures = new[]
+			{
+				new CultureInfo("en"),
+				new CultureInfo("bg"),
+				new CultureInfo("de")
+			};
+
+			var localizationOptions = new RequestLocalizationOptions
+			{
+				DefaultRequestCulture = new RequestCulture("en"),
+				SupportedCultures = supportedCultures,
+				SupportedUICultures = supportedCultures,
+
+				RequestCultureProviders = new List<IRequestCultureProvider>
+				{
+					new CookieRequestCultureProvider(),
+					new AcceptLanguageHeaderRequestCultureProvider()
+				}
+			};
+
+			return app.UseRequestLocalization(localizationOptions);
 		}
 	}
 }

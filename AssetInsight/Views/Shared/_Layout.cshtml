@@ -1,4 +1,19 @@
-﻿<!DOCTYPE html>
+﻿@using Azure.Core
+@using Microsoft.AspNetCore.Localization
+@{
+    string currentCulture = "en"; // fallback
+    var cookie = Context.Request.Cookies[CookieRequestCultureProvider.DefaultCookieName];
+    if (!string.IsNullOrEmpty(cookie))
+    {
+        var requestCulture = CookieRequestCultureProvider.ParseCookieValue(cookie);
+        if (requestCulture != null)
+        {
+            currentCulture = requestCulture.Cultures.First().Value; // e.g., "en", "bg", "de"
+        }
+    }
+}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -25,7 +40,16 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Post" asp-action="Index">Posts</a>
+                        </li>
                     </ul>
+
+                    <select id="cultureSelect" class="lang-select">
+                        <!option value="en" @(currentCulture == "en" ? "selected" : "")>English</!option>
+                        <!option value="bg" @(currentCulture == "bg" ? "selected" : "")>Bulgarian</!option>
+                        <!option value="de" @(currentCulture == "de" ? "selected" : "")>German</!option>
+                    </select>
 
                     <partial name="_LoginPartial" />
                 </div>

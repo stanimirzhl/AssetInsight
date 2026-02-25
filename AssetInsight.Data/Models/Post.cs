@@ -29,7 +29,7 @@ namespace AssetInsight.Data.Models
 		public DateTime CreatedAt { get; set; } = DateTime.Now;
 		public DateTime? EditedAt { get; set; }
 
-		public bool IsLocked { get; set; }
+		public bool IsLocked { get; set; } = false;
 
 		public virtual ICollection<Comment> Comments { get; set; } = new HashSet<Comment>();
 		public virtual ICollection<SavedPost> SavedPosts { get; set; } = new HashSet<SavedPost>();

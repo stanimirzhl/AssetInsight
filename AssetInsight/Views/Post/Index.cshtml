@@ -1,0 +1,84 @@
+﻿@using AssetInsight.Core
+@using AssetInsight.Models.Post
+@using Microsoft.AspNetCore.Mvc.Localization
+@model PagingModel<PostVM>
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = "Forum";
+}
+
+<link rel="stylesheet" href="~/css/forum.css" />
+
+<div class="forum-container">
+    <div class="forum-header">
+        <h2>@Localizer["CommunityPosts"]</h2>
+        <a asp-action="Create" class="btn-create">+ @Localizer["CreatePost"]</a>
+    </div>
+
+    @foreach (var post in Model.Items)
+    {
+        <div class="post-card @(post.IsLocked ? "locked" : "")">
+
+            <div class="post-votes">
+                <span class="vote-count">@post.ReactionsCount</span>
+            </div>
+
+            <div class="post-content">
+
+                <div class="post-meta">
+                    <span class="author">
+                        @Localizer["PostedBy"] @post.AuthorUserName
+                    </span>
+                    <span class="time-ago" data-time="@post.CreatedAt.ToUniversalTime().ToString("o")"></span>
+
+                    @if (post.EditedAt.HasValue)
+                    {
+                        <span class="edited" data-time="@post.EditedAt.Value.ToUniversalTime().ToString("o")"></span>
+                    }
+
+                    @if (post.IsLocked)
+                    {
+                        <span class="locked-badge">🔒 @Localizer["Save"]</span>
+                    }
+            </div>
+
+            <h4>
+                <a asp-action="Details" asp-route-id="@post.Id">
+                    @post.Title
+                </a>
+            </h4>
+
+            <p class="post-preview">
+                @(post.Content.Length > 200
+                                ? post.Content.Substring(0, 200) + "..."
+                                : post.Content)
+            </p>
+
+                <div class="post-footer">
+
+                    <span class="comments">
+                        💬 @post.CommentsCount @Localizer["Comments"]
+                    </span>
+
+                    <form asp-action="Save" asp-route-id="@post.Id" method="post">
+                        <button type="submit" class="btn-save">
+                            ⭐ @Localizer["Save"]
+                        </button>
+                    </form>
+
+                    @if (post.Tags.Any())
+                    {
+                        <div class="tags">
+                            @foreach (var tag in post.Tags)
+                            {
+                                <span class="tag">#@tag.Name</span>
+                            }
+                        </div>
+                    }
+                </div>
+
+            </div>
+        </div>
+    }
+</div>
