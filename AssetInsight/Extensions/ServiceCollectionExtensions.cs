@@ -55,6 +55,19 @@ namespace AssetInsight.Extensions
 			return services;
 		}
 
+		public static IServiceCollection AddAccountOptions(this IServiceCollection services)
+		{
+			services.ConfigureApplicationCookie(options =>
+			{
+				options.LoginPath = "/Account/Login";
+				options.LogoutPath = "/Account/Logout";
+				options.AccessDeniedPath = "/Account/AccessDenied";
+				options.ReturnUrlParameter = "ReturnUrl";
+			});
+
+			return services;
+		}
+
 		public static IServiceCollection Localization(this IServiceCollection services)
 		{
 			services.AddLocalization(options =>
@@ -73,7 +86,9 @@ namespace AssetInsight.Extensions
 			{
 				new CultureInfo("en"),
 				new CultureInfo("bg"),
-				new CultureInfo("de")
+				new CultureInfo("de"),
+				new CultureInfo("fr"),
+				new CultureInfo("es")
 			};
 
 			var localizationOptions = new RequestLocalizationOptions
@@ -84,12 +99,22 @@ namespace AssetInsight.Extensions
 
 				RequestCultureProviders = new List<IRequestCultureProvider>
 				{
-					new CookieRequestCultureProvider(),
-					new AcceptLanguageHeaderRequestCultureProvider()
+					 new CookieRequestCultureProvider(),            
+				     new AcceptLanguageHeaderRequestCultureProvider()
 				}
 			};
 
 			return app.UseRequestLocalization(localizationOptions);
+		}
+
+		public static async Task ApplyDatabaseMigrations(this IHost app)
+		{
+			using IServiceScope scope = app.Services.CreateScope();
+			AssetInsightDbContext db = scope.ServiceProvider.GetRequiredService<AssetInsightDbContext>();
+			RoleManager<IdentityRole> roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+			UserManager<User> userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+
+			await db.Database.MigrateAsync();
 		}
 	}
 }

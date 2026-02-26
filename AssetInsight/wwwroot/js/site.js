@@ -2,13 +2,17 @@
     const culture = this.value;
     const returnUrl = window.location.pathname;
 
-    fetch('Language/SetLanguage', { 
+    fetch('/Language/SetLanguage', {
         method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
         body: new URLSearchParams({ culture, returnUrl })
     })
-    .then(response => {
-        if (response.ok) location.reload(); 
-    });
+        .then(response => {
+            if (response.ok) location.reload();
+        });
 });
 
 function timeAgo(date) {

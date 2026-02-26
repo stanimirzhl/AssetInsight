@@ -7,12 +7,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbServices(builder.Configuration);
 builder.Services.AddCoreServices();
 builder.Services.AddIdentityServices();
+builder.Services.AddAccountOptions();
 builder.Services.Localization();
 
 
 var app = builder.Build();
 
 app.UseAppLocalization();
+
+await app.ApplyDatabaseMigrations();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -27,7 +30,11 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapControllers();
+app.MapRazorPages();
 
 app.MapControllerRoute(
     name: "default",

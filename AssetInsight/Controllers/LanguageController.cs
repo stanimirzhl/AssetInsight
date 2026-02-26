@@ -16,7 +16,8 @@ namespace AssetInsight.Controllers
 				new CookieOptions
 				{					
 					HttpOnly = true,
-					Secure = true
+					Secure = true,
+					IsEssential = true,
 				}
 			);
 
