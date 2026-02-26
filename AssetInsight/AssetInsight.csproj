@@ -24,6 +24,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Update="Resources\Models\LoginModel\InputModel.bg.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+    </EmbeddedResource>
     <EmbeddedResource Update="Resources\Views\Home\Index.bg.resx">
       <SubType>Designer</SubType>
       <Generator>ResXFileCodeGenerator</Generator>

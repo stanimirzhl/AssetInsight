@@ -2,19 +2,21 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+using AssetInsight.Data.Models;
+using Humanizer.Localisation;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
-using AssetInsight.Data.Models;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Threading.Tasks;
+using static AssetInsight.Data.Constants.DataConstants.UserConstants;
 
 namespace AssetInsight.Areas.Identity.Pages.Account
 {
@@ -61,27 +63,23 @@ namespace AssetInsight.Areas.Identity.Pages.Account
         /// </summary>
         public class InputModel
         {
-            /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
-            [Required]
-            public string UserName { get; set; }
+			/// <summary>
+			///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+			///     directly from your code. This API may change or be removed in future releases.
+			/// </summary>
+			[Required(ErrorMessageResourceName = "UserNameEmail_Required", ErrorMessageResourceType = typeof(Resources.Models.LoginModel.InputModel))]
+			[StringLength(25, MinimumLength = 4, ErrorMessageResourceName = "UserNameEmail_StringLength", ErrorMessageResourceType = typeof(Resources.Models.LoginModel.InputModel))]
+			[Display(Name = "UserNameEmail", ResourceType = typeof(Resources.Models.LoginModel.InputModel))]
+			public string UserNameEmail { get; set; }
 
-            /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
-            [Required]
-            [DataType(DataType.Password)]
+			/// <summary>
+			///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
+			///     directly from your code. This API may change or be removed in future releases.
+			/// </summary>
+			[Required(ErrorMessageResourceName = "Password_Required", ErrorMessageResourceType = typeof(Resources.Models.LoginModel.InputModel))]
+			[Display(Name = "Password", ResourceType = typeof(Resources.Models.LoginModel.InputModel))]
+			[DataType(DataType.Password)]
             public string Password { get; set; }
-
-            /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
-            [Display(Name = "Remember me?")]
-            public bool RememberMe { get; set; }
         }
 
         public async Task OnGetAsync(string returnUrl = null)
@@ -105,24 +103,18 @@ namespace AssetInsight.Areas.Identity.Pages.Account
         {
             returnUrl ??= Url.Content("~/");
 
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            //ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
-            if (ModelState.IsValid)
+            User user = await _signInManager.UserManager.FindByNameAsync(Input.UserNameEmail)
+                            ?? await _signInManager.UserManager.FindByEmailAsync(Input.UserNameEmail);
+
+			if (ModelState.IsValid)
             {
-				var result = await _signInManager.PasswordSignInAsync(userName: Input.UserName, Input.Password, false, false);
+				var result = await _signInManager.PasswordSignInAsync(user, Input.Password, false, false);
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
                     return LocalRedirect(returnUrl);
-                }
-                if (result.RequiresTwoFactor)
-                {
-                    return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
-                }
-                if (result.IsLockedOut)
-                {
-                    _logger.LogWarning("User account locked out.");
-                    return RedirectToPage("./Lockout");
                 }
                 else
                 {
@@ -131,7 +123,6 @@ namespace AssetInsight.Areas.Identity.Pages.Account
                 }
             }
 
-            // If we got this far, something failed, redisplay form
             return Page();
         }
     }

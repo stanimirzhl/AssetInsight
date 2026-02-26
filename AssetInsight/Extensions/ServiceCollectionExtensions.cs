@@ -75,7 +75,17 @@ namespace AssetInsight.Extensions
 
 			services.AddControllersWithViews()
 				.AddViewLocalization()
-				.AddDataAnnotationsLocalization();
+				.AddDataAnnotationsLocalization(options =>
+				{
+					options.DataAnnotationLocalizerProvider = (type, factory) =>
+					{
+						var typeName = type.DeclaringType != null
+							? $"{type.DeclaringType.Name}.{type.Name}"
+							: type.Name;
+
+						return factory.Create(typeName, type.Assembly.GetName().Name);
+					};
+				});
 
 			return services;
 		}

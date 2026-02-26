@@ -41,3 +41,39 @@ function updateTimeAgo() {
 updateTimeAgo();
 
 setInterval(updateTimeAgo, 60000);
+
+const passwordInput = document.getElementById('password');
+const rules = {
+    length: document.getElementById('rule-length'),
+    uppercase: document.getElementById('rule-uppercase'),
+    lowercase: document.getElementById('rule-lowercase'),
+    number: document.getElementById('rule-number'),
+    special: document.getElementById('rule-special')
+};
+
+passwordInput.addEventListener('input', () => {
+    const value = passwordInput.value;
+
+    const validations = {
+        length: value.length >= 6,
+        uppercase: /[A-Z]/.test(value),
+        lowercase: /[a-z]/.test(value),
+        number: /[0-9]/.test(value),
+        special: /[^a-zA-Z0-9]/.test(value)
+    };
+
+    let allValid = true;
+
+    for (const [key, valid] of Object.entries(validations)) {
+        if (valid) {
+            rules[key].classList.add('text-success');
+            rules[key].classList.remove('text-danger');
+        } else {
+            rules[key].classList.add('text-danger');
+            rules[key].classList.remove('text-success');
+            allValid = false;
+        }
+    }
+
+    document.getElementById('password-rules').style.display = allValid ? 'none' : 'block';
+});
