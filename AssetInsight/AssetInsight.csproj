@@ -24,8 +24,29 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Resources\Models\LoginModel\InputModel.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>InputModel.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Resources\Models\RegisterModel\InputModel.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>InputModel.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Update="Resources\Models\LoginModel\InputModel.bg.resx">
+      <Generator></Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\Models\LoginModel\InputModel.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>InputModel.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\Models\RegisterModel\InputModel.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>InputModel.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Update="Resources\Views\Home\Index.bg.resx">
       <SubType>Designer</SubType>

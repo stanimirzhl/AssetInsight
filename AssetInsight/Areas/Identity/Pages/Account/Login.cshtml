@@ -20,15 +20,14 @@
                     <span asp-validation-for="Input.UserNameEmail" class="text-danger"></span>
                 </div>
                 <div class="form-floating mb-3">
-                    <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="password" />
+                    <input asp-for="Input.Password" id="password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="password" />
                     <label asp-for="Input.Password" class="form-label">@Localizer["Password"]</label>
-                    <ul id="password-rules">
-                        <li id="rule-length">At least 6 characters</li>
-                        <li id="rule-uppercase">At least one uppercase letter</li>
-                        <li id="rule-lowercase">At least one lowercase letter</li>
-                        <li id="rule-number">At least one number</li>
-                        <li id="rule-special">At least one special character</li>
-                    </ul>
+                    <span id="togglePassword"
+                          class="position-absolute top-50 end-0 translate-middle-y me-3"
+                          style="cursor: pointer;">
+                        <i id="eyeIcon" class="bi bi-eye-slash"></i>
+                    </span>
+                    <span asp-validation-for="Input.Password" class="text-danger"></span>
                 </div>
 
                 <div>

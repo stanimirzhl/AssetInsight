@@ -117,22 +117,43 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="UserNameEmail_Required" xml:space="preserve">
-    <value>{0} е задължително.</value>
+  <data name="RegisterButton" xml:space="preserve">
+    <value>Registrarse</value>
   </data>
-  <data name="UserNameEmail_StringLength" xml:space="preserve">
-    <value>{0} трябва да бъде между {2} и {1} символа.</value>
+  <data name="RegisterTitle" xml:space="preserve">
+    <value>Crea una nueva cuenta.</value>
   </data>
-  <data name="Password_Required" xml:space="preserve">
-    <value>{0} е задължителна.</value>
+  <data name="FirstName" xml:space="preserve">
+    <value>Nombre</value>
   </data>
-  <data name="UserNameEmail" xml:space="preserve">
-    <value>Потребителско име</value>
+  <data name="LastName" xml:space="preserve">
+    <value>Apellido</value>
+  </data>
+  <data name="UserName" xml:space="preserve">
+    <value>Nombre de usuario</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>Correo electrónico</value>
   </data>
   <data name="Password" xml:space="preserve">
-    <value>Парола</value>
+    <value>Contraseña</value>
   </data>
-  <data name="InvalidLoginAttempt" xml:space="preserve">
-    <value>Невалиден опит за вход.</value>
+  <data name="ConfirmPassword" xml:space="preserve">
+    <value>Confirmar contraseña</value>
+  </data>
+  <data name="PasswordRequiresDigit" xml:space="preserve">
+    <value>La contraseña debe contener al menos un número.</value>
+  </data>
+  <data name="PasswordRequiresLower" xml:space="preserve">
+    <value>La contraseña debe contener al menos una letra minúscula.</value>
+  </data>
+  <data name="PasswordRequiresNonAlphanumeric" xml:space="preserve">
+    <value>La contraseña debe contener al menos un carácter especial.</value>
+  </data>
+  <data name="PasswordRequiresUpper" xml:space="preserve">
+    <value>La contraseña debe contener al menos una letra mayúscula.</value>
+  </data>
+  <data name="PasswordTooShort" xml:space="preserve">
+    <value>La contraseña debe tener al menos {0} caracteres.</value>
   </data>
 </root>

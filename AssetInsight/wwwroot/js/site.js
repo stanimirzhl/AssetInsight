@@ -15,6 +15,18 @@
         });
 });
 
+
+const passwordInput = document.getElementById("password");
+const icon = document.getElementById("eyeIcon");
+
+icon.addEventListener("click", function () {
+    passwordInput.type =
+        passwordInput.type === "password" ? "text" : "password";
+
+    icon.classList.toggle("bi-eye");
+    icon.classList.toggle("bi-eye-slash");
+});
+
 function timeAgo(date) {
     const seconds = Math.floor((new Date() - new Date(date)) / 1000);
     if (seconds < 60) return seconds + " sec. ago";
@@ -42,7 +54,6 @@ updateTimeAgo();
 
 setInterval(updateTimeAgo, 60000);
 
-const passwordInput = document.getElementById('password');
 const rules = {
     length: document.getElementById('rule-length'),
     uppercase: document.getElementById('rule-uppercase'),
@@ -51,11 +62,12 @@ const rules = {
     special: document.getElementById('rule-special')
 };
 
+const registerButton = document.getElementById('registerSubmit');
 passwordInput.addEventListener('input', () => {
     const value = passwordInput.value;
 
     const validations = {
-        length: value.length >= 6,
+        length: value.length >= 5,
         uppercase: /[A-Z]/.test(value),
         lowercase: /[a-z]/.test(value),
         number: /[0-9]/.test(value),
@@ -76,4 +88,5 @@ passwordInput.addEventListener('input', () => {
     }
 
     document.getElementById('password-rules').style.display = allValid ? 'none' : 'block';
+    registerButton.disabled = !allValid;
 });

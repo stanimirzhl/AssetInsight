@@ -117,22 +117,43 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="UserNameEmail_Required" xml:space="preserve">
-    <value>{0} е задължително.</value>
+  <data name="RegisterButton" xml:space="preserve">
+    <value>Регистрация</value>
   </data>
-  <data name="UserNameEmail_StringLength" xml:space="preserve">
-    <value>{0} трябва да бъде между {2} и {1} символа.</value>
+  <data name="RegisterTitle" xml:space="preserve">
+    <value>Създайте нов акаунт.</value>
   </data>
-  <data name="Password_Required" xml:space="preserve">
-    <value>{0} е задължителна.</value>
+  <data name="FirstName" xml:space="preserve">
+    <value>Име</value>
   </data>
-  <data name="UserNameEmail" xml:space="preserve">
+  <data name="LastName" xml:space="preserve">
+    <value>Фамилия</value>
+  </data>
+  <data name="UserName" xml:space="preserve">
     <value>Потребителско име</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>Имейл</value>
   </data>
   <data name="Password" xml:space="preserve">
     <value>Парола</value>
   </data>
-  <data name="InvalidLoginAttempt" xml:space="preserve">
-    <value>Невалиден опит за вход.</value>
+  <data name="ConfirmPassword" xml:space="preserve">
+    <value>Потвърдете паролата</value>
+  </data>
+  <data name="PasswordRequiresDigit" xml:space="preserve">
+    <value>Паролата трябва да съдържа поне една цифра.</value>
+  </data>
+  <data name="PasswordRequiresLower" xml:space="preserve">
+    <value>Паролата трябва да съдържа поне една малка буква.</value>
+  </data>
+  <data name="PasswordRequiresNonAlphanumeric" xml:space="preserve">
+    <value>Паролата трябва да съдържа поне един специален символ.</value>
+  </data>
+  <data name="PasswordRequiresUpper" xml:space="preserve">
+    <value>Паролата трябва да съдържа поне една главна буква.</value>
+  </data>
+  <data name="PasswordTooShort" xml:space="preserve">
+    <value>Паролата трябва да е поне {0} символа.</value>
   </data>
 </root>

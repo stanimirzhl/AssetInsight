@@ -117,22 +117,43 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="UserNameEmail_Required" xml:space="preserve">
-    <value>{0} е задължително.</value>
+  <data name="RegisterButton" xml:space="preserve">
+    <value>Registrieren</value>
   </data>
-  <data name="UserNameEmail_StringLength" xml:space="preserve">
-    <value>{0} трябва да бъде между {2} и {1} символа.</value>
+  <data name="RegisterTitle" xml:space="preserve">
+    <value>Erstellen Sie ein neues Konto.</value>
   </data>
-  <data name="Password_Required" xml:space="preserve">
-    <value>{0} е задължителна.</value>
+  <data name="FirstName" xml:space="preserve">
+    <value>Vorname</value>
   </data>
-  <data name="UserNameEmail" xml:space="preserve">
-    <value>Потребителско име</value>
+  <data name="LastName" xml:space="preserve">
+    <value>Nachname</value>
+  </data>
+  <data name="UserName" xml:space="preserve">
+    <value>Benutzername</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>E-Mail</value>
   </data>
   <data name="Password" xml:space="preserve">
-    <value>Парола</value>
+    <value>Passwort</value>
   </data>
-  <data name="InvalidLoginAttempt" xml:space="preserve">
-    <value>Невалиден опит за вход.</value>
+  <data name="ConfirmPassword" xml:space="preserve">
+    <value>Passwort bestätigen</value>
+  </data>
+  <data name="PasswordRequiresDigit" xml:space="preserve">
+    <value>Das Passwort muss mindestens eine Zahl enthalten.</value>
+  </data>
+  <data name="PasswordRequiresLower" xml:space="preserve">
+    <value>Das Passwort muss mindestens einen Kleinbuchstaben enthalten.</value>
+  </data>
+  <data name="PasswordRequiresNonAlphanumeric" xml:space="preserve">
+    <value>Das Passwort muss mindestens ein Sonderzeichen enthalten.</value>
+  </data>
+  <data name="PasswordRequiresUpper" xml:space="preserve">
+    <value>Das Passwort muss mindestens einen Großbuchstaben enthalten.</value>
+  </data>
+  <data name="PasswordTooShort" xml:space="preserve">
+    <value>Das Passwort muss mindestens {0} Zeichen lang sein.</value>
   </data>
 </root>

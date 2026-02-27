@@ -1,64 +1,103 @@
 ﻿@page
+@using Microsoft.AspNetCore.Mvc.Localization
 @model RegisterModel
+@inject IViewLocalizer Localizer
+@inject Microsoft.Extensions.Options.IOptions<IdentityOptions> IdentityOptions
+
 @{
     ViewData["Title"] = "Register";
 }
 
 <h1>@ViewData["Title"]</h1>
 
-<div class="row">
-    <div class="col-md-4">
-        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-            <h2>Create a new account.</h2>
-            <hr />
-            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                <label asp-for="Input.Email">Email</label>
-                <span asp-validation-for="Input.Email" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label asp-for="Input.Password">Password</label>
-                <span asp-validation-for="Input.Password" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label asp-for="Input.ConfirmPassword">Confirm Password</label>
-                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
-            </div>
-            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
-        </form>
-    </div>
-    <div class="col-md-6 col-md-offset-2">
-        <section>
-            <h3>Use another service to register.</h3>
-            <hr />
-            @{
-                if ((Model.ExternalLogins?.Count ?? 0) == 0)
-                {
-                    <div>
-                        <p>
-                            There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">article
-                            about setting up this ASP.NET application to support logging in via external services</a>.
-                        </p>
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body p-4">
+                <h2 class="text-center mb-4">@Localizer["RegisterTitle"]</h2>
+
+                <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.FirstName" class="form-control" placeholder="First Name" />
+                        <label asp-for="Input.FirstName">@Localizer["FirstName"]</label>
+                        <span asp-validation-for="Input.FirstName" class="text-danger small"></span>
                     </div>
-                }
-                else
-                {
-                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
-                        <div>
-                            <p>
-                                @foreach (var provider in Model.ExternalLogins!)
-                                {
-                                    <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
-                                }
-                            </p>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.LastName" class="form-control" placeholder="Last Name" />
+                        <label asp-for="Input.LastName">@Localizer["LastName"]</label>
+                        <span asp-validation-for="Input.LastName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.UserName" class="form-control" placeholder="UserName" />
+                        <label asp-for="Input.UserName">@Localizer["UserName"]</label>
+                        <span asp-validation-for="Input.UserName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.Email" class="form-control" autocomplete="username" placeholder="Email" />
+                        <label asp-for="Input.Email">@Localizer["Email"]</label>
+                        <span asp-validation-for="Input.Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-floating position-relative">
+                            <input asp-for="Input.Password" id="password"
+                                   type="password"
+                                   class="form-control pe-5"
+                                   autocomplete="new-password"
+                                   placeholder="Password" />
+                            <label asp-for="Input.Password">@Localizer["Password"]</label>
+
+                            <span id="togglePassword" class="position-absolute top-50 end-0 translate-middle-y me-3"
+                                  style="cursor: pointer;">
+                                <i id="eyeIcon" class="bi bi-eye-slash"></i>
+                            </span>
                         </div>
-                    </form>
-                }
-            }
-        </section>
+
+                        <div id="password-rules" class="bg-light rounded-3 p-3 mt-2 small" style="display:none;">
+                            <ul class="mb-0 ps-3">
+                                <li id="rule-length" class="text-danger">@string.Format(Localizer["PasswordTooShort"].Value, IdentityOptions.Value.Password.RequiredLength.ToString())</li>
+                                <li id="rule-uppercase" class="text-danger">@Localizer["PasswordRequiresUpper"]</li>
+                                <li id="rule-lowercase" class="text-danger">@Localizer["PasswordRequiresLower"]</li>
+                                <li id="rule-number" class="text-danger">@Localizer["PasswordRequiresDigit"]</li>
+                                <li id="rule-special" class="text-danger">@Localizer["PasswordRequiresNonAlphanumeric"]</li>
+                            </ul>
+                        </div>
+
+                        <span asp-validation-for="Input.Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="form-floating position-relative">
+                            <input asp-for="Input.ConfirmPassword"
+                                   type="password"
+                                   id="password"
+                                   class="form-control pe-5"
+                                   autocomplete="new-password"
+                                   placeholder="Confirm Password" />
+                            <label asp-for="Input.ConfirmPassword">@Localizer["ConfirmPassword"]</label>
+
+                            <span id="togglePassword" class="position-absolute top-50 end-0 translate-middle-y me-3" 
+                                    style="cursor: pointer;">
+                                <i id="eyeIcon" class="bi bi-eye-slash"></i>
+                            </span>
+                        </div>
+
+                        <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
+                    </div>
+
+                    <button id="registerSubmit" type="submit" class="w-100 btn btn-primary btn-lg rounded-3">
+                        @Localizer["RegisterButton"]
+                    </button>
+
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 

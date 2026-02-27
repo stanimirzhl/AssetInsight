@@ -31,55 +31,30 @@ namespace AssetInsight.Areas.Identity.Pages.Account
             _logger = logger;
         }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         [BindProperty]
         public InputModel Input { get; set; }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public IList<AuthenticationScheme> ExternalLogins { get; set; }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public string ReturnUrl { get; set; }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         [TempData]
         public string ErrorMessage { get; set; }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public class InputModel
         {
-			/// <summary>
-			///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-			///     directly from your code. This API may change or be removed in future releases.
-			/// </summary>
+
 			[Required(ErrorMessageResourceName = "UserNameEmail_Required", ErrorMessageResourceType = typeof(Resources.Models.LoginModel.InputModel))]
-			[StringLength(25, MinimumLength = 4, ErrorMessageResourceName = "UserNameEmail_StringLength", ErrorMessageResourceType = typeof(Resources.Models.LoginModel.InputModel))]
-			[Display(Name = "UserNameEmail", ResourceType = typeof(Resources.Models.LoginModel.InputModel))]
+			[StringLength(UserNameMaxLength, MinimumLength = UserNameMinLength, ErrorMessageResourceName = "UserNameEmail_StringLength", ErrorMessageResourceType = typeof(Resources.Models.LoginModel.InputModel))]
+			[Display(Name = "UserNameEmail",
+                ResourceType = typeof(Resources.Models.LoginModel.InputModel))]
 			public string UserNameEmail { get; set; }
 
-			/// <summary>
-			///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-			///     directly from your code. This API may change or be removed in future releases.
-			/// </summary>
 			[Required(ErrorMessageResourceName = "Password_Required", ErrorMessageResourceType = typeof(Resources.Models.LoginModel.InputModel))]
-			[Display(Name = "Password", ResourceType = typeof(Resources.Models.LoginModel.InputModel))]
 			[DataType(DataType.Password)]
-            public string Password { get; set; }
+			[Display(Name = "Password",
+				ResourceType = typeof(Resources.Models.LoginModel.InputModel))]
+			public string Password { get; set; }
         }
 
         public async Task OnGetAsync(string returnUrl = null)
@@ -91,7 +66,6 @@ namespace AssetInsight.Areas.Identity.Pages.Account
 
             returnUrl ??= Url.Content("~/");
 
-            // Clear the existing external cookie to ensure a clean login process
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
 
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
@@ -108,6 +82,12 @@ namespace AssetInsight.Areas.Identity.Pages.Account
             User user = await _signInManager.UserManager.FindByNameAsync(Input.UserNameEmail)
                             ?? await _signInManager.UserManager.FindByEmailAsync(Input.UserNameEmail);
 
+            if(user is null)
+            {
+				ModelState.AddModelError(string.Empty, Resources.Models.LoginModel.InputModel.InvalidLoginAttempt);
+				return Page();
+			}
+
 			if (ModelState.IsValid)
             {
 				var result = await _signInManager.PasswordSignInAsync(user, Input.Password, false, false);
@@ -118,7 +98,7 @@ namespace AssetInsight.Areas.Identity.Pages.Account
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    ModelState.AddModelError(string.Empty, Resources.Models.LoginModel.InputModel.InvalidLoginAttempt);
                     return Page();
                 }
             }

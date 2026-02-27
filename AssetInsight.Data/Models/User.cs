@@ -21,10 +21,6 @@ namespace AssetInsight.Data.Models
 
 		public UserStatus Status { get; set; } = UserStatus.Pending;
 
-		[Required]
-		[MaxLength(UserNameMaxLength)]
-		public string UserName { get; set; }
-
 		public virtual ICollection<SavedPost> SavedPosts { get; set; } = new HashSet<SavedPost>();
 		public virtual ICollection<PostReaction> PostReactions { get; set; } = new HashSet<PostReaction>();
 
