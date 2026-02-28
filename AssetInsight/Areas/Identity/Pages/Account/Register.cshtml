@@ -53,8 +53,9 @@
                                    placeholder="Password" />
                             <label asp-for="Input.Password">@Localizer["Password"]</label>
 
-                            <span id="togglePassword" class="position-absolute top-50 end-0 translate-middle-y me-3"
-                                  style="cursor: pointer;">
+                            <span class="toggle-password position-absolute top-50 end-0 translate-middle-y me-3"
+                                  style="cursor: pointer;"
+                                  data-target="password">
                                 <i id="eyeIcon" class="bi bi-eye-slash"></i>
                             </span>
                         </div>
@@ -69,27 +70,32 @@
                             </ul>
                         </div>
 
-                        <span asp-validation-for="Input.Password" class="text-danger small"></span>
+                        <span id="validation" asp-validation-for="Input.Password" class="text-danger small"></span>
                     </div>
 
                     <div class="mb-4">
                         <div class="form-floating position-relative">
                             <input asp-for="Input.ConfirmPassword"
                                    type="password"
-                                   id="password"
+                                   id="confirmPassword"
                                    class="form-control pe-5"
                                    autocomplete="new-password"
                                    placeholder="Confirm Password" />
                             <label asp-for="Input.ConfirmPassword">@Localizer["ConfirmPassword"]</label>
 
-                            <span id="togglePassword" class="position-absolute top-50 end-0 translate-middle-y me-3" 
-                                    style="cursor: pointer;">
+                            <span class="toggle-password position-absolute top-50 end-0 translate-middle-y me-3"
+                                  style="cursor: pointer;"
+                                  data-target="confirmPassword">
                                 <i id="eyeIcon" class="bi bi-eye-slash"></i>
                             </span>
                         </div>
 
                         <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
                     </div>
+
+                    <small>
+                        @Localizer["HaveAccount"]<a asp-area="Identity" asp-page="/Account/Login" style="text-decoration: none">@Localizer["LoginMessage"]</a>
+                    </small>
 
                     <button id="registerSubmit" type="submit" class="w-100 btn btn-primary btn-lg rounded-3">
                         @Localizer["RegisterButton"]

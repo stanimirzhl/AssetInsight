@@ -132,4 +132,10 @@
   <data name="UserName" xml:space="preserve">
     <value>Username</value>
   </data>
+  <data name="NoAccount" xml:space="preserve">
+    <value>Don’t have an account?</value>
+  </data>
+  <data name="RegisterMessage" xml:space="preserve">
+    <value>Register now!</value>
+  </data>
 </root>

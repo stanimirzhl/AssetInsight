@@ -156,4 +156,10 @@
   <data name="PasswordTooShort" xml:space="preserve">
     <value>La contraseña debe tener al menos {0} caracteres.</value>
   </data>
+  <data name="HaveAccount" xml:space="preserve">
+    <value>¿Ya tienes una cuenta?</value>
+  </data>
+  <data name="LoginMessage" xml:space="preserve">
+    <value>Inicia sesión ahora!</value>
+  </data>
 </root>

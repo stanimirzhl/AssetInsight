@@ -156,4 +156,10 @@
   <data name="PasswordTooShort" xml:space="preserve">
     <value>Паролата трябва да е поне {0} символа.</value>
   </data>
+  <data name="HaveAccount" xml:space="preserve">
+    <value>Имате акаунт?</value>
+  </data>
+  <data name="LoginMessage" xml:space="preserve">
+    <value>Влезте сега!</value>
+  </data>
 </root>

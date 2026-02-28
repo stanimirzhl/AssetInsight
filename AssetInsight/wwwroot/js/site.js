@@ -16,15 +16,18 @@
 });
 
 
-const passwordInput = document.getElementById("password");
-const icon = document.getElementById("eyeIcon");
+document.querySelectorAll(".toggle-password").forEach(toggle => {
+    toggle.addEventListener("click", function () {
 
-icon.addEventListener("click", function () {
-    passwordInput.type =
-        passwordInput.type === "password" ? "text" : "password";
+        const targetId = this.dataset.target;
+        const input = document.getElementById(targetId);
+        const icon = this.querySelector("i");
 
-    icon.classList.toggle("bi-eye");
-    icon.classList.toggle("bi-eye-slash");
+        input.type = input.type === "password" ? "text" : "password";
+
+        icon.classList.toggle("bi-eye");
+        icon.classList.toggle("bi-eye-slash");
+    });
 });
 
 function timeAgo(date) {
@@ -63,8 +66,12 @@ const rules = {
 };
 
 const registerButton = document.getElementById('registerSubmit');
+const passwordInput = document.getElementById('password');
 passwordInput.addEventListener('input', () => {
     const value = passwordInput.value;
+
+    const validation = document.getElementById('validation');
+    validation.style.display = 'none';
 
     const validations = {
         length: value.length >= 5,
@@ -87,6 +94,13 @@ passwordInput.addEventListener('input', () => {
         }
     }
 
-    document.getElementById('password-rules').style.display = allValid ? 'none' : 'block';
-    registerButton.disabled = !allValid;
+    const rulesBox = document.getElementById('password-rules');
+
+    if (value === "") {
+        rulesBox.style.display = 'none';
+        registerButton.disabled = true; 
+    } else {
+        rulesBox.style.display = allValid ? 'none' : 'block';
+        registerButton.disabled = !allValid;
+    }
 });

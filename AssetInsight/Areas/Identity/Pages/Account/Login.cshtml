@@ -22,13 +22,17 @@
                 <div class="form-floating mb-3">
                     <input asp-for="Input.Password" id="password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="password" />
                     <label asp-for="Input.Password" class="form-label">@Localizer["Password"]</label>
-                    <span id="togglePassword"
-                          class="position-absolute top-50 end-0 translate-middle-y me-3"
-                          style="cursor: pointer;">
+                    <span class="toggle-password position-absolute top-50 end-0 translate-middle-y me-3"
+                          style="cursor: pointer;"
+                          data-target="password">                         
                         <i id="eyeIcon" class="bi bi-eye-slash"></i>
                     </span>
                     <span asp-validation-for="Input.Password" class="text-danger"></span>
                 </div>
+
+                <small>
+                    @Localizer["NoAccount"] <a asp-area="Identity" asp-page="/Account/Register" style="text-decoration: none">@Localizer["RegisterMessage"]</a>
+                </small>
 
                 <div>
                     <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary">@Localizer["LoginButton"]</button>
