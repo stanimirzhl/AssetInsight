@@ -104,6 +104,16 @@
                 </form>
             </div>
         </div>
+        <aside>
+            <div class="text-center mt-3">
+                @foreach (var provider in Model.ExternalLogins)
+                {
+                    <button type="submit" name="provider" value="@provider.Name">
+                        Log in with @provider.DisplayName
+                    </button>
+                }
+            </div>
+        </aside>
     </div>
 </div>
 

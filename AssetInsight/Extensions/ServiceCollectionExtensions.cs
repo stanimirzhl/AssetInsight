@@ -38,6 +38,29 @@ namespace AssetInsight.Extensions
 			return services;
 		}
 
+		public static IServiceCollection Authentication(this IServiceCollection services,
+			IConfiguration configuration)
+		{
+			services.AddAuthentication()
+				.AddGoogle(options =>
+				{
+					options.ClientId = configuration["Authentication:Google:ClientId"];
+					options.ClientSecret = configuration["Authentication:Google:ClientSecret"];
+				})
+				.AddFacebook(options =>
+				{
+					options.AppId = configuration["Authentication:Facebook:ClientId"];
+					options.AppSecret = configuration["Authentication:Facebook:ClientSecret"];
+				})
+				.AddMicrosoftAccount(options =>
+				{
+					options.ClientId = configuration["Authentication:Microsoft:ClientId"];
+					options.ClientSecret = configuration["Authentication:Microsoft:ClientSecret"];
+				});
+
+			return services;
+		}
+
 		public static IServiceCollection AddIdentityServices(this IServiceCollection services)
 		{
 			services.AddDefaultIdentity<User>(options =>
@@ -109,8 +132,8 @@ namespace AssetInsight.Extensions
 
 				RequestCultureProviders = new List<IRequestCultureProvider>
 				{
-					 new CookieRequestCultureProvider(),            
-				     new AcceptLanguageHeaderRequestCultureProvider()
+					 new CookieRequestCultureProvider(),
+					 new AcceptLanguageHeaderRequestCultureProvider()
 				}
 			};
 
