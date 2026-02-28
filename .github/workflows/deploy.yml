@@ -8,6 +8,17 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+
+    env:
+      Authentication__Google__ClientId: ${{ secrets.GOOGLE_CLIENT_ID }}
+      Authentication__Google__ClientSecret: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+
+      Authentication__Facebook__ClientId: ${{ secrets.FACEBOOK_CLIENT_ID }}
+      Authentication__Facebook__ClientSecret: ${{ secrets.FACEBOOK_CLIENT_SECRET }}
+
+      Authentication__Microsoft__ClientId: ${{ secrets.MICROSOFT_CLIENT_ID }}
+      Authentication__Microsoft__ClientSecret: ${{ secrets.MICROSOFT_CLIENT_SECRET }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -27,9 +38,6 @@ jobs:
         run: dotnet publish -c Release -o ./publish
 
       - name: Deploy (example to server)
-        env:
-          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
         run: |
-          echo "Secrets are now available as environment variables"
-          # Example: SCP, Azure CLI, or any deploy command
+          echo "External login secrets injected successfully"
+          # Your real deploy command here (SCP / Azure / etc)
