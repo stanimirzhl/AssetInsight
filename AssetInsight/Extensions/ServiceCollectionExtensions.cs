@@ -3,6 +3,8 @@ using AssetInsight.Core.Interfaces;
 using AssetInsight.Data;
 using AssetInsight.Data.Common;
 using AssetInsight.Data.Models;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
@@ -42,23 +44,45 @@ namespace AssetInsight.Extensions
 			IConfiguration configuration)
 		{
 			services.AddAuthentication()
-				.AddGoogle(options =>
-				{
-					options.ClientId = configuration["Authentication:Google:ClientId"];
-					options.ClientSecret = configuration["Authentication:Google:ClientSecret"];
-				})
-				.AddFacebook(options =>
-				{
-					options.AppId = configuration["Authentication:Facebook:ClientId"];
-					options.AppSecret = configuration["Authentication:Facebook:ClientSecret"];
-				})
-				.AddMicrosoftAccount(options =>
-				{
-					options.ClientId = configuration["Authentication:Microsoft:ClientId"];
-					options.ClientSecret = configuration["Authentication:Microsoft:ClientSecret"];
-				});
+			.AddCookie()
+			.AddGoogle(options =>
+			{
+				options.ClientId = configuration["Authentication:Google:ClientId"];
+				options.ClientSecret = configuration["Authentication:Google:ClientSecret"];
+
+				options.Events.OnRemoteFailure = HandleRemoteFailure;
+			})
+			.AddFacebook(options =>
+			{
+				options.AppId = configuration["Authentication:Facebook:ClientId"];
+				options.AppSecret = configuration["Authentication:Facebook:ClientSecret"];
+
+				options.Events.OnRemoteFailure = HandleRemoteFailure;
+			})
+			.AddMicrosoftAccount(options =>
+			{
+				options.ClientId = configuration["Authentication:Microsoft:ClientId"];
+				options.ClientSecret = configuration["Authentication:Microsoft:ClientSecret"];
+
+				options.Events.OnRemoteFailure = HandleRemoteFailure;
+			});
 
 			return services;
+		}
+
+		private static Task HandleRemoteFailure(RemoteFailureContext context)
+		{
+			var logger = context.HttpContext.RequestServices
+				.GetRequiredService<ILoggerFactory>()
+				.CreateLogger("ExternalAuthentication");
+
+			logger.LogWarning(context.Failure,
+				"External authentication failed for provider {Provider}",
+				context.Scheme.Name);
+
+			context.Response.Redirect("/auth-failed");
+			context.HandleResponse();
+			return Task.CompletedTask;
 		}
 
 		public static IServiceCollection AddIdentityServices(this IServiceCollection services)
@@ -71,6 +95,7 @@ namespace AssetInsight.Extensions
 				options.Password.RequireLowercase = true;
 				options.Password.RequireUppercase = true;
 				options.Password.RequiredLength = 5;
+				options.User.RequireUniqueEmail = true;
 			})
 			.AddRoles<IdentityRole>()
 			.AddEntityFrameworkStores<AssetInsightDbContext>();
@@ -91,6 +116,15 @@ namespace AssetInsight.Extensions
 			return services;
 		}
 
+		public static IServiceCollection AddRouteOptions(this IServiceCollection services)
+		{
+			services.Configure<RouteOptions>(options =>
+			 {
+				 options.LowercaseUrls = true;
+			 });
+
+			return services;
+		}
 		public static IServiceCollection Localization(this IServiceCollection services)
 		{
 			services.AddLocalization(options =>
@@ -140,6 +174,7 @@ namespace AssetInsight.Extensions
 			return app.UseRequestLocalization(localizationOptions);
 		}
 
+
 		public static async Task ApplyDatabaseMigrations(this IHost app)
 		{
 			using IServiceScope scope = app.Services.CreateScope();
@@ -149,5 +184,7 @@ namespace AssetInsight.Extensions
 
 			await db.Database.MigrateAsync();
 		}
+
+
 	}
 }

@@ -135,4 +135,7 @@
   <data name="InvalidLoginAttempt" xml:space="preserve">
     <value>Intento de inicio de sesión no válido.</value>
   </data>
+  <data name="ExternalLoginFailed" xml:space="preserve">
+    <value>Falló el inicio de sesión externo. Por favor, inténtelo de nuevo.</value>
+  </data>
 </root>

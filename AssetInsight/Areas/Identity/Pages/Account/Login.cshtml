@@ -1,5 +1,6 @@
 ﻿@page
 @using Microsoft.AspNetCore.Mvc.Localization
+@using static AssetInsight.Data.Constants.DataConstants
 @model LoginModel
 @inject IViewLocalizer Localizer
 
@@ -7,40 +8,79 @@
     ViewData["Title"] = "Log in";
 }
 
-<h1>@Localizer["LoginTitle"]</h1>
-<div class="row">
-    <div class="col-md-4">
-        <section>
-            <form id="account" method="post">
-                <hr />
-                <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-                <div class="form-floating mb-3">
-                    <input asp-for="Input.UserNameEmail" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                    <label asp-for="Input.UserNameEmail" class="form-label">@Localizer["UserName"]</label>
-                    <span asp-validation-for="Input.UserNameEmail" class="text-danger"></span>
-                </div>
-                <div class="form-floating mb-3">
-                    <input asp-for="Input.Password" id="password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="password" />
-                    <label asp-for="Input.Password" class="form-label">@Localizer["Password"]</label>
-                    <span class="toggle-password position-absolute top-50 end-0 translate-middle-y me-3"
-                          style="cursor: pointer;"
-                          data-target="password">                         
-                        <i id="eyeIcon" class="bi bi-eye-slash"></i>
-                    </span>
-                    <span asp-validation-for="Input.Password" class="text-danger"></span>
-                </div>
+@if (Model.Step == LoginStep.Login)
+{
+    <h1>@Localizer["LoginTitle"]</h1>
+    <div class="row">
+        <div class="col-md-4">
+            <section>
+                <form id="account" method="post">
+                    <hr />
+                    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.UserNameEmail" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                        <label asp-for="Input.UserNameEmail" class="form-label">@Localizer["UserName"]</label>
+                        <span asp-validation-for="Input.UserNameEmail" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.Password" id="password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="password" />
+                        <label asp-for="Input.Password" class="form-label">@Localizer["Password"]</label>
+                        <span class="toggle-password position-absolute top-50 end-0 translate-middle-y me-3"
+                              style="cursor: pointer;"
+                              data-target="password">
+                            <i id="eyeIcon" class="bi bi-eye-slash"></i>
+                        </span>
+                        <span asp-validation-for="Input.Password" class="text-danger"></span>
+                    </div>
 
-                <small>
-                    @Localizer["NoAccount"] <a asp-area="Identity" asp-page="/Account/Register" style="text-decoration: none">@Localizer["RegisterMessage"]</a>
-                </small>
+                    <small>
+                        @Localizer["NoAccount"] <a asp-route-returnUrl="@Model.ReturnUrl" asp-area="Identity" asp-page="/Account/Register" style="text-decoration: none">@Localizer["RegisterMessage"]</a>
+                    </small>
 
-                <div>
-                    <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary">@Localizer["LoginButton"]</button>
-                </div>
-            </form>
-        </section>
+                    <div>
+                        <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary">@Localizer["LoginButton"]</button>
+                    </div>
+                </form>
+            </section>
+        </div>
     </div>
-</div>
+}
+else if (Model.Step == LoginStep.ConfirmLink)
+{
+    <div class="card">
+        <div class="card-body text-center">
+            <h4>Account already exists</h4>
+            <p>@Model.ConfirmLink.UserName</p>
+            <p>@Model.ConfirmLink.Email</p>
+
+            <form method="post" asp-page-handler="ConfirmLink">
+                <input type="hidden" asp-for="ConfirmLink.Email" />
+                <input type="hidden" asp-for="ConfirmLink.Provider" />
+                <button class="btn btn-primary w-100">Yes, this is my account</button>
+            </form>
+        </div>
+    </div>
+}
+else if (Model.Step == LoginStep.EnterPassword)
+{
+    <div class="card">
+        <div class="card-body">
+            <h4>Enter your password to link account</h4>
+
+            <form method="post" asp-page-handler="LinkExternal">
+                <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                <input type="hidden" asp-for="LinkExternal.Email" />
+
+                <div class="mb-3">
+                    <input asp-for="LinkExternal.Password" class="form-control" />
+                    <span asp-validation-for="LinkExternal.Password"></span>
+                </div>
+
+                <button class="btn btn-success w-100">Link Account</button>
+            </form>
+        </div>
+    </div>
+}
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

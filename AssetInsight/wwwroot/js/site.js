@@ -15,6 +15,16 @@
         });
 });
 
+//function updateTheme() {
+//    const colorMode = window.matchMedia("(prefers-color-scheme: dark)").matches ?
+//        "dark" :
+//        "light";
+//    document.querySelector("html").setAttribute("data-bs-theme", colorMode);
+//}
+
+//updateTheme()
+
+//window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateTheme)
 
 document.querySelectorAll(".toggle-password").forEach(toggle => {
     toggle.addEventListener("click", function () {
@@ -28,6 +38,44 @@ document.querySelectorAll(".toggle-password").forEach(toggle => {
         icon.classList.toggle("bi-eye");
         icon.classList.toggle("bi-eye-slash");
     });
+});
+
+const toggleBtn = document.getElementById("themeToggle");
+const html = document.documentElement;
+const navbar = document.getElementById("mainNavbar");
+
+function applyNavbarTheme(theme) {
+    if (theme === "dark") {
+        navbar.classList.remove("bg-white", "navbar-light");
+        navbar.classList.add("bg-dark", "navbar-dark");
+    } else {
+        navbar.classList.remove("bg-dark", "navbar-dark");
+        navbar.classList.add("bg-white", "navbar-light");
+    }
+}
+
+function getPreferredTheme() {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) return savedTheme;
+
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+}
+
+function setTheme(theme) {
+    html.setAttribute("data-bs-theme", theme);
+    localStorage.setItem("theme", theme);
+    applyNavbarTheme(theme);
+}
+
+const initialTheme = getPreferredTheme();
+setTheme(initialTheme);
+
+toggleBtn.addEventListener("click", () => {
+    const current = html.getAttribute("data-bs-theme");
+    const newTheme = current === "dark" ? "light" : "dark";
+    setTheme(newTheme);
 });
 
 function timeAgo(date) {

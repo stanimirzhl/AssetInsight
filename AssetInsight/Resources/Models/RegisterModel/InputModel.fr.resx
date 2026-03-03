@@ -180,19 +180,22 @@
   <data name="UserNameAlreadyExists" xml:space="preserve">
     <value>Ce nom d'utilisateur est déjà utilisé.</value>
   </data>
-	<data name="PasswordRequiresDigit" xml:space="preserve">
+  <data name="PasswordRequiresDigit" xml:space="preserve">
     <value>Le mot de passe doit contenir au moins un chiffre.</value>
   </data>
-	<data name="PasswordRequiresLower" xml:space="preserve">
+  <data name="PasswordRequiresLower" xml:space="preserve">
     <value>Le mot de passe doit contenir au moins une lettre minuscule.</value>
   </data>
-	<data name="PasswordRequiresNonAlphanumeric" xml:space="preserve">
+  <data name="PasswordRequiresNonAlphanumeric" xml:space="preserve">
     <value>Le mot de passe doit contenir au moins un caractère spécial.</value>
   </data>
-	<data name="PasswordRequiresUpper" xml:space="preserve">
+  <data name="PasswordRequiresUpper" xml:space="preserve">
     <value>Le mot de passe doit contenir au moins une lettre majuscule.</value>
   </data>
-	<data name="PasswordTooShort" xml:space="preserve">
+  <data name="PasswordTooShort" xml:space="preserve">
     <value>Le mot de passe doit contenir au moins {0} caractères.</value>
+  </data>
+  <data name="EmailInAccessable" xml:space="preserve">
+    <value>L'accès à l'e-mail est nécessaire pour terminer la connexion. Veuillez vous inscrire avec votre e-mail pour continuer.</value>
   </data>
 </root>

@@ -133,6 +133,15 @@ namespace AssetInsight.Resources.Models.RegisterModel {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Email access is required to complete the login. Please register with your email to continue..
+        /// </summary>
+        public static string EmailInAccessable {
+            get {
+                return ResourceManager.GetString("EmailInAccessable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to First Name.
         /// </summary>
         public static string FirstName {

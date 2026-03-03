@@ -135,4 +135,7 @@
   <data name="InvalidLoginAttempt" xml:space="preserve">
     <value>Ungültiger Anmeldeversuch.</value>
   </data>
+  <data name="ExternalLoginFailed" xml:space="preserve">
+    <value>Externe Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.</value>
+  </data>
 </root>

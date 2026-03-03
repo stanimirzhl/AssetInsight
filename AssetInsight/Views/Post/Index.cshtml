@@ -9,6 +9,151 @@
 }
 
 <link rel="stylesheet" href="~/css/forum.css" />
+<style>
+    /* Base font */
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background-color: var(--bs-body-bg);
+        color: var(--bs-body-color);
+        transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    /* Forum container */
+    .forum-container {
+        width: 800px;
+        margin: 30px auto;
+    }
+
+    /* Header */
+    .forum-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    /* Create button */
+    .btn-create {
+        background-color: #ff4500; /* stays orange for branding */
+        color: white;
+        padding: 8px 15px;
+        border-radius: 20px;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .post-card {
+        display: flex;
+        background-color: var(--bs-body-emphasis); /* adapts to dark/light */
+        border-radius: 8px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        transition: transform 0.2s ease-in-out, background-color 0.2s ease;
+    }
+
+        .post-card:hover {
+            transform: translateY(-2px);
+        }
+
+    /* Dark theme */
+    [data-bs-theme="dark"] .post-card:hover {
+        background-color: rgba(255, 255, 255, 0.06);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+    }
+
+    /* Light theme */
+    [data-bs-theme="light"] .post-card:hover {
+        background-color: rgba(0, 0, 0, 0.08);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+        /* Locked post */
+        .post-card.locked {
+            opacity: 0.75;
+        }
+
+    /* Votes */
+    .post-votes {
+        width: 60px;
+        background-color: var(--bs-secondary-bg);
+        text-align: center;
+        padding: 15px 5px;
+        font-weight: bold;
+        color: #ff4500; /* leave orange for votes */
+    }
+
+    /* Post content */
+    .post-content {
+        flex: 1;
+        padding: 15px;
+    }
+
+    /* Meta info */
+    .post-meta {
+        font-size: 0.85rem;
+        color: var(--bs-body-tertiary);
+        margin-bottom: 8px;
+    }
+
+    /* Locked badge */
+    .locked-badge {
+        color: #d9534f;
+        font-weight: 600;
+        margin-left: 10px;
+    }
+
+    /* Post title */
+    .post-content h4 {
+        margin: 5px 0 10px 0;
+    }
+
+        .post-content h4 a {
+            text-decoration: none;
+            color: var(--bs-body-color); /* adapts to theme */
+        }
+
+            .post-content h4 a:hover {
+                color: #ff4500; /* accent color */
+            }
+
+    /* Post preview */
+    .post-preview {
+        font-size: 0.95rem;
+        color: var(--bs-body-color);
+        margin-bottom: 10px;
+    }
+
+    /* Footer */
+    .post-footer {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        font-size: 0.85rem;
+        color: var(--bs-body-tertiary);
+    }
+
+    /* Save button */
+    .btn-save {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--bs-body-tertiary);
+    }
+
+        .btn-save:hover {
+            color: #ff4500;
+        }
+
+    /* Tags */
+    .tag {
+        background-color: var(--bs-secondary-bg);
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        margin-right: 5px;
+    }
+
+</style>
 
 <div class="forum-container">
     <div class="forum-header">

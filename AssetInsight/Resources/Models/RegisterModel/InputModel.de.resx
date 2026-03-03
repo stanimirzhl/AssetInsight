@@ -180,19 +180,22 @@
   <data name="UserNameAlreadyExists" xml:space="preserve">
     <value>Dieser Benutzername wird bereits verwendet.</value>
   </data>
-	<data name="PasswordRequiresDigit" xml:space="preserve">
+  <data name="PasswordRequiresDigit" xml:space="preserve">
     <value>Das Passwort muss mindestens eine Zahl enthalten.</value>
   </data>
-	<data name="PasswordRequiresLower" xml:space="preserve">
+  <data name="PasswordRequiresLower" xml:space="preserve">
     <value>Das Passwort muss mindestens einen Kleinbuchstaben enthalten.</value>
   </data>
-	<data name="PasswordRequiresNonAlphanumeric" xml:space="preserve">
+  <data name="PasswordRequiresNonAlphanumeric" xml:space="preserve">
     <value>Das Passwort muss mindestens ein Sonderzeichen enthalten.</value>
   </data>
-	<data name="PasswordRequiresUpper" xml:space="preserve">
+  <data name="PasswordRequiresUpper" xml:space="preserve">
     <value>Das Passwort muss mindestens einen Großbuchstaben enthalten.</value>
   </data>
-	<data name="PasswordTooShort" xml:space="preserve">
+  <data name="PasswordTooShort" xml:space="preserve">
     <value>Das Passwort muss mindestens {0} Zeichen lang sein.</value>
+  </data>
+  <data name="EmailInAccessable" xml:space="preserve">
+    <value>E-Mail-Zugriff ist erforderlich, um die Anmeldung abzuschließen. Bitte registrieren Sie sich mit Ihrer E-Mail-Adresse, um fortzufahren.</value>
   </data>
 </root>

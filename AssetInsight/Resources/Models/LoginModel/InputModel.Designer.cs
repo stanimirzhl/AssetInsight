@@ -61,6 +61,15 @@ namespace AssetInsight.Resources.Models.LoginModel {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to External login failed. Please try again..
+        /// </summary>
+        public static string ExternalLoginFailed {
+            get {
+                return ResourceManager.GetString("ExternalLoginFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid login attempt..
         /// </summary>
         public static string InvalidLoginAttempt {

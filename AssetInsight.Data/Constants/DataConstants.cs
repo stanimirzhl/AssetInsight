@@ -48,5 +48,12 @@ namespace AssetInsight.Data.Constants
 				Approved = 1
 			}
 		}
+
+		public enum LoginStep
+		{
+			Login = 0,
+			ConfirmLink = 1,
+			EnterPassword = 2
+		}
 	}
 }

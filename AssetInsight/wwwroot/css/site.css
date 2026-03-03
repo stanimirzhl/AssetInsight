@@ -21,47 +21,65 @@ body {
     margin-bottom: 60px;
 }
 
+/* Language dropdown */
 .lang-select {
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
     padding: 12px 45px 12px 15px; /* extra right for arrow */
-    background-color: #ffffff;
-    border: 2px solid #e0e0e0;
+    background-color: var(--bs-body-bg); /* theme-aware */
+    border: 2px solid var(--bs-border-color, #e0e0e0);
     border-radius: 10px;
     font-family: inherit;
     font-size: 14px;
-    color: #333;
+    color: var(--bs-body-color); /* theme-aware text */
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    /* Custom arrow using SVG */
     background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%228%22%20height%3D%225%22%20viewBox%3D%220%200%208%205%22%20xmlns%3D%22http://www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M0%200l4%205%204-5H0z%22%20fill%3D%22%23666%22/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 15px center;
     background-size: 8px 5px;
 }
 
-    /* Hover effect: border & shadow */
     .lang-select:hover {
         border-color: #888;
         box-shadow: 0 4px 10px rgba(0,0,0,0.08);
     }
 
-    /* Focus effect: glowing blue border */
     .lang-select:focus {
         outline: none;
         border-color: #007bff;
         box-shadow: 0 0 8px rgba(0, 123, 255, 0.4);
     }
 
-    /* Add slight “press” effect when opening dropdown */
     .lang-select:active {
         transform: scale(0.98);
         transition: transform 0.1s ease;
     }
 
-    /* Optional: smooth text color transition */
     .lang-select option {
         transition: color 0.2s ease;
+        background-color: var(--bs-body-bg); /* option adapts */
+        color: var(--bs-body-color);
+    }
+
+.btn-outline-secondary {
+    transition: all 0.2s ease;
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    border-color: rgba(255,255,255,0.1);
+}
+
+    .btn-outline-secondary:hover {
+        /*background-color: var(--bs-secondary-bg);*/
+        color: var(--bs-body-color);
+        background-color: #2a3547;
+        border-color: rgba(255,255,255,0.2);
+    }
+
+    .btn-outline-secondary svg {
+        width: 24px;
+        height: 24px;
+        flex-shrink: 0;
     }

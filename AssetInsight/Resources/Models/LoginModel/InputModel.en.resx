@@ -135,4 +135,7 @@
   <data name="InvalidLoginAttempt" xml:space="preserve">
     <value>Invalid login attempt.</value>
   </data>
+  <data name="ExternalLoginFailed" xml:space="preserve">
+    <value>External login failed. Please try again.</value>
+  </data>
 </root>

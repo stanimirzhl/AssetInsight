@@ -3,6 +3,7 @@
 #nullable disable
 
 using AssetInsight.Data.Models;
+using AssetInsight.Models.Account;
 using Humanizer.Localisation;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -11,11 +12,13 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using static AssetInsight.Data.Constants.DataConstants;
 using static AssetInsight.Data.Constants.DataConstants.UserConstants;
 
 namespace AssetInsight.Areas.Identity.Pages.Account
@@ -41,7 +44,36 @@ namespace AssetInsight.Areas.Identity.Pages.Account
         [TempData]
         public string ErrorMessage { get; set; }
 
-        public class InputModel
+		public LoginStep Step { get; set; } = LoginStep.Login;
+
+		[BindProperty]
+		public ConfirmLinkModel ConfirmLink { get; set; }
+
+		[BindProperty]
+		public LinkExternalModel LinkExternal { get; set; }
+
+		public class ConfirmLinkModel
+		{
+			public string Email { get; set; }
+			public string UserName { get; set; }
+			public string Provider { get; set; }
+			public string ProviderDisplayName { get; set; }
+			public string ReturnUrl { get; set; }
+		}
+
+		public class LinkExternalModel
+		{
+			public string Email { get; set; }
+
+			[Required]
+			[DataType(DataType.Password)]
+			public string Password { get; set; }
+
+			public string Provider { get; set; }
+			public string ReturnUrl { get; set; }
+		}
+
+		public class InputModel
         {
 
 			[Required(ErrorMessageResourceName = "UserNameEmail_Required", ErrorMessageResourceType = typeof(Resources.Models.LoginModel.InputModel))]
@@ -66,18 +98,83 @@ namespace AssetInsight.Areas.Identity.Pages.Account
 
             returnUrl ??= Url.Content("~/");
 
-            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+			if (!TempData.ContainsKey("ExternalLogin"))
+			{
+				await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+			}
 
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+			ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
             ReturnUrl = returnUrl;
-        }
 
-        public async Task<IActionResult> OnPostAsync(string returnUrl = null)
+			if (TempData.TryGetValue("ExternalLogin", out var data))
+			{
+				var dto = JsonConvert.DeserializeObject<ExternalLoginTempDto>(data.ToString());
+
+				Step = LoginStep.ConfirmLink;
+
+				ConfirmLink = new ConfirmLinkModel
+				{
+					Email = dto.Email,
+					UserName = dto.UserName,
+					Provider = dto.Provider,
+					ProviderDisplayName = dto.ProviderDisplayName
+				};
+
+				ReturnUrl = dto.ReturnUrl;
+
+				//TempData.Keep("ExternalLogin");
+			}
+		}
+
+		public IActionResult OnPostConfirmLink()
+		{
+			Step = LoginStep.EnterPassword;
+
+			LinkExternal = new LinkExternalModel
+			{
+				Email = ConfirmLink.Email,
+				Provider = ConfirmLink.Provider,
+				
+			};
+
+			//TempData.Keep("ExternalLogin");
+
+			return Page();
+		}
+
+		public async Task<IActionResult> OnPostLinkExternalAsync()
+		{
+			var user = await _signInManager.UserManager.FindByEmailAsync(LinkExternal.Email);
+
+			if (user == null)
+				return RedirectToPage("/Account/Login", new { area = "Identity" });
+
+			var validPassword = await _signInManager.UserManager.CheckPasswordAsync(user, LinkExternal.Password);
+
+			if (!validPassword)
+			{
+				ModelState.AddModelError(string.Empty, Resources.Models.LoginModel.InputModel.InvalidLoginAttempt);
+				Step = LoginStep.EnterPassword;
+				//TempData.Keep("ExternalLogin");
+				return RedirectToPage();
+			}
+
+			var info = await _signInManager.GetExternalLoginInfoAsync();
+			if (info == null)
+				return RedirectToPage("/Account/Login", new { area = "Identity" });
+
+			await _signInManager.UserManager.AddLoginAsync(user, info);
+			await _signInManager.SignInAsync(user, false);
+
+			return LocalRedirect(ReturnUrl ?? "~/");
+		}
+
+		public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             returnUrl ??= Url.Content("~/");
 
-            //ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
             User user = await _signInManager.UserManager.FindByNameAsync(Input.UserNameEmail)
                             ?? await _signInManager.UserManager.FindByEmailAsync(Input.UserNameEmail);

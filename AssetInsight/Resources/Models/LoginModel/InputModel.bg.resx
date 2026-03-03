@@ -135,4 +135,7 @@
   <data name="InvalidLoginAttempt" xml:space="preserve">
     <value>Невалиден опит за вход.</value>
   </data>
+  <data name="ExternalLoginFailed" xml:space="preserve">
+    <value>Външното влизане не бе успешно. Моля, опитайте отново.</value>
+  </data>
 </root>

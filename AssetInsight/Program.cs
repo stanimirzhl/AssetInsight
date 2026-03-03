@@ -8,6 +8,7 @@ builder.Services.AddDbServices(builder.Configuration);
 builder.Services.AddCoreServices();
 builder.Services.AddIdentityServices();
 builder.Services.Authentication(builder.Configuration);
+builder.Services.AddRouteOptions();
 builder.Services.AddAccountOptions();
 builder.Services.Localization();
 
@@ -38,7 +39,11 @@ app.MapControllers();
 app.MapRazorPages();
 
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+	name: "areas",
+	pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+
+app.MapControllerRoute(
+	name: "default",
+	pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();

@@ -135,4 +135,7 @@
   <data name="InvalidLoginAttempt" xml:space="preserve">
     <value>Tentative de connexion invalide.</value>
   </data>
+  <data name="ExternalLoginFailed" xml:space="preserve">
+    <value>Échec de la connexion externe. Veuillez réessayer.</value>
+  </data>
 </root>
