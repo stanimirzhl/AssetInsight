@@ -8,41 +8,201 @@
     ViewData["Title"] = "Log in";
 }
 
+<style>
+
+    :root {
+        --form-accent: var(--bs-primary);
+        --form-accent-rgb: var(--bs-primary-rgb);
+    }
+
+    [data-bs-theme="dark"] {
+        --form-accent: var(--bs-warning);
+        --form-accent-rgb: var(--bs-warning-rgb);
+    }
+
+    body {
+        background-color: var(--bs-body-bg);
+        color: var(--bs-body-color);
+        transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .form-control {
+        background-color: var(--bs-body-bg);
+        border: 1px solid var(--bs-border-color);
+        color: var(--bs-body-color);
+        transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+        .form-control:focus {
+            background-color: var(--bs-body-emphasis);
+            border-color: var(--form-accent);
+            color: var(--bs-body-color);
+            box-shadow: 0 0 0 0.25rem rgba(var(--form-accent-rgb), .25);
+        }
+
+    .form-floating > label {
+        color: var(--form-accent);
+        transition: color 0.2s ease;
+    }
+
+    a {
+        color: var(--form-accent)
+    }
+
+    a:hover{
+            text-decoration: underline !important;
+    }
+
+    .form-floating > input:focus + label {
+        color: var(--form-accent);
+    }
+
+    .btn-primary {
+        font-weight: 600;
+        transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+
+    .provider-btn {
+        background-color: var(--bs-body-bg);
+        border: 1px solid var(--bs-border-color);
+        color: var(--bs-body-color);
+        transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .provider-btn:hover {
+            background-color: var(--bs-body-emphasis);
+            border-color: var(--form-accent);
+            color: var(--form-accent);
+        }
+
+    .vr {
+        border-color: var(--bs-border-color);
+    }
+
+    .card-hover {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+</style>
+
 @if (Model.Step == LoginStep.Login)
 {
     <h1>@Localizer["LoginTitle"]</h1>
-    <div class="row">
-        <div class="col-md-4">
-            <section>
-                <form id="account" method="post">
-                    <hr />
-                    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-                    <div class="form-floating mb-3">
-                        <input asp-for="Input.UserNameEmail" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                        <label asp-for="Input.UserNameEmail" class="form-label">@Localizer["UserName"]</label>
-                        <span asp-validation-for="Input.UserNameEmail" class="text-danger"></span>
-                    </div>
-                    <div class="form-floating mb-3">
-                        <input asp-for="Input.Password" id="password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="password" />
-                        <label asp-for="Input.Password" class="form-label">@Localizer["Password"]</label>
-                        <span class="toggle-password position-absolute top-50 end-0 translate-middle-y me-3"
-                              style="cursor: pointer;"
-                              data-target="password">
-                            <i id="eyeIcon" class="bi bi-eye-slash"></i>
-                        </span>
-                        <span asp-validation-for="Input.Password" class="text-danger"></span>
-                    </div>
+    <div class="row justify-content-center align-items-start g-4">
+        @if ((Model.ExternalLogins?.Count ?? 0) > 0)
+        {
+            <div class="card col-md-4 rounded-4 border-secondary shadow-sm card-hover">
+                <div class="card-body p-4">
+                    <form id="account" method="post">
+                        <hr />
+                        <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="Input.UserNameEmail" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                            <label asp-for="Input.UserNameEmail" class="form-label">@Localizer["UserName"]</label>
+                            <span asp-validation-for="Input.UserNameEmail" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-floating position-relative">
+                                <input asp-for="Input.Password" id="password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="Password" />
+                                <label asp-for="Input.Password" class="form-label">@Localizer["Password"]</label>
+                                <span class="toggle-password position-absolute top-50 end-0 translate-middle-y me-3"
+                                      style="cursor: pointer;"
+                                      data-target="password">
+                                    <i id="eyeIcon" class="bi bi-eye-slash"></i>
+                                </span>
+                            </div>
+                            <span asp-validation-for="Input.Password" class="text-danger"></span>
+                        </div>
 
-                    <small>
-                        @Localizer["NoAccount"] <a asp-route-returnUrl="@Model.ReturnUrl" asp-area="Identity" asp-page="/Account/Register" style="text-decoration: none">@Localizer["RegisterMessage"]</a>
-                    </small>
+                        <small>
+                            @Localizer["NoAccount"] <a asp-route-returnUrl="@Model.ReturnUrl" asp-area="Identity" asp-page="/Account/Register" style="text-decoration: none">@Localizer["RegisterMessage"]</a>
+                        </small>
 
-                    <div>
-                        <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary">@Localizer["LoginButton"]</button>
+                        <div>
+                            <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary">@Localizer["LoginButton"]</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-auto d-none d-lg-flex align-items-start">
+                <div class="vr" style="min-height: 400px; border-color: #444;"></div>
+            </div>
+
+            <div class="col-md-5 col-lg-4">
+                <div class="card rounded-4 border-secondary shadow-sm d-flex flex-column card-hover">
+                    <div class="card-body p-4">
+                        <h5 class="text-center mb-4 text-muted">
+                            @Localizer["OrSignUpWith"]
+                        </h5>
+
+                        <div class="d-grid gap-3">
+                            @foreach (var provider in Model.ExternalLogins!)
+                            {
+                                <form method="post"
+                                      asp-route-returnUrl="@Model.ReturnUrl"
+                                      asp-controller="Auth"
+                                      asp-action="ExternalLogin">
+
+                                    <button type="submit"
+                                            name="provider"
+                                            value="@provider.Name"
+                                            class="btn d-flex align-items-center justify-content-center rounded-3 py-2 provider-btn">
+
+                                        @Model.GetProviderSvg(provider.Name)
+                                        <span class="ms-2">@provider.DisplayName</span>
+                                    </button>
+                                </form>
+                            }
+                        </div>
+
                     </div>
-                </form>
-            </section>
-        </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="card rounded-4 border-secondary shadow-sm card-hover">
+                <div class="card-body p-4">
+                    <form id="account" method="post">
+                        <hr />
+                        <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="Input.UserNameEmail" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                            <label asp-for="Input.UserNameEmail" class="form-label">@Localizer["UserName"]</label>
+                            <span asp-validation-for="Input.UserNameEmail" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-floating position-relative">
+                                <input asp-for="Input.Password" id="password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="Password" />
+                                <label asp-for="Input.Password" class="form-label">@Localizer["Password"]</label>
+                                <span class="toggle-password position-absolute top-50 end-0 translate-middle-y me-3"
+                                      style="cursor: pointer;"
+                                      data-target="password">
+                                    <i id="eyeIcon" class="bi bi-eye-slash"></i>
+                                </span>
+                            </div>
+                            <span asp-validation-for="Input.Password" class="text-danger"></span>
+                        </div>
+
+                        <small>
+                            @Localizer["NoAccount"] <a asp-route-returnUrl="@Model.ReturnUrl" asp-area="Identity" asp-page="/Account/Register" style="text-decoration: none">@Localizer["RegisterMessage"]</a>
+                        </small>
+
+                        <div>
+                            <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary">@Localizer["LoginButton"]</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        }
     </div>
 }
 else if (Model.Step == LoginStep.ConfirmLink)
@@ -72,8 +232,17 @@ else if (Model.Step == LoginStep.EnterPassword)
                 <input type="hidden" asp-for="LinkExternal.Email" />
 
                 <div class="mb-3">
-                    <input asp-for="LinkExternal.Password" class="form-control" />
-                    <span asp-validation-for="LinkExternal.Password"></span>
+                    <div class="form-floating position-relative">
+                        <input asp-for="LinkExternal.LinkPassword" placeholder="password" id="password" class="form-control" autocomplete="current-password" aria-required="true" />
+                        <label asp-for="LinkExternal.LinkPassword" class="form-label">@Localizer["Password"]</label>
+                        <span class="toggle-password position-absolute top-50 end-0 translate-middle-y me-3"
+                              style="cursor: pointer;"
+                              data-target="password">
+                            <i id="eyeIcon" class="bi bi-eye-slash"></i>
+                        </span>
+
+                    </div>
+                    <span asp-validation-for="LinkExternal.LinkPassword" class="text-danger"></span>
                 </div>
 
                 <button class="btn btn-success w-100">Link Account</button>

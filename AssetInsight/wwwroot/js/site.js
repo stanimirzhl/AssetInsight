@@ -1,4 +1,12 @@
-﻿document.getElementById('cultureSelect').addEventListener('change', function () {
+﻿function getPreferredTheme() {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) return savedTheme;
+
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+}
+document.getElementById('cultureSelect').addEventListener('change', function () {
     const culture = this.value;
     const returnUrl = window.location.pathname;
 
@@ -54,14 +62,6 @@ function applyNavbarTheme(theme) {
     }
 }
 
-function getPreferredTheme() {
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme) return savedTheme;
-
-    return window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light";
-}
 
 function setTheme(theme) {
     html.setAttribute("data-bs-theme", theme);

@@ -3,12 +3,14 @@ using AssetInsight.Core.Interfaces;
 using AssetInsight.Data;
 using AssetInsight.Data.Common;
 using AssetInsight.Data.Models;
+using Azure.Identity;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 using System.Globalization;
 
 namespace AssetInsight.Extensions
@@ -40,6 +42,26 @@ namespace AssetInsight.Extensions
 			return services;
 		}
 
+		public static IServiceCollection AddAzureKeyVaultSecrets(this IServiceCollection services, IConfigurationBuilder configBuilder)
+		{
+			const string keyVaultUrl = "https://external-logins.vault.azure.net/";
+
+			configBuilder.AddAzureKeyVault(new Uri(keyVaultUrl), new DefaultAzureCredential());
+
+			return services;
+		}
+		public static void MapGoogleOAuthSecret(this IConfiguration configuration)
+		{
+			var secretJson = configuration["GoogleOAuth:Credentials"];
+			if (string.IsNullOrWhiteSpace(secretJson))
+				throw new InvalidOperationException("GoogleOAuth secret not found in Key Vault.");
+
+			var secretObj = JObject.Parse(secretJson);
+
+			configuration["Authentication:Google:ClientId"] = secretObj["ClientId"]?.ToString().Trim();
+			configuration["Authentication:Google:ClientSecret"] = secretObj["ClientSecret"]?.ToString();
+		}
+
 		public static IServiceCollection Authentication(this IServiceCollection services,
 			IConfiguration configuration)
 		{
@@ -49,23 +71,23 @@ namespace AssetInsight.Extensions
 			{
 				options.ClientId = configuration["Authentication:Google:ClientId"];
 				options.ClientSecret = configuration["Authentication:Google:ClientSecret"];
-
-				options.Events.OnRemoteFailure = HandleRemoteFailure;
-			})
-			.AddFacebook(options =>
-			{
-				options.AppId = configuration["Authentication:Facebook:ClientId"];
-				options.AppSecret = configuration["Authentication:Facebook:ClientSecret"];
-
-				options.Events.OnRemoteFailure = HandleRemoteFailure;
-			})
-			.AddMicrosoftAccount(options =>
-			{
-				options.ClientId = configuration["Authentication:Microsoft:ClientId"];
-				options.ClientSecret = configuration["Authentication:Microsoft:ClientSecret"];
-
+			
 				options.Events.OnRemoteFailure = HandleRemoteFailure;
 			});
+			//.AddFacebook(options =>
+			//{
+			//	options.AppId = configuration["Authentication:Facebook:ClientId"];
+			//	options.AppSecret = configuration["Authentication:Facebook:ClientSecret"];
+			//
+			//	options.Events.OnRemoteFailure = HandleRemoteFailure;
+			//})
+			//.AddMicrosoftAccount(options =>
+			//{
+			//	options.ClientId = configuration["Authentication:Microsoft:ClientId"];
+			//	options.ClientSecret = configuration["Authentication:Microsoft:ClientSecret"];
+			//
+			//	options.Events.OnRemoteFailure = HandleRemoteFailure;
+			//});
 
 			return services;
 		}

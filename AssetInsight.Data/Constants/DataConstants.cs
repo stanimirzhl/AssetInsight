@@ -36,7 +36,7 @@ namespace AssetInsight.Data.Constants
 			public const int UserLastNameMaxLength = 30;
 			public const int UserLastNameMinLength = 2;
 
-			public const int UserNameMaxLength = 25;
+			public const int UserNameMaxLength = 50;
 			public const int UserNameMinLength = 4;
 
 			public const int UserPasswordMaxLength = 25;

@@ -162,4 +162,7 @@
   <data name="LoginMessage" xml:space="preserve">
     <value>Log in now!</value>
   </data>
+  <data name="OrSignUpWith" xml:space="preserve">
+    <value>Or Sign Up With</value>
+  </data>
 </root>

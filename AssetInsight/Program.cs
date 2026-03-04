@@ -7,6 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbServices(builder.Configuration);
 builder.Services.AddCoreServices();
 builder.Services.AddIdentityServices();
+builder.Services.AddAzureKeyVaultSecrets(builder.Configuration);
+builder.Configuration.MapGoogleOAuthSecret();
 builder.Services.Authentication(builder.Configuration);
 builder.Services.AddRouteOptions();
 builder.Services.AddAccountOptions();

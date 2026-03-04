@@ -138,4 +138,7 @@
   <data name="RegisterMessage" xml:space="preserve">
     <value>Jetzt registrieren!</value>
   </data>
+  <data name="OrSignUpWith" xml:space="preserve">
+    <value>Oder registrieren mit</value>
+  </data>
 </root>

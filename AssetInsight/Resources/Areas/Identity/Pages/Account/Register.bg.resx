@@ -162,4 +162,7 @@
   <data name="LoginMessage" xml:space="preserve">
     <value>Влезте сега!</value>
   </data>
+  <data name="OrSignUpWith" xml:space="preserve">
+    <value>Или се регистрирайте с</value>
+  </data>
 </root>
