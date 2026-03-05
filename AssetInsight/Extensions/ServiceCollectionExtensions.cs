@@ -50,44 +50,118 @@ namespace AssetInsight.Extensions
 
 			return services;
 		}
+
 		public static void MapGoogleOAuthSecret(this IConfiguration configuration)
 		{
 			var secretJson = configuration["GoogleOAuth:Credentials"];
 			if (string.IsNullOrWhiteSpace(secretJson))
 				throw new InvalidOperationException("GoogleOAuth secret not found in Key Vault.");
 
+			if (secretJson is null)
+			{
+				return;
+			}
+
 			var secretObj = JObject.Parse(secretJson);
 
 			configuration["Authentication:Google:ClientId"] = secretObj["ClientId"]?.ToString().Trim();
-			configuration["Authentication:Google:ClientSecret"] = secretObj["ClientSecret"]?.ToString();
+			configuration["Authentication:Google:ClientSecret"] = secretObj["ClientSecret"]?.ToString().Trim();
+		}
+
+		public static void MapFacebookOAuthSecret(this IConfiguration configuration)
+		{
+			var secretJson = configuration["FacebookOAuth:Credentials"];
+			if (string.IsNullOrWhiteSpace(secretJson))
+				throw new InvalidOperationException("FacebookOAuth secret not found in Key Vault.");
+
+			if(secretJson is null)
+			{
+				return;
+			}
+
+			var secretObj = JObject.Parse(secretJson);
+
+			configuration["Authentication:Facebook:ClientId"] = secretObj["ClientId"]?.ToString().Trim();
+			configuration["Authentication:Facebook:ClientSecret"] = secretObj["ClientSecret"]?.ToString().Trim();
+		}
+
+		public static void MapMicrosoftOAuthSecret(this IConfiguration configuration)
+		{
+			var secretJson = configuration["MicrosoftOAuth:Credentials"];
+			if (string.IsNullOrWhiteSpace(secretJson))
+				 new InvalidOperationException("MicrosoftOAuth secret not found in Key Vault.");
+
+			if (secretJson is null)
+			{
+				return;
+			}
+
+			var secretObj = JObject.Parse(secretJson);
+
+			configuration["Authentication:Microsoft:ClientId"] = secretObj["ClientId"]?.ToString().Trim();
+			configuration["Authentication:Microsoft:ClientSecret"] = secretObj["ClientSecret"]?.ToString().Trim();
 		}
 
 		public static IServiceCollection Authentication(this IServiceCollection services,
 			IConfiguration configuration)
 		{
-			services.AddAuthentication()
-			.AddCookie()
-			.AddGoogle(options =>
+			using var serviceProvider = services.BuildServiceProvider();
+			var log = serviceProvider.GetRequiredService<ILogger<IServiceCollection>>();
+
+			var authBuilder = services.AddAuthentication()
+								.AddCookie();
+
+			if (string.IsNullOrEmpty(configuration["Authentication:Google:ClientId"]) ||
+				string.IsNullOrEmpty(configuration["Authentication:Google:ClientSecret"]))
 			{
-				options.ClientId = configuration["Authentication:Google:ClientId"];
-				options.ClientSecret = configuration["Authentication:Google:ClientSecret"];
-			
-				options.Events.OnRemoteFailure = HandleRemoteFailure;
-			});
-			//.AddFacebook(options =>
-			//{
-			//	options.AppId = configuration["Authentication:Facebook:ClientId"];
-			//	options.AppSecret = configuration["Authentication:Facebook:ClientSecret"];
-			//
-			//	options.Events.OnRemoteFailure = HandleRemoteFailure;
-			//})
-			//.AddMicrosoftAccount(options =>
-			//{
-			//	options.ClientId = configuration["Authentication:Microsoft:ClientId"];
-			//	options.ClientSecret = configuration["Authentication:Microsoft:ClientSecret"];
-			//
-			//	options.Events.OnRemoteFailure = HandleRemoteFailure;
-			//});
+				log.LogError("Google authentication configuration is missing.");
+			}
+			else
+			{
+				authBuilder
+					.AddGoogle(options =>
+					{
+						options.ClientId = configuration["Authentication:Google:ClientId"];
+						options.ClientSecret = configuration["Authentication:Google:ClientSecret"];
+
+						options.Events.OnRemoteFailure = HandleRemoteFailure;
+					});
+			}
+
+			if (string.IsNullOrEmpty(configuration["Authentication:Facebook:ClientId"]) ||
+				string.IsNullOrEmpty(configuration["Authentication:Facebook:ClientSecret"]))
+			{
+				log.LogError("Facebook authentication configuration is missing.");
+			}
+			else
+			{
+				authBuilder
+					.AddFacebook(options =>
+					{
+						options.AppId = configuration["Authentication:Facebook:ClientId"];
+						options.AppSecret = configuration["Authentication:Facebook:ClientSecret"];
+
+						options.Events.OnRemoteFailure = HandleRemoteFailure;
+					});
+			}
+
+			if (string.IsNullOrEmpty(configuration["Authentication:Microsoft:ClientId"]) ||
+				string.IsNullOrEmpty(configuration["Authentication:Microsoft:ClientSecret"]))
+			{
+				log.LogError("Microsoft authentication configuration is missing.");
+			}
+			else
+			{
+				authBuilder
+					.AddMicrosoftAccount(options =>
+					{
+						options.ClientId = configuration["Authentication:Microsoft:ClientId"];
+						options.ClientSecret = configuration["Authentication:Microsoft:ClientSecret"];
+
+						options.Events.OnRemoteFailure = HandleRemoteFailure;
+					});
+			}
+
 
 			return services;
 		}

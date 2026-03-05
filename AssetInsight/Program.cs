@@ -9,6 +9,8 @@ builder.Services.AddCoreServices();
 builder.Services.AddIdentityServices();
 builder.Services.AddAzureKeyVaultSecrets(builder.Configuration);
 builder.Configuration.MapGoogleOAuthSecret();
+builder.Configuration.MapFacebookOAuthSecret();
+builder.Configuration.MapMicrosoftOAuthSecret();
 builder.Services.Authentication(builder.Configuration);
 builder.Services.AddRouteOptions();
 builder.Services.AddAccountOptions();
