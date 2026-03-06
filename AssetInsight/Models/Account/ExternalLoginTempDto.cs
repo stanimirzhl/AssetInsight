@@ -7,5 +7,6 @@
 		public string Provider { get; set; }
 		public string ProviderDisplayName { get; set; }
 		public string ReturnUrl { get; set; }
+		public string FullName { get; set; }
 	}
 }

@@ -66,13 +66,14 @@ namespace AssetInsight.Controllers
 						UserName = existingUser.UserName,
 						Provider = info.LoginProvider,
 						ProviderDisplayName = info.ProviderDisplayName,
-						ReturnUrl = returnUrl
+						ReturnUrl = returnUrl,
+						FullName = info.Principal.FindFirstValue(ClaimTypes.GivenName) + " " + info.Principal.FindFirstValue(ClaimTypes.Surname)
 					};
 
 					string serializedDto = JsonConvert.SerializeObject(dto);
 
 					TempData["ExternalLogin"] = serializedDto;
-
+					TempData["Data"] = "something";
 					return RedirectToPage("/Account/Login", new { area = "Identity" });
 				}
 			}

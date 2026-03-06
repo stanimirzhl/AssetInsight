@@ -1,0 +1,142 @@
+﻿body {
+    background: #0e0e0e;
+    color: #ccc;
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.account-card {
+    min-height: 100vh; /* at least full viewport */
+    display: flex;
+    justify-content: center; /* horizontal centering */
+    align-items: center; /* vertical centering */
+    padding-top: 80px; /* space for navbar */
+    padding-bottom: 60px; /* space for footer */
+    box-sizing: border-box;
+}
+
+.card-box {
+    width: 420px;
+    max-width: 100%;
+    background: #1b1b1b;
+    padding: 40px;
+    border-radius: 6px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.6);
+    box-sizing: border-box;
+    text-align: center;
+    /* Remove scrollbars */
+    max-height: none; /* let it grow naturally */
+}
+
+.avatar {
+    width: 70px;
+    height: 70px;
+    background: #d9d9d9;
+    border-radius: 50%;
+    margin: -70px auto 20px auto;
+}
+
+.title {
+    font-size: 16px;
+    margin-bottom: 25px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #333;
+    flex-wrap: wrap; /* allows children to wrap if needed */
+}
+
+.label {
+    color: #999;
+    flex: 1 1 40%;
+    min-width: 100px;
+    text-align: left;
+}
+
+.value {
+    color: #fff;
+    text-align: right;
+    word-break: break-word; /* break long words/emails */
+    white-space: normal; /* allow wrapping */
+    max-width: 60%; /* limit width to avoid pushing label */
+    overflow-wrap: break-word; /* more robust word break */
+}
+
+.btn-confirm {
+    margin-top: 25px;
+    width: 100%;
+    background: #e07b00;
+    border: none;
+    padding: 12px;
+    color: white;
+    font-weight: bold;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+    .btn-confirm:hover {
+        background: #ff8c00;
+    }
+
+.btn-gray {
+    display: block;
+    margin-top: 15px;
+    background: #2a2a2a;
+    padding: 12px;
+    text-align: center;
+    color: #bbb;
+    text-decoration: none;
+}
+
+    .btn-gray a.back-link {
+        color: #ff6a00;
+        text-decoration: none;
+    }
+
+        .btn-gray a.back-link:hover {
+            text-decoration: underline;
+        }
+
+@media (max-width: 480px) {
+    .card-box {
+        padding: 25px 20px 30px;
+        width: 100%;
+        max-width: 360px;
+    }
+
+    .title {
+        font-size: 14px;
+    }
+
+    .info-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .label, .value {
+        text-align: left !important;
+        flex: none;
+        width: 100%;
+        margin-bottom: 5px;
+    }
+
+    .avatar {
+        width: 60px;
+        height: 60px;
+        margin: -60px auto 15px auto;
+    }
+
+    .btn-confirm {
+        padding: 10px;
+        font-size: 16px;
+    }
+
+    .btn-gray {
+        font-size: 14px;
+        padding: 10px;
+    }
+}

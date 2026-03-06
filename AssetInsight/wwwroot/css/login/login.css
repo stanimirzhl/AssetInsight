@@ -1,0 +1,133 @@
+﻿body {
+    background: #0c0c0c;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #cfcfcf;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* Wrapper to center content */
+.login-wrapper {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 80px 20px 60px; /* top padding for navbar, bottom for footer */
+    box-sizing: border-box;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+/* Cards */
+.login-card {
+    background: #1c1c1c;
+    border: 1px solid #2b2b2b;
+    border-radius: 6px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.6);
+    padding: 30px 25px;
+    color: #cfcfcf;
+    box-sizing: border-box;
+    text-align: center;
+    flex: 1 1 350px; /* allows shrinking/growing */
+    max-width: 100%;
+}
+
+    .login-card .form-floating input {
+        background: #0a0a0a;
+        border: 1px solid #333;
+        color: #fff;
+    }
+
+    .login-card .form-floating label {
+        color: #ccc;
+    }
+
+.toggle-password {
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: #e07b00;
+    border: none;
+    font-weight: bold;
+}
+
+    .btn-primary:hover {
+        background: #ff8c00;
+    }
+
+.btn-gray {
+    display: block;
+    margin-top: 15px;
+    background: #2a2a2a;
+    padding: 12px;
+    text-align: center;
+    color: #bbb;
+    text-decoration: none;
+}
+
+    .btn-gray span {
+        color: #ff6a00;
+    }
+
+/* External provider buttons */
+.provider-btn {
+    background: #222;
+    color: #fff;
+    border: 1px solid #333;
+}
+
+    .provider-btn:hover {
+        background: #333;
+    }
+
+/* Divider */
+.vr {
+    border-color: #444;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .login-wrapper {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .col-auto .vr {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-card {
+        padding: 20px 15px;
+    }
+
+    .form-floating input {
+        padding: 12px;
+    }
+
+    .btn-primary {
+        padding: 12px;
+        font-size: 16px;
+    }
+
+    .provider-btn {
+        padding: 10px;
+        font-size: 14px;
+    }
+}
+
+.card-hover {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .card-hover:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }

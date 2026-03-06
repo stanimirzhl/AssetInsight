@@ -141,4 +141,25 @@
   <data name="OrSignUpWith" xml:space="preserve">
     <value>O registrarse con</value>
   </data>
+  <data name="ExistingAccount" xml:space="preserve">
+    <value>Ya existe una cuenta de AssetInsight con esta dirección de correo electrónico.</value>
+  </data>
+  <data name="MyAccount" xml:space="preserve">
+    <value>Esta es mi cuenta</value>
+  </data>
+  <data name="Back" xml:space="preserve">
+    <value>Volver a</value>
+  </data>
+  <data name="LoginPage" xml:space="preserve">
+    <value>página de inicio de sesión</value>
+  </data>
+  <data name="Link" xml:space="preserve">
+    <value>Puede vincular su cuenta de AssetInsight con un perfil en &lt;strong&gt;{0}&lt;/strong&gt;. Inicie sesión para continuar.</value>
+  </data>
+  <data name="Continue" xml:space="preserve">
+    <value>Continuar</value>
+  </data>
+  <data name="ForgotPassword" xml:space="preserve">
+    <value>¿No puede iniciar sesión? &lt;a class="back-link" href="/Identity/Account/ForgotPassword"&gt;&lt;span&gt;Recuperar cuenta&lt;/span&gt;&lt;/a&gt;</value>
+  </data>
 </root>

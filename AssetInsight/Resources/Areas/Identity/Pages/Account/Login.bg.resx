@@ -141,4 +141,25 @@
   <data name="OrSignUpWith" xml:space="preserve">
     <value>Или се регистрирайте с</value>
   </data>
+  <data name="ExistingAccount" xml:space="preserve">
+    <value>Вече съществува акаунт в AssetInsight с този имейл адрес.</value>
+  </data>
+  <data name="MyAccount" xml:space="preserve">
+    <value>Това е моят акаунт</value>
+  </data>
+  <data name="Back" xml:space="preserve">
+    <value>Обратно към</value>
+  </data>
+  <data name="LoginPage" xml:space="preserve">
+    <value>страница за вход</value>
+  </data>
+  <data name="Link" xml:space="preserve">
+    <value>Можете да свържете вашия акаунт в AssetInsight с профил в &lt;strong&gt;{0}&lt;/strong&gt;. Влезте, за да продължите.</value>
+  </data>
+  <data name="Continue" xml:space="preserve">
+    <value>Продължи</value>
+  </data>
+  <data name="ForgotPassword" xml:space="preserve">
+    <value>Не можете да влезете? &lt;a class="back-link" href="/Identity/Account/ForgotPassword"&gt;&lt;span&gt;Възстановяване на акаунт&lt;/span&gt;&lt;/a&gt;</value>
+  </data>
 </root>

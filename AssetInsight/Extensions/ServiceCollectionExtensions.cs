@@ -5,7 +5,6 @@ using AssetInsight.Data.Common;
 using AssetInsight.Data.Models;
 using Azure.Identity;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;

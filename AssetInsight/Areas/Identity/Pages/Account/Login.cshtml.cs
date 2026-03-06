@@ -8,6 +8,7 @@ using Humanizer.Localisation;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -20,6 +21,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web;
 using static AssetInsight.Data.Constants.DataConstants;
 using static AssetInsight.Data.Constants.DataConstants.UserConstants;
 
@@ -63,6 +65,7 @@ namespace AssetInsight.Areas.Identity.Pages.Account
 			public string Provider { get; set; }
 			public string ProviderDisplayName { get; set; }
 			public string ReturnUrl { get; set; }
+			public string FullName { get; set; }
 		}
 
 		public class LinkExternalModel
@@ -77,6 +80,7 @@ namespace AssetInsight.Areas.Identity.Pages.Account
 
 			public string Provider { get; set; }
 			public string ReturnUrl { get; set; }
+			public string FullName { get; set; }
 		}
 
 		public class InputModel
@@ -95,7 +99,7 @@ namespace AssetInsight.Areas.Identity.Pages.Account
 			public string Password { get; set; }
 		}
 
-		public async Task<IActionResult> OnGetAsync(string returnUrl = null)
+		public async Task<IActionResult> OnGetAsync(string returnUrl = null, LoginStep? step = null)
 		{
 			if (User.Identity.IsAuthenticated)
 			{
@@ -118,8 +122,29 @@ namespace AssetInsight.Areas.Identity.Pages.Account
 
 			ReturnUrl = returnUrl;
 
-			if (TempData.TryGetValue("ExternalLogin", out var data))
+			if (step.HasValue && TempData.TryGetValue("ExternalLogin", out var linkData))
 			{
+				var dto = JsonConvert.DeserializeObject<ExternalLoginTempDto>(linkData.ToString());
+				Step = LoginStep.EnterPassword;
+
+				LinkExternal = new LinkExternalModel
+				{
+					Email = dto.Email,
+					Provider = dto.Provider,
+					FullName = dto.FullName,
+				};
+
+				TempData.Keep("ExternalLogin");
+			}
+
+			if (TempData.TryGetValue("ExternalLogin", out var data) && !step.HasValue)
+			{
+				if ("true" == HttpContext.Request.Query["clearlogin"].ToString())
+				{
+					TempData.Remove("ExternalLogin");
+					return RedirectToPage();
+				}
+
 				var dto = JsonConvert.DeserializeObject<ExternalLoginTempDto>(data.ToString());
 
 				Step = LoginStep.ConfirmLink;
@@ -129,12 +154,13 @@ namespace AssetInsight.Areas.Identity.Pages.Account
 					Email = dto.Email,
 					UserName = dto.UserName,
 					Provider = dto.Provider,
-					ProviderDisplayName = dto.ProviderDisplayName
+					ProviderDisplayName = dto.ProviderDisplayName,
+					FullName = dto.FullName,
+					ReturnUrl = dto.ReturnUrl
 				};
 
 				ReturnUrl = dto.ReturnUrl;
-
-				//TempData.Keep("ExternalLogin");
+				TempData.Keep("ExternalLogin");
 			}
 
 			return Page();
@@ -149,12 +175,12 @@ namespace AssetInsight.Areas.Identity.Pages.Account
 			{
 				Email = ConfirmLink.Email,
 				Provider = ConfirmLink.Provider,
-
+				FullName = ConfirmLink.FullName,
 			};
 
 			TempData.Keep("ExternalLogin");
 
-			return Page();
+			return RedirectToPage(new { step = LoginStep.EnterPassword });
 		}
 
 		public async Task<IActionResult> OnPostLinkExternalAsync()
@@ -176,10 +202,10 @@ namespace AssetInsight.Areas.Identity.Pages.Account
 
 			if (!validPassword)
 			{
-				ModelState.AddModelError(string.Empty, Resources.Models.LoginModel.InputModel.InvalidLoginAttempt);
+				TempData["ErrorMessage"] = Resources.Models.LoginModel.InputModel.InvalidLoginAttempt;
 				Step = LoginStep.EnterPassword;
 				TempData.Keep("ExternalLogin");
-				return Page();
+				return RedirectToPage(new { step = LoginStep.EnterPassword });
 			}
 
 			var info = await _signInManager.GetExternalLoginInfoAsync();

@@ -141,4 +141,25 @@
   <data name="OrSignUpWith" xml:space="preserve">
     <value>Or Sign Up With</value>
   </data>
+  <data name="ExistingAccount" xml:space="preserve">
+    <value>An AssetInsight account with this email address already exists.</value>
+  </data>
+  <data name="MyAccount" xml:space="preserve">
+    <value>This is my account</value>
+  </data>
+  <data name="Back" xml:space="preserve">
+    <value>Back to</value>
+  </data>
+  <data name="LoginPage" xml:space="preserve">
+    <value>login page</value>
+  </data>
+  <data name="Link" xml:space="preserve">
+    <value>You can link your AssetInsight account with a profile on &lt;strong&gt;{0}&lt;/strong&gt;. Sign in to continue.</value>
+  </data>
+  <data name="Continue" xml:space="preserve">
+    <value>Continue</value>
+  </data>
+  <data name="ForgotPassword" xml:space="preserve">
+    <value>Can’t sign in? &lt;a class="back-link" href="/Identity/Account/ForgotPassword"&gt;&lt;span&gt;Recover account&lt;/span&gt;&lt;/a&gt;</value>
+  </data>
 </root>
