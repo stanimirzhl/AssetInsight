@@ -221,6 +221,13 @@ namespace AssetInsight.Areas.Identity.Pages.Account
 		public async Task<IActionResult> OnPostAsync(string returnUrl = null)
 		{
 			returnUrl ??= Url.Content("~/");
+			ModelState.Remove(nameof(LinkExternal.LinkPassword));
+
+			if (!ModelState.IsValid)
+			{
+				ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+				return Page();
+			}
 
 			ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
@@ -233,7 +240,6 @@ namespace AssetInsight.Areas.Identity.Pages.Account
 				return Page();
 			}
 
-			ModelState.Remove(nameof(LinkExternal.LinkPassword));
 
 			if (ModelState.IsValid)
 			{

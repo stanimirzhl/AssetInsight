@@ -7,12 +7,12 @@
 }
 
 .account-card {
-    min-height: 100vh; /* at least full viewport */
+    min-height: 100vh;
     display: flex;
-    justify-content: center; /* horizontal centering */
-    align-items: center; /* vertical centering */
-    padding-top: 80px; /* space for navbar */
-    padding-bottom: 60px; /* space for footer */
+    justify-content: center; 
+    align-items: center;
+    padding-top: 80px; 
+    padding-bottom: 60px; 
     box-sizing: border-box;
 }
 
@@ -25,8 +25,7 @@
     box-shadow: 0 0 20px rgba(0,0,0,0.6);
     box-sizing: border-box;
     text-align: center;
-    /* Remove scrollbars */
-    max-height: none; /* let it grow naturally */
+    max-height: none; 
 }
 
 .avatar {
@@ -47,7 +46,7 @@
     justify-content: space-between;
     padding: 10px 0;
     border-bottom: 1px solid #333;
-    flex-wrap: wrap; /* allows children to wrap if needed */
+    flex-wrap: wrap; 
 }
 
 .label {
@@ -60,10 +59,10 @@
 .value {
     color: #fff;
     text-align: right;
-    word-break: break-word; /* break long words/emails */
-    white-space: normal; /* allow wrapping */
-    max-width: 60%; /* limit width to avoid pushing label */
-    overflow-wrap: break-word; /* more robust word break */
+    word-break: break-word;
+    white-space: normal;
+    max-width: 60%;
+    overflow-wrap: break-word;
 }
 
 .btn-confirm {

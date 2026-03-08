@@ -12,7 +12,12 @@ namespace AssetInsight.Models.Account
 
 		public string? Email { get; set; }
 
-		[Required]
+		[Required(
+			ErrorMessageResourceName = "UserName_Required",
+			ErrorMessageResourceType = typeof(Resources.Models.RegisterModel.InputModel))]
+		[Display(
+			Name = "UserName",
+			ResourceType = typeof(Resources.Models.RegisterModel.InputModel))]
 		public string UserName { get; set; } = null!;
 
 		public string FirstName { get; set; } = null!;

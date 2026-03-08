@@ -1,4 +1,5 @@
 ﻿@model ExternalLoginViewModel
+@inject IViewLocalizer Localizer
 @using AssetInsight.Models.Account
 @using Microsoft.AspNetCore.Mvc.Localization
 
@@ -6,44 +7,135 @@
     ViewData["Title"] = "Complete Registration";
 }
 
-<h1>Complete Registration</h1>
+<link rel="stylesheet" href="~/css/complete-registration.css"/>
 
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">External Login Info</h5>
+<div class="wot-container">
+    <div class="wot-card">
 
-                <p><strong>Login Provider:</strong> @Model.ProviderDisplayName (@Model.LoginProvider)</p>
+        <h3 class="text-center mb-4">@Localizer["ChooseUsernameHeading"]</h3>
 
-                @if (!string.IsNullOrEmpty(Model.Email))
-                {
-                    <p><strong>Email:</strong> @Model.Email</p>
-                }
+        <form method="post" action="/complete-registration">
 
-                <p><strong>Username:</strong> @Model.UserName</p>
+            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
 
-                <form method="post" asp-action="ExternalLoginCompletion" class="mt-3">
-                    <input type="hidden" asp-for="LoginProvider" />
-                    <input type="hidden" asp-for="ProviderDisplayName" />
-                    <input type="hidden" asp-for="ReturnUrl" />
-                    <input type="hidden" asp-for="Email" />
-                    <input type="hidden" asp-for="FirstName" />
-                    <input type="hidden" asp-for="LastName" />
+            <input type="hidden" asp-for="LoginProvider" />
+            <input type="hidden" asp-for="ProviderDisplayName" />
+            <input type="hidden" asp-for="ReturnUrl" />
+            <input type="hidden" asp-for="Email" />
+            <input type="hidden" asp-for="FirstName" />
+            <input type="hidden" asp-for="LastName" />
 
-                    <div class="mb-3">
-                        <label asp-for="UserName" class="form-label">Username</label>
-                        <input asp-for="UserName" class="form-control" value="@Model.UserName" />
-                        <span asp-validation-for="UserName" class="text-danger"></span>
-                    </div>
+            <div class="username-row">
 
-                    <button type="submit" class="btn btn-primary w-100">Complete Registration</button>
-                </form>
+                <div class="username-left">
+
+                    <label asp-for="UserName" class="form-label"></label>
+
+                    <input asp-for="UserName"
+                           id="usernameInput"
+                           class="form-control wot-input"
+                           autocomplete="off" />
+
+                    <small id="usernameError" class="text-danger d-none">
+                    </small>
+
+                </div>
+
+                <div id="usernameSuggestions" class="username-suggestions d-none"></div>
+
             </div>
-        </div>
+
+            <button id="continueBtn" class="btn wot-btn w-100" type="submit">
+                @Localizer["Continue"]
+            </button>
+
+            @Html.AntiForgeryToken()
+        </form>
+
     </div>
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+    <script>
+
+        let timeout = null;
+
+        const usernameInput = document.getElementById("usernameInput");
+        const error = document.getElementById("usernameError");
+        const suggestions = document.getElementById("usernameSuggestions");
+        const continueBtn = document.getElementById("continueBtn");
+
+        usernameInput.addEventListener("input", function(){
+
+            clearTimeout(timeout);
+
+            const username = this.value;
+
+            timeout = setTimeout(() => {
+
+                if(username.length === 0){
+                    error.classList.add("d-none");
+                    suggestions.classList.add("d-none");
+                    continueBtn.disabled = true;
+                    return;
+                }
+
+                fetch(`/Identity/Auth/CheckUsername?username=${username}`)
+                .then(res => res.json())
+                .then(data => {
+
+                    if(data.available){
+
+                        error.classList.add("d-none");
+                        suggestions.classList.add("d-none");
+                        continueBtn.disabled = false;
+
+                    }
+                    else{
+
+                        error.innerText = data.message;
+                        error.classList.remove("d-none");
+
+                        suggestions.innerHTML =
+                        data.suggestions.map(x =>
+                        `<span class="suggest">${x}</span>`
+                        ).join("");
+
+                        suggestions.classList.remove("d-none");
+
+                        continueBtn.disabled = true;
+                    }
+
+                });
+
+            },200);
+
+        });
+
+        document.addEventListener("click", function(e){
+
+            if(e.target.classList.contains("suggest")){
+
+                const value = e.target.innerText;
+
+                usernameInput.value = value;
+
+                error.classList.add("d-none");
+                suggestions.classList.add("d-none");
+
+                continueBtn.disabled = false;
+
+            }
+
+        });
+
+        window.addEventListener("load", function(){
+
+            if(usernameInput.value.length > 0){
+                usernameInput.dispatchEvent(new Event("input"));
+            }
+
+        });
+
+    </script>
 }

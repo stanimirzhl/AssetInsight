@@ -118,10 +118,11 @@ namespace AssetInsight.Controllers
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
+		[Route("complete-registration")]
 		public async Task<IActionResult> ExternalLoginCompletion(ExternalLoginViewModel model)
 		{
 			if (!ModelState.IsValid)
-				return View(model);
+				return View("~/Views/Auth/CompleteRegistration.cshtml", model);
 
 			var info = await signInManager.GetExternalLoginInfoAsync();
 			if (info == null)
@@ -135,8 +136,8 @@ namespace AssetInsight.Controllers
 			var existingUsername = await userManager.FindByNameAsync(model.UserName);
 			if (existingUsername != null)
 			{
-				ModelState.AddModelError("", "Username already taken.");
-				return View(model);
+				ModelState.AddModelError(string.Empty, Resources.Models.RegisterModel.InputModel.UserNameAlreadyExists);
+				return View("~/Views/Auth/CompleteRegistration.cshtml", model);
 			}
 
 			var user = new User
@@ -154,13 +155,45 @@ namespace AssetInsight.Controllers
 				foreach (var error in createResult.Errors)
 					ModelState.AddModelError("", error.Description);
 
-				return View(model);
+				return View("~/Views/Auth/CompleteRegistration.cshtml", model);
 			}
 
 			await userManager.AddLoginAsync(user, info);
 			await signInManager.SignInAsync(user, false);
 
 			return LocalRedirect(model.ReturnUrl ?? "/");
+		}
+
+		[HttpGet]
+		public async Task<IActionResult> CheckUsername(string username)
+		{
+			var user = await userManager.FindByNameAsync(username);
+
+			if (user == null)
+			{
+				return Json(new { available = true });
+			}
+
+			var suggestions = new List<string>();
+
+			while (suggestions.Count < 3)
+			{
+				var candidate = username + Random.Shared.Next(100, 999);
+
+				var exists = await userManager.FindByNameAsync(candidate);
+
+				if (exists == null && !suggestions.Contains(candidate))
+				{
+					suggestions.Add(candidate);
+				}
+			}
+
+			return Json(new
+			{
+				available = false,
+				message = Resources.Models.RegisterModel.InputModel.UserNameAlreadyExists,
+				suggestions
+			});
 		}
 	}
 }
