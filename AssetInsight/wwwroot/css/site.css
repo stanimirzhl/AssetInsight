@@ -60,7 +60,7 @@ body {
 
     .lang-select option {
         transition: color 0.2s ease;
-        background-color: var(--bs-body-bg); /* option adapts */
+        background-color: var(--bs-body-bg);
         color: var(--bs-body-color);
     }
 

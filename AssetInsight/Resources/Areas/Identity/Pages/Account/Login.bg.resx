@@ -162,4 +162,7 @@
   <data name="ForgotPassword" xml:space="preserve">
     <value>Не можете да влезете? &lt;a class="back-link" href="/Identity/Account/ForgotPassword"&gt;&lt;span&gt;Възстановяване на акаунт&lt;/span&gt;&lt;/a&gt;</value>
   </data>
+  <data name="ContinueWith" xml:space="preserve">
+    <value>Продължи с</value>
+  </data>
 </root>

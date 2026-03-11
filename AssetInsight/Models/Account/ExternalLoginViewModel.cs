@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using static AssetInsight.Data.Constants.DataConstants.UserConstants;
 
 namespace AssetInsight.Models.Account
 {
@@ -15,10 +16,13 @@ namespace AssetInsight.Models.Account
 		[Required(
 			ErrorMessageResourceName = "UserName_Required",
 			ErrorMessageResourceType = typeof(Resources.Models.RegisterModel.InputModel))]
+		[StringLength(UserNameMaxLength, MinimumLength = UserNameMinLength,
+			ErrorMessageResourceName = "UserName_StringLength",
+			ErrorMessageResourceType = typeof(Resources.Models.RegisterModel.InputModel))]
 		[Display(
 			Name = "UserName",
 			ResourceType = typeof(Resources.Models.RegisterModel.InputModel))]
-		public string UserName { get; set; } = null!;
+		public string UserName { get; set; }
 
 		public string FirstName { get; set; } = null!;
 		public string LastName { get; set; } = null!;

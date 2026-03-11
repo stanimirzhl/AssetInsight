@@ -4,6 +4,7 @@ using AssetInsight.Data;
 using AssetInsight.Data.Common;
 using AssetInsight.Data.Models;
 using Azure.Identity;
+using CloudinaryDotNet;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
@@ -16,8 +17,11 @@ namespace AssetInsight.Extensions
 {
 	public static class ServiceCollectionExtensions
 	{
-		public static IServiceCollection AddCoreServices(this IServiceCollection services)
+		public static IServiceCollection AddCoreServices(this IServiceCollection services, IConfiguration config)
 		{
+			using var serviceProvider = services.BuildServiceProvider();
+			var log = serviceProvider.GetRequiredService<ILogger<IServiceCollection>>();
+
 			services.AddScoped<IPostService, PostService>();
 
 			services.AddMvc(options =>
@@ -26,6 +30,20 @@ namespace AssetInsight.Extensions
 				.Add(new AutoValidateAntiforgeryTokenAttribute()));
 
 			services.AddResponseCompression();
+
+
+			if (string.IsNullOrEmpty(config["Cloudinary:CloudName"])
+				|| string.IsNullOrEmpty(config["Cloudinary:ApiKey"]) || string.IsNullOrEmpty(config["Cloudinary:ApiSecret"]))
+			{
+				return services;
+			}
+
+			services.AddSingleton<Cloudinary>(sp =>
+			{
+				CloudinaryDotNet.Account account = new CloudinaryDotNet.Account(config["Cloudinary:CloudName"],
+					config["Cloudinary:ApiKey"], config["Cloudinary:ApiSecret"]);
+				return new Cloudinary(account);
+			});
 
 			return services;
 		}
@@ -48,6 +66,24 @@ namespace AssetInsight.Extensions
 			configBuilder.AddAzureKeyVault(new Uri(keyVaultUrl), new DefaultAzureCredential());
 
 			return services;
+		}
+
+		public static void MapCloudinarySecret(this IConfiguration configuration)
+		{
+			var secretJson = configuration["Cloudinary:Credentials"];
+			if (string.IsNullOrWhiteSpace(secretJson))
+				throw new InvalidOperationException("Cloudinary secret not found in Key Vault.");
+
+			if (secretJson is null)
+			{
+				return;
+			}
+
+			var secretObj = JObject.Parse(secretJson);
+
+			configuration["Cloudinary:CloudName"] = secretObj["CloudName"]?.ToString().Trim();
+			configuration["Cloudinary:ApiKey"] = secretObj["ApiKey"]?.ToString().Trim();
+			configuration["Cloudinary:ApiSecret"] = secretObj["ApiSecret"]?.ToString().Trim();
 		}
 
 		public static void MapGoogleOAuthSecret(this IConfiguration configuration)

@@ -162,4 +162,7 @@
   <data name="ForgotPassword" xml:space="preserve">
     <value>Can’t sign in? &lt;a class="back-link" href="/Identity/Account/ForgotPassword"&gt;&lt;span&gt;Recover account&lt;/span&gt;&lt;/a&gt;</value>
   </data>
+  <data name="ContinueWith" xml:space="preserve">
+    <value>Continue with</value>
+  </data>
 </root>

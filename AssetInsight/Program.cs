@@ -5,9 +5,10 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbServices(builder.Configuration);
-builder.Services.AddCoreServices();
-builder.Services.AddIdentityServices();
 builder.Services.AddAzureKeyVaultSecrets(builder.Configuration);
+builder.Configuration.MapCloudinarySecret();
+builder.Services.AddCoreServices(builder.Configuration);
+builder.Services.AddIdentityServices();
 builder.Configuration.MapGoogleOAuthSecret();
 builder.Configuration.MapFacebookOAuthSecret();
 builder.Configuration.MapMicrosoftOAuthSecret();

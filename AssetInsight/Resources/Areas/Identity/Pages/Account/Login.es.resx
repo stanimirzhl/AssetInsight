@@ -162,4 +162,7 @@
   <data name="ForgotPassword" xml:space="preserve">
     <value>¿No puede iniciar sesión? &lt;a class="back-link" href="/Identity/Account/ForgotPassword"&gt;&lt;span&gt;Recuperar cuenta&lt;/span&gt;&lt;/a&gt;</value>
   </data>
+  <data name="ContinueWith" xml:space="preserve">
+    <value>Continuar con</value>
+  </data>
 </root>

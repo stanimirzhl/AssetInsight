@@ -57,13 +57,19 @@
             <div class="login-card d-flex flex-column card-hover">
                 <h5 class="text-center mb-4 text-muted">@Localizer["OrSignUpWith"]</h5>
 
-                <div class="d-grid gap-3">
+                <div class="external-login-container d-grid gap-3">
                     @foreach (var provider in Model.ExternalLogins!)
                     {
-                        <form method="post" asp-route-returnUrl="@Model.ReturnUrl" asp-controller="Auth" asp-action="ExternalLogin">
-                            <button type="submit" name="provider" value="@provider.Name" class="btn d-flex align-items-center justify-content-center rounded-3 py-2 provider-btn">
-                                @Model.GetProviderSvg(provider.Name)
-                                <span class="ms-2">@provider.DisplayName</span>
+                        <form method="post" asp-route-returnUrl="@Model.ReturnUrl" asp-controller="Auth" asp-action="ExternalLogin" class="w-100">
+                            <button type="submit" name="provider" value="@provider.Name"
+                                    class="btn provider-btn w-100 d-flex align-items-center justify-content-center rounded-3 py-2 px-4 shadow-sm"
+                                    title="Log in using your @provider.DisplayName account">
+
+                                <span class="provider-icon-wrapper d-flex align-items-center justify-content-center">
+                                    @Model.GetProviderSvg(provider.Name)
+                                </span>
+
+                                <span class="ms-3 fw-medium">@Localizer["ContinueWith"] @provider.DisplayName</span>
                             </button>
                         </form>
                     }

@@ -11,19 +11,17 @@ h1 {
     margin-bottom: 30px;
 }
 
-/* Wrapper to center content */
 .login-wrapper {
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    padding: 80px 20px 60px; /* top padding for navbar, bottom for footer */
+    padding: 80px 20px 60px;
     box-sizing: border-box;
     flex-wrap: wrap;
     gap: 20px;
 }
 
-/* Cards */
 .login-card {
     background: #1c1c1c;
     border: 1px solid #2b2b2b;
@@ -33,7 +31,7 @@ h1 {
     color: #cfcfcf;
     box-sizing: border-box;
     text-align: center;
-    flex: 1 1 350px; /* allows shrinking/growing */
+    flex: 1 1 350px; 
     max-width: 100%;
 }
 
@@ -75,16 +73,42 @@ h1 {
         color: #ff6a00;
     }
 
-/* External provider buttons */
+.external-login-container {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
 .provider-btn {
-    background: #222;
-    color: #fff;
-    border: 1px solid #333;
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+    color: #212529;
+    transition: all 0.3s ease;
+    overflow: hidden;
 }
 
     .provider-btn:hover {
-        background: #333;
+        color: #ffffff !important;
+        border-color: transparent;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
     }
+
+.provider-icon-wrapper svg {
+    width: 24px;
+    height: 24px;
+    display: block;
+}
+
+.provider-btn:active {
+    transform: translateY(0);
+    background-color: #e9ecef;
+}
+
+.provider-icon svg {
+    width: 22px;
+    height: 22px;
+    display: block;
+}
 
 /* Divider */
 .vr {
