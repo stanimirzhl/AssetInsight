@@ -17,11 +17,16 @@ namespace AssetInsight.Extensions
 {
 	public static class ServiceCollectionExtensions
 	{
+		private static ILogger logger;
+
+		public static void InitializeLogger(this IServiceProvider provider)
+		{
+			logger = provider
+				.GetRequiredService<ILogger<IServiceCollection>>();
+		}
+
 		public static IServiceCollection AddCoreServices(this IServiceCollection services, IConfiguration config)
 		{
-			using var serviceProvider = services.BuildServiceProvider();
-			var log = serviceProvider.GetRequiredService<ILogger<IServiceCollection>>();
-
 			services.AddScoped<IPostService, PostService>();
 
 			services.AddMvc(options =>
@@ -35,6 +40,7 @@ namespace AssetInsight.Extensions
 			if (string.IsNullOrEmpty(config["Cloudinary:CloudName"])
 				|| string.IsNullOrEmpty(config["Cloudinary:ApiKey"]) || string.IsNullOrEmpty(config["Cloudinary:ApiSecret"]))
 			{
+				logger.LogError("Cloudinary configuration is missing. Cloudinary services will not be registered.");
 				return services;
 			}
 
@@ -50,7 +56,10 @@ namespace AssetInsight.Extensions
 
 		public static IServiceCollection AddDbServices(this IServiceCollection services, IConfiguration config)
 		{
-			string connectionString = config.GetConnectionString("AssetInsightContextConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+			string connectionString = config.GetConnectionString("AssetInsightContextConnection") ??
+				throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
+
 			services.AddDbContext<AssetInsightDbContext>(options =>
 				options.UseSqlServer(connectionString));
 
@@ -63,7 +72,15 @@ namespace AssetInsight.Extensions
 		{
 			const string keyVaultUrl = "https://external-logins.vault.azure.net/";
 
-			configBuilder.AddAzureKeyVault(new Uri(keyVaultUrl), new DefaultAzureCredential());
+			try
+			{
+				configBuilder.AddAzureKeyVault(new Uri(keyVaultUrl), new DefaultAzureCredential());
+			}
+			catch (Exception ex)
+			{
+				logger.LogError(ex, "Failed to load secrets from Azure Key Vault.");
+				return services;
+			}
 
 			return services;
 		}
@@ -140,16 +157,13 @@ namespace AssetInsight.Extensions
 		public static IServiceCollection Authentication(this IServiceCollection services,
 			IConfiguration configuration)
 		{
-			using var serviceProvider = services.BuildServiceProvider();
-			var log = serviceProvider.GetRequiredService<ILogger<IServiceCollection>>();
-
 			var authBuilder = services.AddAuthentication()
 								.AddCookie();
 
 			if (string.IsNullOrEmpty(configuration["Authentication:Google:ClientId"]) ||
 				string.IsNullOrEmpty(configuration["Authentication:Google:ClientSecret"]))
 			{
-				log.LogError("Google authentication configuration is missing.");
+				logger.LogError("Google authentication configuration is missing.");
 			}
 			else
 			{
@@ -166,7 +180,7 @@ namespace AssetInsight.Extensions
 			if (string.IsNullOrEmpty(configuration["Authentication:Facebook:ClientId"]) ||
 				string.IsNullOrEmpty(configuration["Authentication:Facebook:ClientSecret"]))
 			{
-				log.LogError("Facebook authentication configuration is missing.");
+				logger.LogError("Facebook authentication configuration is missing.");
 			}
 			else
 			{
@@ -183,7 +197,7 @@ namespace AssetInsight.Extensions
 			if (string.IsNullOrEmpty(configuration["Authentication:Microsoft:ClientId"]) ||
 				string.IsNullOrEmpty(configuration["Authentication:Microsoft:ClientSecret"]))
 			{
-				log.LogError("Microsoft authentication configuration is missing.");
+				logger.LogError("Microsoft authentication configuration is missing.");
 			}
 			else
 			{

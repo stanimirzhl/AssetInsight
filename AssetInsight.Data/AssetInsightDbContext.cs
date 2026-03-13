@@ -31,6 +31,8 @@ namespace AssetInsight.Data
 
 		public virtual DbSet<CommentReaction> CommentReactions { get; set; }
 
+		public virtual DbSet<PostImage> PostImages { get; set; }
+
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
 			modelBuilder.Entity<Post>()

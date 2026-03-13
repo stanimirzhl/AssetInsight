@@ -23,6 +23,9 @@ document.getElementById('cultureSelect').addEventListener('change', function () 
         });
 });
 
+window.addEventListener("dragover", e => e.preventDefault());
+window.addEventListener("drop", e => e.preventDefault());
+
 //function updateTheme() {
 //    const colorMode = window.matchMedia("(prefers-color-scheme: dark)").matches ?
 //        "dark" :

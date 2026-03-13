@@ -35,5 +35,10 @@ namespace AssetInsight.Controllers
 
 			return View(pagedVMs);
 		}
+
+		public async Task<IActionResult> Create()
+		{
+			return View();
+		}
 	}
 }

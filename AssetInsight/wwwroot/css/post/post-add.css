@@ -1,0 +1,243 @@
+﻿.post-create-container {
+    max-width: 740px;
+    margin: auto;
+    border: 1px solid #343536;
+}
+
+.reddit-uploader-box {
+    position: relative;
+    background-color: #0f0f0f;
+    border: 1px dashed #343536;
+    border-radius: 8px;
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.gallery-viewport img {
+    max-width: 100%;
+    max-height: 500px;
+    object-fit: contain;
+}
+
+.gallery-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+}
+
+    .gallery-overlay button {
+        pointer-events: auto;
+    }
+
+.btn-gallery {
+    position: absolute;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    border: none;
+    padding: 5px 12px;
+    border-radius: 20px;
+    top: 15px;
+}
+
+.add-btn {
+    left: 15px;
+}
+
+.delete-btn {
+    right: 15px;
+}
+
+.gallery-nav {
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.7);
+    padding: 5px 15px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+    .gallery-nav button {
+        background: none;
+        border: none;
+        color: white;
+    }
+.reddit-uploader-box.drag-over {
+    border: 2px solid #0079d3 !important; /* Reddit Blue */
+    background-color: rgba(0, 121, 211, 0.05) !important;
+}
+
+/* Ensure the box captures the drag events */
+.reddit-uploader-box {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+#dropZone {
+    -moz-user-select: none
+}
+
+.reddit-uploader-box {
+    background-color: #0b0b0b;
+    border-radius: 16px;
+    height: 500px;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Pill Buttons */
+.btn-reddit-pill {
+    background: rgba(26, 26, 27, 0.8);
+    border: none;
+    color: white;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    backdrop-filter: blur(4px);
+}
+
+.btn-reddit-circle {
+    background: rgba(26, 26, 27, 0.8);
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Dots Capsule */
+.dot-container-wrapper {
+    position: absolute;
+    bottom: 20px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.dot-capsule {
+    background: rgba(0, 0, 0, 0.6);
+    padding: 4px 10px;
+    border-radius: 20px;
+    display: flex;
+    gap: 6px;
+}
+
+.dot {
+    width: 6px;
+    height: 6px;
+    background: #555;
+    border-radius: 50%;
+}
+
+    .dot.active {
+        background: white;
+    }
+
+.reddit-uploader-box {
+    background-color: #0b0b0b;
+    border-radius: 16px;
+    height: 500px;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Pill Buttons */
+.btn-reddit-pill {
+    background: rgba(26, 26, 27, 0.8);
+    border: none;
+    color: white;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    backdrop-filter: blur(4px);
+}
+
+.btn-reddit-circle {
+    background: rgba(26, 26, 27, 0.8);
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Dots Capsule */
+.dot-container-wrapper {
+    position: absolute;
+    bottom: 20px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.dot-capsule {
+    background: rgba(0, 0, 0, 0.6);
+    padding: 4px 10px;
+    border-radius: 20px;
+    display: flex;
+    gap: 6px;
+}
+
+.dot {
+    width: 6px;
+    height: 6px;
+    background: #555;
+    border-radius: 50%;
+}
+
+    .dot.active {
+        background: white;
+    }
+
+/* Modal Styles */
+.reddit-modal {
+    background-color: #1A1A1B !important;
+    color: #D7DADC;
+    border-radius: 12px;
+}
+
+.thumb-card {
+    position: relative;
+    width: 180px;
+    height: 140px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #343536;
+}
+
+    .thumb-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+.thumb-overlay {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.btn-text-link {
+    background: none;
+    border: none;
+    color: #D7DADC;
+    font-weight: 600;
+}

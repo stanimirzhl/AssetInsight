@@ -35,5 +35,6 @@ namespace AssetInsight.Data.Models
 		public virtual ICollection<SavedPost> SavedPosts { get; set; } = new HashSet<SavedPost>();
 		public virtual ICollection<PostTag> PostTags { get; set; } = new HashSet<PostTag>();
 		public virtual ICollection<PostReaction> Reactions { get; set; } = new HashSet<PostReaction>();
+		public virtual ICollection<PostImage> PostImages { get; set; } = new HashSet<PostImage>();
 	}
 }
