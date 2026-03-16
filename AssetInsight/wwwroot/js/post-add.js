@@ -1,4 +1,40 @@
 ﻿document.addEventListener('DOMContentLoaded', function () {
+    const textareas = document.querySelectorAll('textarea');
+    textareas.forEach((element) => {
+        element.style.resize = 'none';
+        autosize(element);
+    });
+
+    setInterval(function () {
+
+        textareas.forEach((element) => {
+            if (element.classList.contains("input-validation-error")) {
+                element.classList.add("error");
+            } else {
+                element.classList.remove("error");
+            }
+            const label = element.parentElement.querySelector('.floating-label');
+            if (element.classList.contains("input-validation-error")) {
+                label.color = "#ff4500";
+            } else {
+                label.color = "#8b949e"; 
+            }
+
+        });
+
+    }, 100);
+
+    textareas.forEach((textarea) => {
+        const counter = document.querySelector(`span[data-for="${textarea.id}"]`); 
+        const max = textarea.dataset.max || textarea.maxLength;
+
+        counter.textContent = `${textarea.value.length}/${max}`;
+
+        textarea.addEventListener("input", () => {
+            counter.textContent = `${textarea.value.length}/${max}`;
+        });
+    });
+
     // --- Selectors ---
     const fileInput = document.getElementById('fileInput');
     const dropZone = document.getElementById('dropZone');
@@ -38,7 +74,7 @@
 
     fileInput.addEventListener('change', function () {
         if (this.files.length > 0) handleFiles(this.files);
-        this.value = ''; // Reset to allow re-uploading same file
+        //this.value = ''; // Reset to allow re-uploading same file
     });
 
     // --- Drag and Drop ---
@@ -59,7 +95,16 @@
     // --- Logic Functions ---
 
     function handleFiles(files) {
-        const newFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
+        const fileArray = Array.from(files);//.filter(f => f.type.startsWith('image/'));
+        const newFiles = [];
+
+        fileArray.forEach((file) => {
+            console.log('File: ', file.type)
+            if (file.type.startsWith('image/')) {
+                newFiles.push(file);
+            }
+        });
+
         if (newFiles.length) {
             uploadedFiles = uploadedFiles.concat(newFiles);
             // Jump to the first of the newly added images
@@ -70,7 +115,7 @@
             if (editModal && editModal.classList.contains('show')) {
                 renderModalGrid();
             }
-        }
+       }
     }
 
     /**
@@ -179,3 +224,19 @@
         }
     }
 });
+
+/*const form = document.querySelectorAll('form');
+form.forEach((element) => {
+    element.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (fileInput.files.length === 0) {
+            console.log('No files selected');
+        } else {
+            // Loop through the files
+            for (var i = 0; i < fileInput.files.length; i++) {
+                console.log('File Name: ' + fileInput.files[i].name);
+            }
+        }
+
+    })
+});*/

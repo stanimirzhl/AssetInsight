@@ -1,15 +1,35 @@
 ﻿@using AssetInsight.Models.Post
+@using static AssetInsight.Data.Constants.DataConstants.PostConstants
 @model PostFormModel
 
-<link rel="stylesheet" href="~/css/login/login.css" />
+<link rel="stylesheet" href="~/css/post/post-add.css" />
 
 <div class="container mt-5">
     <div class="post-create-container bg-dark text-white rounded-3 shadow-lg">
-        <form asp-action="Add" method="post" enctype="multipart/form-data">
+        <form asp-action="create" method="post" enctype="multipart/form-data">
             <div class="p-4">
                 <h4 class="mb-4">Създаване на публикация</h4>
 
-                <input asp-for="Title" class="form-control bg-dark border-secondary text-white mb-3" placeholder="Заглавие" />
+                <div class="title-wrapper">
+                    <div class="input-container">
+                        <textarea asp-for="Title"
+                                  id="titleInput"
+                                  data-max="@PostTitleMaxLength" 
+                                  maxlength="@PostTitleMaxLength"
+                                  class="reddit-input @(ViewData.ModelState["Title"]?.Errors.Count > 0 ? "error" : "")"
+                                  placeholder=""></textarea>
+
+                        <label asp-for="Title" class="floating-label"></label>
+                        <span class="error-icon">!</span>
+                    </div>
+
+                    <div class="input-footer">
+                        <div class="error-container">
+                            <span asp-validation-for="Title" class="error-msg"></span>
+                        </div>
+                        <span data-for="titleInput" class="char-count"></span>
+                    </div>
+                </div>
 
                 <div class="reddit-uploader-box border-secondary mb-3" id="dropZone">
                     <div id="imageGallery" class="gallery-viewport position-relative h-100">
@@ -74,7 +94,27 @@
                 </div>
 
 
-                <textarea asp-for="Content" class="form-control bg-dark border-secondary text-white mb-3" rows="6" placeholder="Съдържание..."></textarea>
+                <div class="title-wrapper">
+                    <div class="input-container">
+                        <textarea asp-for="Content"
+                                  id="contentInput"
+                                  data-max="@PostContentMaxLength"
+                                  maxlength="@PostContentMaxLength"
+                                  rows="5"
+                                  class="reddit-input @(ViewData.ModelState["Content"]?.Errors.Count > 0 ? "error" : "")"
+                                  placeholder=""></textarea>
+
+                        <label asp-for="Content" class="floating-label"></label>
+                        <span class="error-icon">!</span>
+                    </div>
+
+                    <div class="input-footer">
+                        <div class="error-container">
+                            <span asp-validation-for="Content" class="error-msg"></span>
+                        </div>
+                        <span data-for="contentInput" class="char-count"></span>
+                    </div>
+                </div>
 
                 <div class="d-flex justify-content-end gap-2 border-top border-secondary pt-3">
                     <a asp-action="Index" class="btn btn-outline-light rounded-pill">Отказ</a>

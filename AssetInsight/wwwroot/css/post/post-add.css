@@ -241,3 +241,134 @@
     color: #D7DADC;
     font-weight: 600;
 }
+
+.title-wrapper {
+    max-width: 700px;
+}
+
+.input-container {
+    position: relative;
+    width: 100%;
+}
+
+.input-container {
+    position: relative;
+    width: 100%;
+}
+
+/* Textarea styling */
+.reddit-input {
+    width: 100%;
+    background: #0f1419;
+    border: 1.5px solid #343536;
+    border-radius: 20px;
+    padding: 24px 48px 10px 16px;
+    color: #c9d1d9;
+    font-size: 14px;
+    resize: none;
+    outline: none;
+    display: block;
+    min-height: 56px;
+    /* Vertically center text */
+    display: flex;
+    align-items: center;
+    line-height: normal; /* prevent squishing */
+    height: 56px;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+}
+
+    .reddit-input::placeholder {
+        color: transparent; /* hide placeholder but keep for label logic */
+    }
+
+    .reddit-input:focus {
+        border-color: #4fbcff;
+    }
+
+    .reddit-input.error {
+        border-color: #ff4500;
+        border-width: 2px;
+    }
+
+/* Floating label */
+.floating-label {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #8b949e;
+    font-size: 14px;
+    pointer-events: none;
+    transition: 0.2s ease all;
+    background: #0f1419;
+    padding: 0 4px;
+    user-select: none;
+}
+
+/* When textarea is focused or has text, move label up */
+.reddit-input:focus + .floating-label,
+.reddit-input:not(:placeholder-shown) + .floating-label {
+    top: 6px;
+    font-size: 12px;
+    color: #4fbcff;
+    transform: none;
+}
+
+/* Error icon */
+.error-icon {
+    display: none;
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 22px;
+    height: 22px;
+    border: 2px solid #ff4500;
+    color: #ff4500;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 18px;
+    font-weight: bold;
+    font-size: 14px;
+    pointer-events: none;
+}
+
+.reddit-input.error + .floating-label + .error-icon {
+    display: block;
+}
+
+.input-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-top: 4px;
+    padding: 0 4px;
+}
+
+.error-msg {
+    color: #ff4500;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+    .error-msg:not(:empty)::before {
+        content: "!";
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        width: 14px;
+        height: 14px;
+        border: 1.5px solid #ff4500;
+        border-radius: 50%;
+        font-size: 10px;
+        font-weight: bold;
+        line-height: 1;
+    }
+
+.char-count {
+    color: #8b949e;
+    font-size: 12px;
+}

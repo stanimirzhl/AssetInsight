@@ -27,7 +27,9 @@ namespace AssetInsight.Extensions
 
 		public static IServiceCollection AddCoreServices(this IServiceCollection services, IConfiguration config)
 		{
+
 			services.AddScoped<IPostService, PostService>();
+			services.AddScoped<IImageService, ImageService>();
 
 			services.AddMvc(options =>
 				options
@@ -74,7 +76,7 @@ namespace AssetInsight.Extensions
 
 			try
 			{
-				configBuilder.AddAzureKeyVault(new Uri(keyVaultUrl), new DefaultAzureCredential());
+				//configBuilder.AddAzureKeyVault(new Uri(keyVaultUrl), new DefaultAzureCredential());
 			}
 			catch (Exception ex)
 			{
@@ -89,7 +91,7 @@ namespace AssetInsight.Extensions
 		{
 			var secretJson = configuration["Cloudinary:Credentials"];
 			if (string.IsNullOrWhiteSpace(secretJson))
-				throw new InvalidOperationException("Cloudinary secret not found in Key Vault.");
+				logger.LogWarning("Cloudinary secret not found in Key Vault.");
 
 			if (secretJson is null)
 			{
@@ -107,7 +109,7 @@ namespace AssetInsight.Extensions
 		{
 			var secretJson = configuration["GoogleOAuth:Credentials"];
 			if (string.IsNullOrWhiteSpace(secretJson))
-				throw new InvalidOperationException("GoogleOAuth secret not found in Key Vault.");
+				logger.LogWarning("GoogleOAuth secret not found in Key Vault.");
 
 			if (secretJson is null)
 			{
@@ -124,7 +126,7 @@ namespace AssetInsight.Extensions
 		{
 			var secretJson = configuration["FacebookOAuth:Credentials"];
 			if (string.IsNullOrWhiteSpace(secretJson))
-				throw new InvalidOperationException("FacebookOAuth secret not found in Key Vault.");
+				logger.LogWarning("FacebookOAuth secret not found in Key Vault.");
 
 			if(secretJson is null)
 			{
@@ -141,7 +143,7 @@ namespace AssetInsight.Extensions
 		{
 			var secretJson = configuration["MicrosoftOAuth:Credentials"];
 			if (string.IsNullOrWhiteSpace(secretJson))
-				 new InvalidOperationException("MicrosoftOAuth secret not found in Key Vault.");
+				logger.LogWarning("MicrosoftOAuth secret not found in Key Vault.");
 
 			if (secretJson is null)
 			{

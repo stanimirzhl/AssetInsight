@@ -2,6 +2,7 @@
 using AssetInsight.Core.DTOs.Tag;
 using AssetInsight.Core.Interfaces;
 using AssetInsight.Models.Post;
+using CloudinaryDotNet;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AssetInsight.Controllers
@@ -39,6 +40,16 @@ namespace AssetInsight.Controllers
 		public async Task<IActionResult> Create()
 		{
 			return View();
+		}
+
+		[HttpPost]
+		public async Task<IActionResult> Create(PostFormModel model)
+		{
+			if (model.Images.Any())
+			{
+				model.Images.RemoveAll(x => !x.ContentType.Contains("image/"));
+			}
+			return View(model);
 		}
 	}
 }

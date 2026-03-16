@@ -6,6 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 ServiceCollectionExtensions.InitializeLogger(builder.Services.BuildServiceProvider());
 
+builder.Services.AddControllersWithViews();
 builder.Services.AddDbServices(builder.Configuration);
 builder.Services.AddAzureKeyVaultSecrets(builder.Configuration);
 builder.Configuration.MapCloudinarySecret();
