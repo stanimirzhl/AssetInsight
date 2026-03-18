@@ -1,4 +1,4 @@
-﻿using AssetInsight.Core.DTOs.Tag;
+﻿using AssetInsight.Core.DTOs.Post;
 using System;
 using System.Collections.Generic;
 using System.Linq;

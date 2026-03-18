@@ -1,4 +1,4 @@
-﻿using AssetInsight.Core.DTOs.Tag;
+﻿using AssetInsight.Core.DTOs.Post;
 using AssetInsight.Core.Interfaces;
 using AssetInsight.Data;
 using AssetInsight.Data.Common;
@@ -14,11 +14,11 @@ namespace AssetInsight.Core.Implementations
 {
 	public class PostService : IPostService
 	{
-		private readonly IRepository<Post> context;
+		private readonly IRepository<Post> repository;
 
 		public PostService(IRepository<Post> context)
 		{
-			this.context = context;
+			this.repository = context;
 		}
 
 		public async Task<Guid> AddAsync(PostDto postDto)
@@ -30,14 +30,14 @@ namespace AssetInsight.Core.Implementations
 				AuthorId = postDto.AuthorId,
 			};
 
-			await context.AddAsync(post);
+			await repository.AddAsync(post);
 
 			return post.Id;
 		}
 
 		public async Task<PagingModel<PostDto>> GetAllPagedPostsAsync(int pageIndex, int pageSize)
 		{
-			IQueryable<PostDto> query = context.AllAsReadOnly()
+			IQueryable<PostDto> query = repository.AllAsReadOnly()
 				.Include(x => x.Author)
 				.Include(x => x.Comments)
 				.Include(x => x.Reactions)

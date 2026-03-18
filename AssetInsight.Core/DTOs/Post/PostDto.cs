@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AssetInsight.Core.DTOs.Tag
+namespace AssetInsight.Core.DTOs.Post
 {
 	public class PostDto
 	{

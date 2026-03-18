@@ -1,4 +1,5 @@
-﻿using AssetInsight.Models.Tag;
+﻿using AssetInsight.Core.DTOs.Tag;
+using AssetInsight.Models.Tag;
 
 namespace AssetInsight.Models.Post
 {
@@ -22,6 +23,6 @@ namespace AssetInsight.Models.Post
 
 		public int CommentsCount { get; set; }
 
-		public List<TagVM> Tags { get; set; } = new List<TagVM>();
+		public List<TagDto> Tags { get; set; } = new List<TagDto>();
 	}
 }

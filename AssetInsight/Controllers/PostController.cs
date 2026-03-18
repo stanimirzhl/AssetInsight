@@ -1,8 +1,11 @@
 ﻿using AssetInsight.Core;
+using AssetInsight.Core.DTOs.Post;
 using AssetInsight.Core.DTOs.Tag;
 using AssetInsight.Core.Interfaces;
+using AssetInsight.Data.Models;
 using AssetInsight.Models.Post;
 using CloudinaryDotNet;
+using Humanizer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -12,13 +15,19 @@ namespace AssetInsight.Controllers
 	public class PostController : Controller
 	{
 		private readonly IPostService postService;
+		private readonly ITagService tagService;
+		private readonly IPostTagService postTagService;
 
-		public PostController(IPostService postService)
+		public PostController(IPostService postService,
+			ITagService tagService,
+			IPostTagService postTagService)
 		{
 			this.postService = postService;
+			this.tagService = tagService;
+			this.postTagService = postTagService;
 		}
 
-		public async Task<IActionResult> Index()
+		public async Task<IActionResult> Index(string? tag = null)
 		{
 			PagingModel<PostDto> pagedPostDtos = await postService.GetAllPagedPostsAsync(1, 10);
 
@@ -33,8 +42,17 @@ namespace AssetInsight.Controllers
 				IsLocked = dto.IsLocked,
 				CommentsCount = dto.CommentsCount, 
 				ReactionsCount = dto.ReactionsCount,
-				//Tags = new List<TagVM>() // Placeholder, you would need to get this from the service
 			});
+
+			foreach (PostVM post in pagedVMs.Items)
+			{
+				post.Tags = await tagService.GetAllTagsbyPostId(post.Id);
+			}
+
+			if (!string.IsNullOrEmpty(tag))
+			{
+				pagedVMs.Items = pagedVMs.Items.Where(p => p.Tags.Any(t => t.Name == tag)).ToList();
+			}
 
 			return View(pagedVMs);
 		}
@@ -70,8 +88,14 @@ namespace AssetInsight.Controllers
 
 			Guid postId = await postService.AddAsync(postDto);
 
+			List<Guid> tagIds = await tagService.ExtractAndAddTagsIfAny(postDto.Content);
 
-			return View(model);
+			if(tagIds.Count != 0)
+			{
+				await postTagService.AddAsync(postId, tagIds);
+			}
+
+			return RedirectToAction(nameof(Index));
 		}
 	}
 }

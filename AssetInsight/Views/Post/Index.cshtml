@@ -40,7 +40,7 @@
         border-radius: 20px;
         text-decoration: none;
         font-weight: 600;
-        text-decoration: none;
+        text-decoration: none !important;
     }
 
     .post-card {
@@ -68,10 +68,10 @@
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
-        /* Locked post */
-        .post-card.locked {
-            opacity: 0.75;
-        }
+    /* Locked post */
+    .post-card.locked {
+        opacity: 0.75;
+    }
 
     /* Votes */
     .post-votes {
@@ -154,6 +154,34 @@
         margin-right: 5px;
     }
 
+    .tag-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    .tag-link {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .tag-pill {
+        background-color: #fafafa;
+        border: 1px solid #dbdbdb;
+        color: #00376b; /* Classic Instagram blue-link color */
+        padding: 4px 12px;
+        border-radius: 16px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: background-color 0.2s ease;
+    }
+
+        .tag-pill:hover {
+            background-color: #f0f0f0;
+            color: #000;
+        }
+
 </style>
 
 <div class="forum-container">
@@ -213,12 +241,14 @@
                         </button>
                     </form>
 
-                    @if (post.Tags.Any())
+                @if (post.Tags.Any())
                     {
-                        <div class="tags">
+                        <div class="tag-container">
                             @foreach (var tag in post.Tags)
                             {
-                                <span class="tag">#@tag.Name</span>
+                                <a asp-action="Index" asp-route-tag="@tag.Name" class="tag-link">
+                                    <span class="tag-pill">#@tag.Name</span>
+                                </a>
                             }
                         </div>
                     }
