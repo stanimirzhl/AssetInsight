@@ -1,4 +1,35 @@
 ﻿document.addEventListener('DOMContentLoaded', function () {
+
+    const dropZone = document.getElementById('dropZone');
+    const overlay = document.getElementById('dragOverlay');
+    const browserHint = document.getElementById('browserHint');
+
+    // Detect Firefox
+    const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
+    if (isFirefox) {
+        browserHint.classList.remove('d-none');
+    }
+
+    // Show overlay on drag
+    dropZone.addEventListener('dragenter', () => {
+        overlay.classList.remove('d-none');
+    });
+
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        overlay.classList.remove('d-none');
+    });
+
+    // Hide overlay when leaving
+    dropZone.addEventListener('dragleave', () => {
+        overlay.classList.add('d-none');
+    });
+
+    // Hide on drop
+    dropZone.addEventListener('drop', () => {
+        overlay.classList.add('d-none');
+    });
+
     const textareas = document.querySelectorAll('textarea');
     textareas.forEach((element) => {
         element.style.resize = 'none';
@@ -37,7 +68,7 @@
 
     // --- Selectors ---
     const fileInput = document.getElementById('fileInput');
-    const dropZone = document.getElementById('dropZone');
+    //const dropZone = document.getElementById('dropZone');
     const mainPreview = document.getElementById('mainPreview');
     const dotIndicators = document.getElementById('dotIndicators');
     const emptyState = document.getElementById('emptyState');
@@ -159,14 +190,40 @@
         });
     }
 
-    /**
-     * Renders the Edit Gallery Modal Grid (Matches image_86bc07.png)
-     */
+    async function getCurrentCulture() {
+        const response = await fetch('/Language/GetCurrentCulture');
+        const data = await response.json();
+        return data.culture;
+    }
+
+    async function showNoImagesMessage() {
+        const translations = {
+            "en": {
+                noImagesSelected: "No images selected"
+            },
+            "bg": {
+                noImagesSelected: "Няма избрани изображения"
+            },
+            "de": {
+                noImagesSelected: "Keine Bilder ausgewählt"
+            },
+            "es": {
+                noImagesSelected: "No se han seleccionado imágenes"
+            },
+            "fr": {
+                noImagesSelected: "Aucune image sélectionnée"
+            }
+        };
+        const culture = await getCurrentCulture();
+        const msg = translations[culture].noImagesSelected;
+
+        modalGrid.innerHTML = `<p class="text-center text-muted w-100">${msg}</p>`;
+    }
     function renderModalGrid() {
         modalGrid.innerHTML = '';
 
         if (uploadedFiles.length === 0) {
-            modalGrid.innerHTML = '<p class="text-center text-muted w-100">No images selected.</p>';
+            showNoImagesMessage();
             return;
         }
 

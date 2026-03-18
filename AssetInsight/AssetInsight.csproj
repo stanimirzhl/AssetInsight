@@ -36,6 +36,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>InputModel.resx</DependentUpon>
     </Compile>
+    <Compile Update="Resources\Models\Post\PostFormModel.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>PostFormModel.resx</DependentUpon>
+    </Compile>
     <Compile Update="Resources\Models\RegisterModel\InputModel.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -50,6 +55,10 @@
     <EmbeddedResource Update="Resources\Models\LoginModel\InputModel.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>InputModel.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\Models\Post\PostFormModel.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>PostFormModel.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Update="Resources\Models\RegisterModel\InputModel.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>

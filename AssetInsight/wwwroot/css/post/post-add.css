@@ -1,19 +1,92 @@
 ﻿.post-create-container {
     max-width: 740px;
-    margin: auto;
+    margin: 20px auto 80px; /* Added bottom margin (80px) to clear the footer */
     border: 1px solid #343536;
+    background-color: #1A1A1B;
+    border-radius: 8px;
 }
 
+/* Unified Uploader Box */
 .reddit-uploader-box {
     position: relative;
-    background-color: #0f0f0f;
+    background-color: #0b0b0b;
     border: 1px dashed #343536;
-    border-radius: 8px;
-    min-height: 300px;
+    border-radius: 16px;
+    height: 450px; /* Reduced slightly to save vertical space */
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+    .reddit-uploader-box.drag-over {
+        border: 2px solid #0079d3 !important;
+        background-color: rgba(0, 121, 211, 0.05) !important;
+    }
+
+/* --- Carousel Navigation Arrows --- */
+.nav-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(26, 26, 27, 0.9);
+    border: none;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10; /* Ensure they stay above the image */
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+    .nav-arrow:hover {
+        background: #343536;
+    }
+
+    .nav-arrow.left {
+        left: 15px;
+    }
+
+    .nav-arrow.right {
+        right: 15px;
+    }
+
+    /* Hide arrows if they aren't needed (optional logic for JS) */
+    .nav-arrow.d-none {
+        display: none;
+    }
+
+/* --- Image Handling --- */
+.main-img-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+}
+
+#mainPreview {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* --- Controls Overlay --- */
+.carousel-top-controls {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 11;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, transparent 100%);
 }
 
 .gallery-viewport img {
@@ -371,4 +444,24 @@
 .char-count {
     color: #8b949e;
     font-size: 12px;
+}
+
+.drag-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.drag-message {
+    color: #fff;
+    font-size: 1.2rem;
+    text-align: center;
 }

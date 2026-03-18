@@ -3,7 +3,9 @@ using AssetInsight.Core.DTOs.Tag;
 using AssetInsight.Core.Interfaces;
 using AssetInsight.Models.Post;
 using CloudinaryDotNet;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace AssetInsight.Controllers
 {
@@ -37,18 +39,38 @@ namespace AssetInsight.Controllers
 			return View(pagedVMs);
 		}
 
+		//[Authorize]
 		public async Task<IActionResult> Create()
 		{
 			return View();
 		}
 
 		[HttpPost]
+		//[Authorize]
 		public async Task<IActionResult> Create(PostFormModel model)
 		{
+			if (!ModelState.IsValid)
+			{
+				return View(model);
+			}
+
 			if (model.Images.Any())
 			{
 				model.Images.RemoveAll(x => !x.ContentType.Contains("image/"));
+
+
 			}
+
+			PostDto postDto = new PostDto
+			{
+				Title = model.Title,
+				Content = model.Content,
+				AuthorId = User.FindFirstValue(ClaimTypes.NameIdentifier),
+			};
+
+			Guid postId = await postService.AddAsync(postDto);
+
+
 			return View(model);
 		}
 	}

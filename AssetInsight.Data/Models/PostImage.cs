@@ -15,6 +15,9 @@ namespace AssetInsight.Data.Models
 		[Required]
 		public string ImgUrl { get; set; }
 
+		[Required]
+		public string PublicId { get; set; }
+
 		public Guid PostId { get; set; }
 		public virtual Post Post { get; set; }
 	}

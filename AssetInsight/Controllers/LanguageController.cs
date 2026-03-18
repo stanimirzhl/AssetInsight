@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
+using System.Globalization;
 
 namespace AssetInsight.Controllers
 {
@@ -22,6 +24,24 @@ namespace AssetInsight.Controllers
 			);
 
 			return LocalRedirect(returnUrl);
+		}
+
+		public IActionResult GetCurrentCulture()
+		{
+			var cookie = Request.Cookies[CookieRequestCultureProvider.DefaultCookieName];
+
+			string currentCulture = CultureInfo.CurrentCulture.Name;
+
+			if (!string.IsNullOrEmpty(cookie))
+			{
+				var requestCulture = CookieRequestCultureProvider.ParseCookieValue(cookie);
+				if (requestCulture != null)
+				{
+					currentCulture = requestCulture.Cultures.FirstOrDefault().Value;
+				}
+			}
+
+			return Json(new { culture = currentCulture });
 		}
 	}
 }

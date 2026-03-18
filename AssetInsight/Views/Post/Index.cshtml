@@ -40,6 +40,7 @@
         border-radius: 20px;
         text-decoration: none;
         font-weight: 600;
+        text-decoration: none;
     }
 
     .post-card {
@@ -161,7 +162,7 @@
         <a asp-action="Create" class="btn-create">+ @Localizer["CreatePost"]</a>
     </div>
 
-    @foreach (var post in Model.Items)
+    @foreach (var post in Model.Items.OrderByDescending(x => x.CreatedAt))
     {
         <div class="post-card @(post.IsLocked ? "locked" : "")">
 
