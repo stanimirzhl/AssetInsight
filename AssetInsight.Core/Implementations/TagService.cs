@@ -43,11 +43,17 @@ namespace AssetInsight.Core.Implementations
 
 			if (tags.Count != 0)
 			{
-				List<Guid> newTagIds = new List<Guid>();
+				List<Tag> existingTags = await repository.All()
+					.Where(x => tags.Contains(x.Name))
+					.ToListAsync();
 
-				foreach (string tag in tags)
+				List<Guid> allTagIds = existingTags.Select(x => x.Id).ToList();
+
+				List<string> newTags = tags.Except(existingTags.Select(x => x.Name)).ToList();
+
+				if(newTags.Count != 0)
 				{
-					if(!await repository.All().AnyAsync(x => x.Name == tag))
+					foreach (string tag in newTags)
 					{
 						Tag newTag = new Tag
 						{
@@ -56,11 +62,11 @@ namespace AssetInsight.Core.Implementations
 
 						await repository.AddAsync(newTag);
 
-						newTagIds.Add(newTag.Id);
+						allTagIds.Add(newTag.Id);
 					}
 				}
 
-				return newTagIds;
+				return allTagIds;
 			}
 
 			return [];

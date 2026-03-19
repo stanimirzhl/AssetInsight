@@ -1,0 +1,72 @@
+﻿@using AssetInsight.Models.Post
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@model IEnumerable<PostVM>
+
+@foreach (var post in Model.OrderByDescending(x => x.CreatedAt))
+{
+    <div class="post-card @(post.IsLocked ? "locked" : "")">
+
+        <div class="post-votes">
+            <span class="vote-count">@post.ReactionsCount</span>
+        </div>
+
+        <div class="post-content">
+
+            <div class="post-meta">
+                <span class="author">
+                    @Localizer["PostedBy"] @post.AuthorUserName
+                </span>
+                <span class="time-ago" data-time="@post.CreatedAt.ToUniversalTime().ToString("o")"></span>
+
+                @if (post.EditedAt.HasValue)
+                {
+                    <span class="edited" data-time="@post.EditedAt.Value.ToUniversalTime().ToString("o")"></span>
+                }
+
+                @if (post.IsLocked)
+                {
+                    <span class="locked-badge">🔒 @Localizer["Locked"]</span>
+                }
+        </div>
+
+        <h4>
+            <a asp-action="Details" asp-route-id="@post.Id">
+                @post.Title
+            </a>
+        </h4>
+
+        <p class="post-preview">
+            @(post.Content.Length > 200
+                        ? post.Content.Substring(0, 200) + "..."
+                        : post.Content)
+        </p>
+
+            <div class="post-footer">
+
+                <span class="comments">
+                    💬 @post.CommentsCount @Localizer["Comments"]
+                </span>
+
+                <form asp-action="Save" asp-route-id="@post.Id" method="post">
+                    <button type="submit" class="btn-save">
+                        ⭐ @Localizer["Save"]
+                    </button>
+                </form>
+
+            @if (post.Tags.Any())
+                {
+                    <div class="tag-container">
+                        @foreach (var tag in post.Tags)
+                        {
+                            <a asp-action="Index" asp-route-tag="@tag.Name" class="tag-link">
+                                <span class="tag-pill">#@tag.Name</span>
+                            </a>
+                        }
+                    </div>
+                }
+            </div>
+
+        </div>
+    </div>
+}

@@ -108,6 +108,12 @@ updateTimeAgo();
 
 setInterval(updateTimeAgo, 60000);
 
+async function getCurrentCulture() {
+    const response = await fetch('/Language/GetCurrentCulture');
+    const data = await response.json();
+    return data.culture;
+}
+
 const rules = {
     length: document.getElementById('rule-length'),
     uppercase: document.getElementById('rule-uppercase'),

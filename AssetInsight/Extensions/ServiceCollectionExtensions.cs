@@ -32,6 +32,7 @@ namespace AssetInsight.Extensions
 			services.AddScoped<IImageService, ImageService>();
 			services.AddScoped<ITagService, TagService>();
 			services.AddScoped<IPostTagService, PostTagService>();
+			services.AddScoped<IPostImageService, PostImageService>();
 
 			services.AddMvc(options =>
 				options
@@ -78,7 +79,7 @@ namespace AssetInsight.Extensions
 
 			try
 			{
-				//configBuilder.AddAzureKeyVault(new Uri(keyVaultUrl), new DefaultAzureCredential());
+				configBuilder.AddAzureKeyVault(new Uri(keyVaultUrl), new DefaultAzureCredential());
 			}
 			catch (Exception ex)
 			{

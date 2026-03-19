@@ -4,13 +4,11 @@
     const overlay = document.getElementById('dragOverlay');
     const browserHint = document.getElementById('browserHint');
 
-    // Detect Firefox
     const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
     if (isFirefox) {
         browserHint.classList.remove('d-none');
     }
 
-    // Show overlay on drag
     dropZone.addEventListener('dragenter', () => {
         overlay.classList.remove('d-none');
     });
@@ -20,12 +18,10 @@
         overlay.classList.remove('d-none');
     });
 
-    // Hide overlay when leaving
     dropZone.addEventListener('dragleave', () => {
         overlay.classList.add('d-none');
     });
 
-    // Hide on drop
     dropZone.addEventListener('drop', () => {
         overlay.classList.add('d-none');
     });
@@ -66,7 +62,6 @@
         });
     });
 
-    // --- Selectors ---
     const fileInput = document.getElementById('fileInput');
     //const dropZone = document.getElementById('dropZone');
     const mainPreview = document.getElementById('mainPreview');
@@ -75,7 +70,6 @@
     const previewContainer = document.getElementById('previewContainer');
     const modalGrid = document.getElementById('modalGrid');
 
-    // Buttons
     const addBtnEmpty = document.getElementById('addBtnEmpty');
     const deleteCurrentBtn = document.getElementById('deleteCurrentBtn');
     const prevBtn = document.getElementById('prevBtn');
@@ -84,9 +78,6 @@
     let uploadedFiles = [];
     let currentIndex = 0;
 
-    // --- Initialization ---
-
-    // Refresh modal grid whenever it's opened
     const editModal = document.getElementById('editGalleryModal');
     if (editModal) {
         editModal.addEventListener('show.bs.modal', renderModalGrid);
@@ -97,7 +88,6 @@
         addMorePhotosBtn.addEventListener('click', () => fileInput.click());
     }
 
-    // --- Event Listeners ---
     if (addBtnEmpty) addBtnEmpty.addEventListener('click', () => fileInput.click());
     if (prevBtn) prevBtn.addEventListener('click', prevImg);
     if (nextBtn) nextBtn.addEventListener('click', nextImg);
@@ -105,10 +95,9 @@
 
     fileInput.addEventListener('change', function () {
         if (this.files.length > 0) handleFiles(this.files);
-        //this.value = ''; // Reset to allow re-uploading same file
+        //this.value = '';
     });
 
-    // --- Drag and Drop ---
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(event => {
         dropZone.addEventListener(event, e => {
             e.preventDefault();
@@ -123,22 +112,27 @@
         handleFiles(e.dataTransfer.files);
     });
 
-    // --- Logic Functions ---
-
     function handleFiles(files) {
         const fileArray = Array.from(files);//.filter(f => f.type.startsWith('image/'));
         const newFiles = [];
 
-        fileArray.forEach((file) => {
-            console.log('File: ', file.type)
+        fileArray.forEach((file, index) => {
+            //console.log('File: ', file.type)
             if (file.type.startsWith('image/')) {
+
+                if (file.name.startsWith('download')) {
+                    const extension = file.type.split('/')[1] || 'png';
+                    fileName = `image_${Date.now()}_${index}.${extension}`;
+                    file = new File([file], fileName, { type: file.type });
+                }
+
                 newFiles.push(file);
             }
         });
 
         if (newFiles.length) {
             uploadedFiles = uploadedFiles.concat(newFiles);
-            // Jump to the first of the newly added images
+
             currentIndex = uploadedFiles.length - newFiles.length;
             syncUI();
 
@@ -149,17 +143,11 @@
        }
     }
 
-    /**
-     * The Single Source of Truth for the UI
-     * Updates the hidden input, main preview, and navigation dots.
-     */
     function syncUI() {
-        // 1. Sync hidden file input for the C# Controller
         const dt = new DataTransfer();
         uploadedFiles.forEach(file => dt.items.add(file));
         fileInput.files = dt.files;
 
-        // 2. Toggle Empty State vs Preview
         if (uploadedFiles.length === 0) {
             emptyState.classList.remove('d-none');
             previewContainer.classList.add('d-none');
@@ -170,14 +158,12 @@
         emptyState.classList.add('d-none');
         previewContainer.classList.remove('d-none');
 
-        // 3. Update Main Image
         const reader = new FileReader();
         reader.onload = (e) => {
             mainPreview.src = e.target.result;
         };
         reader.readAsDataURL(uploadedFiles[currentIndex]);
 
-        // 4. Update Bottom Dots (Capsule style)
         renderDots();
     }
 
@@ -188,12 +174,6 @@
             dot.className = `dot ${index === currentIndex ? 'active' : ''}`;
             dotIndicators.appendChild(dot);
         });
-    }
-
-    async function getCurrentCulture() {
-        const response = await fetch('/Language/GetCurrentCulture');
-        const data = await response.json();
-        return data.culture;
     }
 
     async function showNoImagesMessage() {
@@ -241,11 +221,10 @@
                     </div>
                 `;
 
-                // Individual delete button in the grid
                 card.querySelector('.delete-thumb').addEventListener('click', function () {
                     const idx = parseInt(this.getAttribute('data-index'));
                     removeImageAtIndex(idx);
-                    renderModalGrid(); // Refresh grid after delete
+                    renderModalGrid(); 
                 });
 
                 modalGrid.appendChild(card);
@@ -257,15 +236,12 @@
     function removeImageAtIndex(index) {
         uploadedFiles.splice(index, 1);
 
-        // Ensure currentIndex isn't pointing to a non-existent index
         if (currentIndex >= uploadedFiles.length) {
             currentIndex = Math.max(0, uploadedFiles.length - 1);
         }
 
         syncUI();
     }
-
-    // --- Navigation ---
 
     function nextImg() {
         if (currentIndex < uploadedFiles.length - 1) {

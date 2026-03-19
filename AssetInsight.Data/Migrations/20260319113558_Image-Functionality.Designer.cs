@@ -4,6 +4,7 @@ using AssetInsight.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AssetInsight.Data.Migrations
 {
     [DbContext(typeof(AssetInsightDbContext))]
-    partial class AssetInsightDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260319113558_Image-Functionality")]
+    partial class ImageFunctionality
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -54,7 +57,7 @@ namespace AssetInsight.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Accounts", (string)null);
+                    b.ToTable("Accounts");
                 });
 
             modelBuilder.Entity("AssetInsight.Data.Models.AccountTransaction", b =>
@@ -76,7 +79,7 @@ namespace AssetInsight.Data.Migrations
 
                     b.HasIndex("AccountId");
 
-                    b.ToTable("Transactions", (string)null);
+                    b.ToTable("Transactions");
                 });
 
             modelBuilder.Entity("AssetInsight.Data.Models.Comment", b =>
@@ -116,7 +119,7 @@ namespace AssetInsight.Data.Migrations
 
                     b.HasIndex("PostId");
 
-                    b.ToTable("Comments", (string)null);
+                    b.ToTable("Comments");
                 });
 
             modelBuilder.Entity("AssetInsight.Data.Models.CommentReaction", b =>
@@ -143,7 +146,7 @@ namespace AssetInsight.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("CommentReactions", (string)null);
+                    b.ToTable("CommentReactions");
                 });
 
             modelBuilder.Entity("AssetInsight.Data.Models.Post", b =>
@@ -178,7 +181,7 @@ namespace AssetInsight.Data.Migrations
 
                     b.HasIndex("AuthorId");
 
-                    b.ToTable("Posts", (string)null);
+                    b.ToTable("Posts");
                 });
 
             modelBuilder.Entity("AssetInsight.Data.Models.PostImage", b =>
@@ -204,7 +207,7 @@ namespace AssetInsight.Data.Migrations
 
                     b.HasIndex("PostId");
 
-                    b.ToTable("PostImages", (string)null);
+                    b.ToTable("PostImages");
                 });
 
             modelBuilder.Entity("AssetInsight.Data.Models.PostReaction", b =>
@@ -231,7 +234,7 @@ namespace AssetInsight.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("PostReactions", (string)null);
+                    b.ToTable("PostReactions");
                 });
 
             modelBuilder.Entity("AssetInsight.Data.Models.PostTag", b =>
@@ -252,7 +255,7 @@ namespace AssetInsight.Data.Migrations
 
                     b.HasIndex("TagId");
 
-                    b.ToTable("PostTags", (string)null);
+                    b.ToTable("PostTags");
                 });
 
             modelBuilder.Entity("AssetInsight.Data.Models.SavedPost", b =>
@@ -276,7 +279,7 @@ namespace AssetInsight.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("SavedPosts", (string)null);
+                    b.ToTable("SavedPosts");
                 });
 
             modelBuilder.Entity("AssetInsight.Data.Models.Tag", b =>
@@ -292,7 +295,7 @@ namespace AssetInsight.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tags", (string)null);
+                    b.ToTable("Tags");
                 });
 
             modelBuilder.Entity("AssetInsight.Data.Models.Trade", b =>
@@ -331,7 +334,7 @@ namespace AssetInsight.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Trades", (string)null);
+                    b.ToTable("Trades");
                 });
 
             modelBuilder.Entity("AssetInsight.Data.Models.User", b =>

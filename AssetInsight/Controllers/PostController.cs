@@ -1,4 +1,5 @@
 ﻿using AssetInsight.Core;
+using AssetInsight.Core.DTOs.Image_Error_Dto;
 using AssetInsight.Core.DTOs.Post;
 using AssetInsight.Core.DTOs.Tag;
 using AssetInsight.Core.Interfaces;
@@ -14,22 +15,31 @@ namespace AssetInsight.Controllers
 {
 	public class PostController : Controller
 	{
+		private readonly ILogger<PostController> logger;
 		private readonly IPostService postService;
 		private readonly ITagService tagService;
 		private readonly IPostTagService postTagService;
+		private readonly IImageService imageService;
+		private readonly IPostImageService postImageService;
 
 		public PostController(IPostService postService,
 			ITagService tagService,
-			IPostTagService postTagService)
+			IPostTagService postTagService,
+			ILogger<PostController> logger,
+			IImageService imageService,
+			IPostImageService postImageService)
 		{
 			this.postService = postService;
 			this.tagService = tagService;
 			this.postTagService = postTagService;
+			this.logger = logger;
+			this.imageService = imageService;
+			this.postImageService = postImageService;
 		}
 
-		public async Task<IActionResult> Index(string? tag = null)
+		public async Task<IActionResult> Index(int page = 1, string? tag = null)
 		{
-			PagingModel<PostDto> pagedPostDtos = await postService.GetAllPagedPostsAsync(1, 10);
+			PagingModel<PostDto> pagedPostDtos = await postService.GetAllPagedPostsAsync(page, 5);
 
 			PagingModel<PostVM> pagedVMs = pagedPostDtos.Map(dto => new PostVM
 			{
@@ -40,7 +50,7 @@ namespace AssetInsight.Controllers
 				CreatedAt = dto.CreatedAt,
 				EditedAt = dto.EditedAt,
 				IsLocked = dto.IsLocked,
-				CommentsCount = dto.CommentsCount, 
+				CommentsCount = dto.CommentsCount,
 				ReactionsCount = dto.ReactionsCount,
 			});
 
@@ -52,6 +62,11 @@ namespace AssetInsight.Controllers
 			if (!string.IsNullOrEmpty(tag))
 			{
 				pagedVMs.Items = pagedVMs.Items.Where(p => p.Tags.Any(t => t.Name == tag)).ToList();
+			}
+
+			if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+			{
+				return PartialView("_PostPartial", pagedVMs.Items);
 			}
 
 			return View(pagedVMs);
@@ -72,27 +87,49 @@ namespace AssetInsight.Controllers
 				return View(model);
 			}
 
-			if (model.Images.Any())
+			try
 			{
-				model.Images.RemoveAll(x => !x.ContentType.Contains("image/"));
+				PostDto postDto = new PostDto
+				{
+					Title = model.Title,
+					Content = model.Content,
+					AuthorId = User.FindFirstValue(ClaimTypes.NameIdentifier),
+				};
 
+				Guid postId = await postService.AddAsync(postDto);
+
+				List<Guid> tagIds = await tagService.ExtractAndAddTagsIfAny(postDto.Content);
+
+				if (tagIds.Count != 0)
+				{
+					await postTagService.AddAsync(postId, tagIds);
+				}
+
+				if (model.Images.Count != 0)
+				{
+					model.Images.RemoveAll(x => !x.ContentType.Contains("image/"));
+
+					(List<(string, string)> uploadedResults, List<ErrorImageDto> errorImages) =
+						await imageService.UploadPhotosAsync(model.Images, postId);
+
+					if(uploadedResults.Count != 0)
+					{
+						await postImageService.AddAsync(uploadedResults, postId);
+					}
+
+					if(errorImages.Count != 0)
+					{
+						foreach (ErrorImageDto error in errorImages)
+						{
+							logger.LogError(error.Exception, error.ToString());
+						}
+					}
+				}
 
 			}
-
-			PostDto postDto = new PostDto
+			catch (Exception ex)
 			{
-				Title = model.Title,
-				Content = model.Content,
-				AuthorId = User.FindFirstValue(ClaimTypes.NameIdentifier),
-			};
-
-			Guid postId = await postService.AddAsync(postDto);
-
-			List<Guid> tagIds = await tagService.ExtractAndAddTagsIfAny(postDto.Content);
-
-			if(tagIds.Count != 0)
-			{
-				await postTagService.AddAsync(postId, tagIds);
+				logger.LogError(ex, ex.Message);
 			}
 
 			return RedirectToAction(nameof(Index));
