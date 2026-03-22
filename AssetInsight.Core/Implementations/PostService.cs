@@ -35,6 +35,24 @@ namespace AssetInsight.Core.Implementations
 			return post.Id;
 		}
 
+		public async Task<PostDto> GetByIdAsync(Guid id)
+		{
+			return await repository.AllAsReadOnly()
+			.Where(p => p.Id == id)
+			.Select(p => new PostDto
+			{
+				Id = p.Id,
+				Title = p.Title,
+				Content = p.Content,
+				AuthorId = p.AuthorId,
+				AuthorName = p.Author == null ? "[deleted]" : p.Author.UserName,
+				CreatedAt = p.CreatedAt,
+				EditedAt = p.EditedAt,
+				IsLocked = p.IsLocked,				
+			})
+			.FirstOrDefaultAsync() ?? throw new NoEntityException($"No entity found with id: {id}!");
+		}
+
 		public async Task<PagingModel<PostDto>> GetAllPagedPostsAsync(int pageIndex, int pageSize)
 		{
 			IQueryable<PostDto> query = repository.AllAsReadOnly()

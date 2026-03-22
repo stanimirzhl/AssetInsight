@@ -1,6 +1,8 @@
-﻿using AssetInsight.Core.Interfaces;
+﻿using AssetInsight.Core.DTOs.Post_Image;
+using AssetInsight.Core.Interfaces;
 using AssetInsight.Data.Common;
 using AssetInsight.Data.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,6 +32,19 @@ namespace AssetInsight.Core.Implementations
 				};
 				await repository.AddAsync(postImage);
 			}
+		}
+
+		public async Task<List<PostImageDto>> GetAllByPostIdAsync(Guid postId)
+		{
+			return await repository.AllAsReadOnly()
+				.Where(pi => pi.PostId == postId)
+				.Select(x => new PostImageDto
+				{
+					Id = x.Id,
+					ImgUrl = x.ImgUrl,
+					PublicId = x.PublicId,
+				})
+				.ToListAsync();
 		}
 	}
 }

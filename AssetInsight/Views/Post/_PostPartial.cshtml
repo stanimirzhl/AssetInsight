@@ -54,6 +54,12 @@
                     </button>
                 </form>
 
+                <span>
+                    <a asp-action="Edit" asp-route-id="@post.Id">
+                        Edit
+                    </a>
+                </span>
+
             @if (post.Tags.Any())
                 {
                     <div class="tag-container">

@@ -112,12 +112,12 @@ namespace AssetInsight.Controllers
 					(List<(string, string)> uploadedResults, List<ErrorImageDto> errorImages) =
 						await imageService.UploadPhotosAsync(model.Images, postId);
 
-					if(uploadedResults.Count != 0)
+					if (uploadedResults.Count != 0)
 					{
 						await postImageService.AddAsync(uploadedResults, postId);
 					}
 
-					if(errorImages.Count != 0)
+					if (errorImages.Count != 0)
 					{
 						foreach (ErrorImageDto error in errorImages)
 						{
@@ -133,6 +133,71 @@ namespace AssetInsight.Controllers
 			}
 
 			return RedirectToAction(nameof(Index));
+		}
+
+		public async Task<IActionResult> Edit(Guid? id)
+		{
+			PostFormModel model;
+			try
+			{
+				string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+				PostDto postDto = await postService.GetByIdAsync(id.Value);
+
+				if(postDto.AuthorId != null && postDto.AuthorId != userId)
+				{
+					return Unauthorized();
+				}
+
+				model = new PostFormModel
+				{
+					Id = postDto.Id,
+					Title = postDto.Title,
+					Content = postDto.Content,
+					ExistingImages = await postImageService.GetAllByPostIdAsync(postDto.Id),
+				};
+
+			}
+			catch (Exception ex)
+			{
+				logger.LogError(ex, ex.Message);
+				return NotFound();
+			}
+
+			return View(model);
+		}
+
+		[HttpPost]
+		public async Task<IActionResult> Edit(Guid? id, PostFormModel model)
+		{
+			if (!ModelState.IsValid)
+			{
+				model.ExistingImages = await postImageService.GetAllByPostIdAsync(id);
+				return View(model);
+			}
+			return View(model);
+				try
+				{
+					string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+					PostDto postDto = await postService.GetByIdAsync(id.Value);
+					if (postDto.AuthorId != null && postDto.AuthorId != userId)
+					{
+						return Unauthorized();
+					}
+					postDto.Title = model.Title;
+					postDto.Content = model.Content;
+					//await postService.UpdateAsync(postDto);
+					List<Guid> tagIds = await tagService.ExtractAndAddTagsIfAny(postDto.Content);
+					if (tagIds.Count != 0)
+					{
+						//await postTagService.UpdateAsync(postDto.Id, tagIds);
+					}
+				}
+				catch (Exception ex)
+				{
+					logger.LogError(ex, ex.Message);
+				}
+				return RedirectToAction(nameof(Index));
 		}
 	}
 }

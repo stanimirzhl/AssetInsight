@@ -1,0 +1,146 @@
+﻿@using AssetInsight.Models.Post
+@using Microsoft.AspNetCore.Mvc.Localization
+@using static AssetInsight.Data.Constants.DataConstants.PostConstants
+@inject IViewLocalizer Localizer
+@model PostFormModel
+
+<link rel="stylesheet" href="~/css/post/post-add.css" />
+
+<div class="container mt-5">
+    <div class="post-create-container bg-dark text-white rounded-3 shadow-lg">
+        <form asp-action="Edit" method="post" enctype="multipart/form-data">
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" name="DeletedImagesJson" id="deletedImagesInput" />
+
+            <div class="p-4">
+                <h4 class="mb-4">@Localizer["EditPost"]</h4>
+
+                <div class="title-wrapper mb-4">
+                    <div class="input-container">
+                        <textarea asp-for="Title"
+                                  id="titleInput"
+                                  data-max="@PostTitleMaxLength"
+                                  maxlength="@PostTitleMaxLength"
+                                  class="reddit-input @(ViewData.ModelState["Title"]?.Errors.Count > 0 ? "error" : "")"
+                                  placeholder=""></textarea>
+
+                        <label asp-for="Title" class="floating-label"></label>
+                        <span class="error-icon">!</span>
+                    </div>
+
+                    <div class="input-footer">
+                        <div class="error-container">
+                            <span asp-validation-for="Title" class="error-msg"></span>
+                        </div>
+                        <span data-for="titleInput" class="char-count"></span>
+                    </div>
+                </div>
+
+                <div class="reddit-uploader-box border-secondary mb-3" id="dropZone">
+                    <div id="imageGallery" class="gallery-viewport position-relative h-100">
+                        <div id="emptyState" class="text-center py-5">
+                            <i class="bi bi-image" style="font-size: 3rem; color: #555;"></i>
+                            <p class="text-muted">@Localizer["DragDrop"]</p>
+                            <button type="button" id="addBtnEmpty" class="btn btn-outline-primary btn-sm rounded-pill">@Localizer["Add"]</button>
+                        </div>
+
+                        <div id="previewContainer" class="d-none h-100 w-100 position-relative">
+                            <div class="carousel-top-controls d-flex justify-content-between w-100 p-3">
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn-reddit-pill" onclick="document.getElementById('fileInput').click()">
+                                        <i class="bi bi-images"></i> @Localizer["Add"]
+                                    </button>
+                                    <button type="button" class="btn-reddit-pill" data-bs-toggle="modal" data-bs-target="#editGalleryModal">
+                                        <i class="bi bi-pencil"></i> @Localizer["EditAll"]
+                                    </button>
+                                </div>
+                                <button type="button" class="btn-reddit-circle text-white" id="deleteCurrentBtn">
+                                    <i class="bi bi-trash3"></i>
+                                </button>
+                            </div>
+
+                            <div class="main-img-wrapper d-flex align-items-center justify-content-center h-100">
+                                <img id="mainPreview" src="" class="img-fluid" style="max-height: 450px; object-fit: contain;" />
+                            </div>
+
+                            <button type="button" class="nav-arrow left" id="prevBtn"><i class="bi bi-chevron-left"></i></button>
+                            <button type="button" class="nav-arrow right" id="nextBtn"><i class="bi bi-chevron-right"></i></button>
+
+                            <div class="dot-container-wrapper">
+                                <div id="dotIndicators" class="dot-capsule"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="dragOverlay" class="drag-overlay d-none">
+                        <div class="drag-message">
+                            @Localizer["DropHere"]<br>
+                            <small id="browserHint" class="text-warning d-none">
+                                @Localizer["FFWarning"]
+                            </small>
+                        </div>
+                    </div>
+                    <input type="file" id="fileInput" name="Images" multiple accept="image/*" class="d-none" />
+                </div>
+
+                <div class="modal fade" id="editGalleryModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-xl modal-dialog-centered">
+                        <div class="modal-content reddit-modal">
+                            <div class="modal-header border-0">
+                                <h5 class="modal-title">@Localizer["EditGallery"]</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div id="modalGrid" class="d-flex flex-wrap gap-3"></div>
+                                <div class="mt-4">
+                                    <button type="button" class="btn-text-link" id="addMorePhotosBtn">
+                                        <i class="bi bi-images"></i> @Localizer["MorePhotos"]
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="modal-footer border-0">
+                                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">@Localizer["Back"]</button>
+                                <button type="button" class="btn btn-primary rounded-pill px-4" data-bs-dismiss="modal">@Localizer["Save"]</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="title-wrapper mb-4">
+                    <div class="input-container">
+                        <textarea asp-for="Content"
+                                  id="contentInput"
+                                  data-max="@PostContentMaxLength"
+                                  maxlength="@PostContentMaxLength"
+                                  rows="5"
+                                  class="reddit-input @(ViewData.ModelState["Content"]?.Errors.Count > 0 ? "error" : "")"
+                                  placeholder=""></textarea>
+
+                        <label asp-for="Content" class="floating-label"></label>
+                        <span class="error-icon">!</span>
+                    </div>
+
+                    <div class="input-footer">
+                        <div class="error-container">
+                            <span asp-validation-for="Content" class="error-msg"></span>
+                        </div>
+                        <span data-for="contentInput" class="char-count"></span>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 border-top border-secondary pt-3">
+                    <a asp-action="Index" asp-route-id="@Model.Id" class="btn btn-outline-light rounded-pill text-decoration-none">@Localizer["Cancel"]</a>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4">@Localizer["SaveChanges"]</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        window.existingImages = @Html.Raw(Json.Serialize(Model.ExistingImages));
+    </script>
+
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/post/post-add.js"></script>
+}

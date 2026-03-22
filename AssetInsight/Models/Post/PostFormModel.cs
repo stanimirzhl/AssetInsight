@@ -1,10 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using AssetInsight.Core.DTOs.Post_Image;
+using System.ComponentModel.DataAnnotations;
 using static AssetInsight.Data.Constants.DataConstants.PostConstants;
 
 namespace AssetInsight.Models.Post
 {
 	public class PostFormModel
 	{
+		public Guid Id { get; set; }
+
 		[Required(ErrorMessageResourceName = "Title_Required", ErrorMessageResourceType = typeof(Resources.Models.Post.PostFormModel))]
 		[StringLength(PostTitleMaxLength, MinimumLength = PostTitleMinLength, ErrorMessageResourceName = "Title_StringLength", 
 			ErrorMessageResourceType = typeof(Resources.Models.Post.PostFormModel))]
@@ -20,5 +23,9 @@ namespace AssetInsight.Models.Post
 		public string Content { get; set; }
 
 		public List<IFormFile> Images { get; set; } = new List<IFormFile>();
+
+		public List<PostImageDto> ExistingImages { get; set; } = new List<PostImageDto>();
+
+		public string DeletedImagesJson { get; set; }
 	}
 }

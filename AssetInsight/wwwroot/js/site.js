@@ -23,6 +23,49 @@ document.getElementById('cultureSelect').addEventListener('change', function () 
         });
 });
 
+window.addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+});
+
+window.addEventListener("keydown", function (e) {
+    if (e.key === "F12") {
+        e.preventDefault();
+    }
+
+    if (e.ctrlKey && e.shiftKey) {
+        const key = e.key.toLowerCase();
+        if (["i", "j", "c", "k"].includes(key)) {
+            e.preventDefault();
+        }
+    }
+
+    // Ctrl + U (view source)
+    if (e.ctrlKey && e.key.toLowerCase() === "u") {
+        e.preventDefault();
+    }
+
+    if (e.ctrlKey && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+    }
+
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+    }
+});
+
+(function () {
+    const threshold = 160;
+
+    setInterval(() => {
+        const widthDiff = window.outerWidth - window.innerWidth;
+        const heightDiff = window.outerHeight - window.innerHeight;
+
+        if (widthDiff > threshold || heightDiff > threshold) {
+            console.clear();
+        }
+    }, 1000);
+})();
+
 window.addEventListener("dragover", e => e.preventDefault());
 window.addEventListener("drop", e => e.preventDefault());
 
