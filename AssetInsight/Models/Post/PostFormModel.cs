@@ -6,7 +6,7 @@ namespace AssetInsight.Models.Post
 {
 	public class PostFormModel
 	{
-		public Guid Id { get; set; }
+		public Guid Id { get; set; } = Guid.Empty;
 
 		[Required(ErrorMessageResourceName = "Title_Required", ErrorMessageResourceType = typeof(Resources.Models.Post.PostFormModel))]
 		[StringLength(PostTitleMaxLength, MinimumLength = PostTitleMinLength, ErrorMessageResourceName = "Title_StringLength", 
@@ -26,6 +26,6 @@ namespace AssetInsight.Models.Post
 
 		public List<PostImageDto> ExistingImages { get; set; } = new List<PostImageDto>();
 
-		public string DeletedImagesJson { get; set; }
+		public string DeletedImagesJson { get; set; } = string.Empty;
 	}
 }

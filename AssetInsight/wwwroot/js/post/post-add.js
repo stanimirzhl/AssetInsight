@@ -5,7 +5,7 @@
     const browserHint = document.getElementById('browserHint');
 
     const fileInput = document.getElementById('fileInput');
-    const mainPreview = document.getElementById('mainPreview');
+    const carouselTrack = document.getElementById('carouselTrack');
     const dotIndicators = document.getElementById('dotIndicators');
     const emptyState = document.getElementById('emptyState');
     const previewContainer = document.getElementById('previewContainer');
@@ -19,67 +19,29 @@
     const addMorePhotosBtn = document.getElementById('addMorePhotosBtn');
     const editModal = document.getElementById('editGalleryModal');
 
-    let images = []; 
-    let deletedImageIds = [];
-    let currentIndex = 0;
-    console.log("existingImages raw:", existingImages);
-    
-    if (typeof existingImages !== "undefined" && existingImages.length > 0) {
-        existingImages.forEach(img => {
-            console.log(img);
-            images.push({
-                id: img.id,
-                url: img.imgUrl,
-                publicId: img.publicId,
-                isExisting: true
-            });
-        });
-    }
-
-    const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
-    if (isFirefox) browserHint.classList.remove('d-none');
-
-    dropZone.addEventListener('dragenter', () => overlay.classList.remove('d-none'));
-    dropZone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        overlay.classList.remove('d-none');
-    });
-    dropZone.addEventListener('dragleave', () => overlay.classList.add('d-none'));
-    dropZone.addEventListener('drop', () => overlay.classList.add('d-none'));
-
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(event => {
-        dropZone.addEventListener(event, e => {
-            e.preventDefault();
-            e.stopPropagation();
-        });
-    });
-
-    dropZone.addEventListener('dragover', () => dropZone.classList.add('drag-over'));
-    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
-
-    dropZone.addEventListener('drop', (e) => {
-        dropZone.classList.remove('drag-over');
-        handleFiles(e.dataTransfer.files);
-    });
-
     const textareas = document.querySelectorAll('textarea');
-    textareas.forEach((el) => {
-        el.style.resize = 'none';
-        autosize(el);
+    textareas.forEach((element) => {
+        element.style.resize = 'none';
+        autosize(element);
     });
 
-    setInterval(() => {
-        textareas.forEach((el) => {
-            const label = el.parentElement.querySelector('.floating-label');
+    setInterval(function () {
 
-            if (el.classList.contains("input-validation-error")) {
-                el.classList.add("error");
-                label.style.color = "#ff4500";
+        textareas.forEach((element) => {
+            if (element.classList.contains("input-validation-error")) {
+                element.classList.add("error");
             } else {
-                el.classList.remove("error");
-                label.style.color = "#8b949e";
+                element.classList.remove("error");
             }
+            const label = element.parentElement.querySelector('.floating-label');
+            if (element.classList.contains("input-validation-error")) {
+                label.color = "#ff4500";
+            } else {
+                label.color = "#8b949e";
+            }
+
         });
+
     }, 100);
 
     textareas.forEach((textarea) => {
@@ -93,11 +55,67 @@
         });
     });
 
-    if (addBtnEmpty) addBtnEmpty.addEventListener('click', () => fileInput.click());
-    if (addMorePhotosBtn) addMorePhotosBtn.addEventListener('click', () => fileInput.click());
-    if (prevBtn) prevBtn.addEventListener('click', prevImg);
-    if (nextBtn) nextBtn.addEventListener('click', nextImg);
-    if (deleteCurrentBtn) deleteCurrentBtn.addEventListener('click', () => removeImageAtIndex(currentIndex));
+    let images = [];
+    let deletedImageIds = [];
+    let currentIndex = 0;
+
+    if (typeof existingImages !== "undefined" && existingImages.length > 0) {
+        existingImages.forEach(img => {
+            images.push({
+                id: img.id,
+                url: img.imgUrl,
+                publicId: img.publicId,
+                isExisting: true
+            });
+        });
+
+        images = images.filter(img => (img.isExisting && img.url !== undefined));
+    }
+
+    const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
+    if (isFirefox) browserHint.classList.remove('d-none');
+
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(event => {
+        dropZone.addEventListener(event, e => {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (images.length === 0) return;
+
+        switch (e.key) {
+            case 'ArrowRight':
+                nextImg();
+                break;
+            case 'ArrowLeft':
+                prevImg();
+                break;
+        }
+    });
+
+    dropZone.addEventListener('dragover', () => {
+        overlay.classList.remove('d-none');
+        dropZone.classList.add('drag-over');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        overlay.classList.add('d-none');
+        dropZone.classList.remove('drag-over');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        overlay.classList.add('d-none');
+        dropZone.classList.remove('drag-over');
+        handleFiles(e.dataTransfer.files);
+    });
+
+    addBtnEmpty?.addEventListener('click', () => fileInput.click());
+    addMorePhotosBtn?.addEventListener('click', () => fileInput.click());
+    prevBtn?.addEventListener('click', prevImg);
+    nextBtn?.addEventListener('click', nextImg);
+    deleteCurrentBtn?.addEventListener('click', () => removeImageAtIndex(currentIndex));
 
     if (editModal) {
         editModal.addEventListener('show.bs.modal', renderModalGrid);
@@ -107,16 +125,10 @@
         if (this.files.length > 0) handleFiles(this.files);
     });
 
+
     function handleFiles(files) {
-        const fileArray = Array.from(files);
-
-        fileArray.forEach((file, index) => {
+        Array.from(files).forEach((file, index) => {
             if (!file.type.startsWith('image/')) return;
-
-            if (file.name.startsWith('download')) {
-                const extension = file.type.split('/')[1] || 'png';
-                file = new File([file], `image_${Date.now()}_${index}.${extension}`, { type: file.type });
-            }
 
             images.push({
                 file: file,
@@ -125,44 +137,61 @@
         });
 
         currentIndex = images.length - 1;
-        syncUI();
-
-        if (editModal && editModal.classList.contains('show')) {
-            renderModalGrid();
-        }
+        renderAll();
     }
 
-    function syncUI() {
-
-        const dt = new DataTransfer();
-        images.forEach(img => {
-            if (!img.isExisting) {
-                dt.items.add(img.file);
-            }
-        });
-        fileInput.files = dt.files;
+    function renderAll() {
+        syncFileInput();
+        renderCarousel();
+        renderDots();
 
         if (images.length === 0) {
             emptyState.classList.remove('d-none');
             previewContainer.classList.add('d-none');
-            mainPreview.src = '';
-            return;
-        }
-
-        emptyState.classList.add('d-none');
-        previewContainer.classList.remove('d-none');
-
-        const img = images[currentIndex];
-
-        if (img.isExisting) {
-            mainPreview.src = img.url;
         } else {
-            const reader = new FileReader();
-            reader.onload = (e) => mainPreview.src = e.target.result;
-            reader.readAsDataURL(img.file);
+            emptyState.classList.add('d-none');
+            previewContainer.classList.remove('d-none');
         }
+    }
 
-        renderDots();
+    function renderCarousel() {
+        carouselTrack.innerHTML = '';
+
+        images.forEach(img => {
+
+            //if (typeof img.url !== 'undefined') {
+            const el = document.createElement('img');
+            el.className = 'carousel-img';
+
+            el.src = img.isExisting
+                ? img.url
+                : URL.createObjectURL(img.file);
+
+            el.addEventListener('click', () => {
+                openImageModal(el.src);
+            });
+
+            carouselTrack.appendChild(el);
+            // }
+        });
+
+        updateCarousel();
+    }
+
+    document.getElementById('modalPreviewImage').addEventListener('click', () => {
+        bootstrap.Modal.getInstance(document.getElementById('imagePreviewModal')).hide();
+    });
+
+    function openImageModal(src) {
+        const modalImg = document.getElementById('modalPreviewImage');
+        modalImg.src = src;
+
+        const modal = new bootstrap.Modal(document.getElementById('imagePreviewModal'));
+        modal.show();
+    }
+
+    function updateCarousel() {
+        carouselTrack.style.transform = `translateX(-${currentIndex * 100}%)`;
     }
 
     function renderDots() {
@@ -188,39 +217,77 @@
             currentIndex = Math.max(0, images.length - 1);
         }
 
-        syncUI();
+        renderAll();
     }
 
     function nextImg() {
         if (currentIndex < images.length - 1) {
             currentIndex++;
-            syncUI();
+            updateCarousel();
+            renderDots();
         }
     }
 
     function prevImg() {
         if (currentIndex > 0) {
             currentIndex--;
-            syncUI();
+            updateCarousel();
+            renderDots();
         }
+    }
+
+    function syncFileInput() {
+        const dt = new DataTransfer();
+
+        images.forEach(img => {
+            if (!img.isExisting) {
+                dt.items.add(img.file);
+            }
+        });
+
+        fileInput.files = dt.files;
+    }
+
+
+    async function showNoImagesMessage() {
+        const translations = {
+            "en": {
+                noImagesSelected: "No images selected"
+            },
+            "bg": {
+                noImagesSelected: "Няма избрани изображения"
+            },
+            "de": {
+                noImagesSelected: "Keine Bilder ausgewählt"
+            },
+            "es": {
+                noImagesSelected: "No se han seleccionado imágenes"
+            },
+            "fr": {
+                noImagesSelected: "Aucune image sélectionnée"
+            }
+        };
+        const culture = await getCurrentCulture();
+        const msg = translations[culture].noImagesSelected;
+
+        modalGrid.innerHTML = `<p class="text-center text-muted w-100">${msg}</p>`;
     }
 
     function renderModalGrid() {
         modalGrid.innerHTML = '';
 
         if (images.length === 0) {
-            modalGrid.innerHTML = `<p class="text-center text-muted w-100">No images selected</p>`;
+            showNoImagesMessage();
             return;
         }
 
         images.forEach((img, index) => {
-
             const card = document.createElement('div');
             card.className = 'thumb-card';
 
             const render = (src) => {
                 card.innerHTML = `
-                    <img src="${src}" style="max-height: 150px; object-fit: contain;" />
+                    <img src="${src}" />
                     <div class="thumb-overlay">
                         <button type="button" class="btn-reddit-circle delete-thumb" data-index="${index}">
                             <i class="bi bi-trash3"></i>
@@ -237,9 +304,7 @@
             if (img.isExisting) {
                 render(img.url);
             } else {
-                const reader = new FileReader();
-                reader.onload = (e) => render(e.target.result);
-                reader.readAsDataURL(img.file);
+                render(URL.createObjectURL(img.file));
             }
 
             modalGrid.appendChild(card);
@@ -256,5 +321,5 @@
         });
     }
 
-    syncUI();
+    renderAll();
 });

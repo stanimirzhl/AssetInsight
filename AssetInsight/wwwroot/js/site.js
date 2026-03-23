@@ -23,7 +23,7 @@ document.getElementById('cultureSelect').addEventListener('change', function () 
         });
 });
 
-window.addEventListener("contextmenu", function (e) {
+/*window.addEventListener("contextmenu", function (e) {
     e.preventDefault();
 });
 
@@ -64,7 +64,7 @@ window.addEventListener("keydown", function (e) {
             console.clear();
         }
     }, 1000);
-})();
+})();*/
 
 window.addEventListener("dragover", e => e.preventDefault());
 window.addEventListener("drop", e => e.preventDefault());

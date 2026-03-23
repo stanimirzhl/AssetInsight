@@ -60,7 +60,7 @@
                             </div>
 
                             <div class="main-img-wrapper d-flex align-items-center justify-content-center h-100">
-                                <img id="mainPreview" src="" class="img-fluid" style="max-height: 450px; object-fit: contain;" />
+                                <div id="carouselTrack" class="carousel-track"></div>
                             </div>
 
                             <button type="button" class="nav-arrow left" id="prevBtn"><i class="bi bi-chevron-left"></i></button>
@@ -100,6 +100,16 @@
                             <div class="modal-footer border-0">
                                 <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">@Localizer["Back"]</button>
                                 <button type="button" class="btn btn-primary rounded-pill px-4" data-bs-dismiss="modal">@Localizer["Save"]</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-xl">
+                        <div class="modal-content bg-dark border-0">
+                            <div class="modal-body text-center p-0">
+                                <img id="modalPreviewImage" class="img-fluid" style="max-height: 90vh;" />
                             </div>
                         </div>
                     </div>

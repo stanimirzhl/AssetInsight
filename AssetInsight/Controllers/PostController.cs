@@ -1,6 +1,8 @@
 ﻿using AssetInsight.Core;
 using AssetInsight.Core.DTOs.Image_Error_Dto;
+using AssetInsight.Core.DTOs.Images_To_Be_Deleted_Dto;
 using AssetInsight.Core.DTOs.Post;
+using AssetInsight.Core.DTOs.Post_Image;
 using AssetInsight.Core.DTOs.Tag;
 using AssetInsight.Core.Interfaces;
 using AssetInsight.Data.Models;
@@ -9,6 +11,7 @@ using CloudinaryDotNet;
 using Humanizer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System.Security.Claims;
 
 namespace AssetInsight.Controllers
@@ -168,18 +171,41 @@ namespace AssetInsight.Controllers
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> Edit(Guid? id, PostFormModel model)
+		public async Task<IActionResult> Edit(Guid id, PostFormModel model)
 		{
 			if (!ModelState.IsValid)
 			{
 				model.ExistingImages = await postImageService.GetAllByPostIdAsync(id);
 				return View(model);
 			}
+
+			if(string.IsNullOrEmpty(model.DeletedImagesJson))
+			{
+				return BadRequest();
+			}
+
+			List<ImageDeleteDto> toBeDeletedDtos = JsonConvert.DeserializeObject<List<ImageDeleteDto>>(model.DeletedImagesJson);
+			/*if (toBeDeletedDtos.Count != 0)
+				{
+					foreach (ImageDeleteDto image in toBeDeletedDtos)
+					{
+						try
+						{
+							await imageService.DeletePhotoAsync(image.PublicId);
+							await postImageService.DeleteAsync(image.PostImageId);
+						}
+						catch (Exception ex)
+						{
+							logger.LogError(ex, ex.Message);
+						}
+					}
+			}*/
+
 			return View(model);
 				try
 				{
 					string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-					PostDto postDto = await postService.GetByIdAsync(id.Value);
+					PostDto postDto = await postService.GetByIdAsync(id);
 					if (postDto.AuthorId != null && postDto.AuthorId != userId)
 					{
 						return Unauthorized();

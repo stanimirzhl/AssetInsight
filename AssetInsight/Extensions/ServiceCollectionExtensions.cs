@@ -79,7 +79,7 @@ namespace AssetInsight.Extensions
 
 			try
 			{
-				configBuilder.AddAzureKeyVault(new Uri(keyVaultUrl), new DefaultAzureCredential());
+				//configBuilder.AddAzureKeyVault(new Uri(keyVaultUrl), new DefaultAzureCredential());
 			}
 			catch (Exception ex)
 			{
