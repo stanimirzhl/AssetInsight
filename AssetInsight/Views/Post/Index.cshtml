@@ -16,6 +16,11 @@
         <a asp-action="Create" class="btn-create">+ @Localizer["CreatePost"]</a>
     </div>
 
+
+    <div id="post-list">
+        <partial name="_PostPartial" model="Model.Items" />
+    </div>
+
     <template id="skeleton-template">
         <div class="post-card skeleton-card">
             <div class="skeleton-votes shimmer"></div>
@@ -27,12 +32,29 @@
         </div>
     </template>
 
-    <div id="post-list">
-        <partial name="_PostPartial" model="Model.Items" />
-    </div>
-
     <div id="loading-sentinel" style="height: 50px;"></div>
 </div>
+
+
+<div class="modal fade" id="deletePostModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered custom-delete-modal">
+        <div class="modal-content">
+            <button type="button" class="btn-close-circle" data-bs-dismiss="modal">×</button>
+            <div class="modal-body text-center">
+                <h3>@Localizer["DeletePost"]</h3>
+                <p>@Html.Raw(Localizer["DeleteWarning"].Value)</p>
+                <div class="modal-actions d-flex justify-content-center gap-2">
+                    <button type="button" class="btn-go-back" data-bs-dismiss="modal">@Localizer["GoBack"]</button>
+                    <form id="deletePostForm" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn-confirm-delete">@Localizer["Delete"]</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 @section Scripts {
     <script src="~/js/post/post-index.js"></script>

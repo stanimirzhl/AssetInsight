@@ -14,5 +14,7 @@ namespace AssetInsight.Core.Interfaces
 		//Task<ImageUploadResult> AddPhotoAsync(IFormFile image, Guid postId);
 
 		Task<(List<(string, string)>, List<ErrorImageDto>)> UploadPhotosAsync(List<IFormFile> Images, Guid postId);
+
+		Task DeleteAsync(Guid postId, string[] images);
 	}
 }

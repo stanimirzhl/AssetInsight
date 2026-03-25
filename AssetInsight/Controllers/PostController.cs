@@ -7,9 +7,6 @@ using AssetInsight.Core.DTOs.Tag;
 using AssetInsight.Core.Interfaces;
 using AssetInsight.Data.Models;
 using AssetInsight.Models.Post;
-using CloudinaryDotNet;
-using Humanizer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Security.Claims;
@@ -69,6 +66,10 @@ namespace AssetInsight.Controllers
 
 			if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
 			{
+				if (pagedVMs.Items.Count() == 0)
+				{
+					return NoContent();
+				}
 				return PartialView("_PostPartial", pagedVMs.Items);
 			}
 
@@ -85,6 +86,10 @@ namespace AssetInsight.Controllers
 		//[Authorize]
 		public async Task<IActionResult> Create(PostFormModel model)
 		{
+			//model.Title = model.Title.Trim();
+			//model.Content = model.Content.Trim();
+			//ModelState.Clear();
+			//TryValidateModel(model);
 			if (!ModelState.IsValid)
 			{
 				return View(model);
@@ -147,7 +152,7 @@ namespace AssetInsight.Controllers
 
 				PostDto postDto = await postService.GetByIdAsync(id.Value);
 
-				if(postDto.AuthorId != null && postDto.AuthorId != userId)
+				if (postDto.AuthorId != null && postDto.AuthorId != userId)
 				{
 					return Unauthorized();
 				}
@@ -161,7 +166,7 @@ namespace AssetInsight.Controllers
 				};
 
 			}
-			catch (Exception ex)
+			catch (NoEntityException ex)
 			{
 				logger.LogError(ex, ex.Message);
 				return NotFound();
@@ -173,57 +178,110 @@ namespace AssetInsight.Controllers
 		[HttpPost]
 		public async Task<IActionResult> Edit(Guid id, PostFormModel model)
 		{
+			if (id != model.Id)
+			{
+				return BadRequest();
+			}
+			model.Title = model.Title.Trim(); model.Content = model.Content.Trim();	ModelState.Clear();	TryValidateModel(model);
+
 			if (!ModelState.IsValid)
 			{
 				model.ExistingImages = await postImageService.GetAllByPostIdAsync(id);
 				return View(model);
 			}
 
-			if(string.IsNullOrEmpty(model.DeletedImagesJson))
+			if (string.IsNullOrEmpty(model.DeletedImagesJson))
 			{
 				return BadRequest();
 			}
 
-			List<ImageDeleteDto> toBeDeletedDtos = JsonConvert.DeserializeObject<List<ImageDeleteDto>>(model.DeletedImagesJson);
-			/*if (toBeDeletedDtos.Count != 0)
-				{
-					foreach (ImageDeleteDto image in toBeDeletedDtos)
-					{
-						try
-						{
-							await imageService.DeletePhotoAsync(image.PublicId);
-							await postImageService.DeleteAsync(image.PostImageId);
-						}
-						catch (Exception ex)
-						{
-							logger.LogError(ex, ex.Message);
-						}
-					}
-			}*/
+			try
+			{
+				await postService.GetByIdAsync(id);
+			}
+			catch (NoEntityException ex)
+			{
+				logger.LogError(ex, ex.Message);
+				return NotFound();
+			}
 
-			return View(model);
+			HashSet<Guid> originalTagIds = [.. await postTagService.GetAllTagIdsByPostIdAsync(id)];
+			HashSet<Guid> newTagIds = [.. await tagService.ExtractAndAddTagsIfAny(model.Content)];
+
+			List<Guid> tagsToAdd = newTagIds.Except(originalTagIds).ToList();
+			List<Guid> tagsToRemove = originalTagIds.Except(newTagIds).ToList();
+
+			await postTagService.AddAsync(id, tagsToAdd);
+			await postTagService.DeleteAsync(tagsToRemove);
+
+			List<ImageDeleteDto> toBeDeletedDtos;
+
+			try
+			{
+				toBeDeletedDtos = JsonConvert.DeserializeObject<List<ImageDeleteDto>>(model.DeletedImagesJson)
+								?? [];
+			}
+			catch
+			{
+				toBeDeletedDtos = new List<ImageDeleteDto>();
+			}
+
+			if (toBeDeletedDtos.Count != 0)
+			{
 				try
 				{
-					string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-					PostDto postDto = await postService.GetByIdAsync(id);
-					if (postDto.AuthorId != null && postDto.AuthorId != userId)
-					{
-						return Unauthorized();
-					}
-					postDto.Title = model.Title;
-					postDto.Content = model.Content;
-					//await postService.UpdateAsync(postDto);
-					List<Guid> tagIds = await tagService.ExtractAndAddTagsIfAny(postDto.Content);
-					if (tagIds.Count != 0)
-					{
-						//await postTagService.UpdateAsync(postDto.Id, tagIds);
-					}
+					await imageService.DeleteAsync(id, [.. toBeDeletedDtos.Select(x => x.PublicId)]);
 				}
 				catch (Exception ex)
 				{
 					logger.LogError(ex, ex.Message);
 				}
-				return RedirectToAction(nameof(Index));
+
+				try
+				{
+					await postImageService.DeleteAsync(id, [.. toBeDeletedDtos.Select(x => x.Id)]);
+				}
+				catch (Exception ex)
+				{
+					logger.LogError(ex, ex.Message);
+				}
+			}
+
+			await postService.EditAsync(new PostDto
+			{
+				Id = id,
+				Title = model.Title,
+				Content = model.Content,
+			});
+
+			return RedirectToAction(nameof(Index));
+		}
+
+		[HttpPost]
+		public async Task<IActionResult> Delete(Guid id)
+		{
+			try
+			{
+				await postService.GetByIdAsync(id);
+
+				try
+				{
+					await imageService.DeleteAsync(id, [.. (await postImageService.GetAllByPostIdAsync(id)).Select(x => x.PublicId)]);
+				}
+				catch (Exception ex)
+				{
+					logger.LogError(ex, ex.Message);
+				}
+
+				await postService.DeleteAsync(id);
+			}
+			catch (NoEntityException ex)
+			{
+				logger.LogError(ex, ex.Message);
+				return NotFound();
+			}
+
+			return Ok();
 		}
 	}
 }

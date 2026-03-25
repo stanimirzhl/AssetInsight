@@ -145,6 +145,8 @@
         renderCarousel();
         renderDots();
 
+
+
         if (images.length === 0) {
             emptyState.classList.remove('d-none');
             previewContainer.classList.add('d-none');
@@ -321,5 +323,7 @@
         });
     }
 
-    renderAll();
+    if (images.length !== 0) {
+        renderAll();
+    }
 });

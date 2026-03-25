@@ -14,5 +14,9 @@ namespace AssetInsight.Core.Interfaces
 		Task<Guid> AddAsync(PostDto postDto);
 
 		Task<PostDto> GetByIdAsync(Guid id);
+
+		Task EditAsync(PostDto postDto);
+
+		Task DeleteAsync(Guid id);
 	}
 }

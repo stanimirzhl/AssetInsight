@@ -12,5 +12,7 @@ namespace AssetInsight.Core.Interfaces
 		Task AddAsync(List<(string, string)> imageUrls, Guid postId);
 
 		Task<List<PostImageDto>> GetAllByPostIdAsync(Guid postId);
+
+		Task DeleteAsync(Guid postId, List<int> imageIds);
 	}
 }

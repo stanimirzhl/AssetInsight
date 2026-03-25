@@ -126,6 +126,18 @@
   <data name="CreatePost" xml:space="preserve">
     <value>Beitrag erstellen</value>
   </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Ja, löschen</value>
+  </data>
+  <data name="DeletePost" xml:space="preserve">
+    <value>Beitrag löschen?</value>
+  </data>
+  <data name="DeleteWarning" xml:space="preserve">
+    <value>Sobald Sie &lt;strong id="modalPostTitle"&gt;&lt;/strong&gt; löschen, kann es nicht wiederhergestellt werden.</value>
+  </data>
+  <data name="GoBack" xml:space="preserve">
+    <value>Zurück</value>
+  </data>
   <data name="Locked" xml:space="preserve">
     <value>Gesperrt</value>
   </data>

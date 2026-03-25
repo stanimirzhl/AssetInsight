@@ -10,49 +10,59 @@ const observer = new IntersectionObserver((entries) => {
     if (entries[0].isIntersecting && !isLoading && hasMorePosts) {
         loadPosts();
     }
-}, { threshold: 0.2 });
+}, {
+    threshold: 0.1,
+    //rootMargin: '100px'
+});
 
-observer.observe(sentinel);
+if (sentinel) observer.observe(sentinel);
 
 async function loadPosts() {
+    if (isLoading || !hasMorePosts) return;
     isLoading = true;
 
     const skeletons = [];
-    for (let i = 0; i < 1; i++) {
-        const clone = skeletonTemplate.content.cloneNode(true);
-        const div = document.createElement('div');
-        div.appendChild(clone);
-        postList.appendChild(div);
-        skeletons.push(div);
-    }
+    const clone = skeletonTemplate.content.cloneNode(true);
+    const div = document.createElement('div');
+    div.appendChild(clone);
+    postList.appendChild(div);
+    skeletons.push(div);
 
     try {
         const nextPage = currentPage + 1;
         const urlParams = new URLSearchParams(window.location.search);
-        const tag = urlParams.get('tag');
-        const response = await fetch(`?page=${nextPage}&tag=${tag ?? ''}`, {
+        const tag = urlParams.get('tag') || '';
+
+        const response = await fetch(`?page=${nextPage}&tag=${tag}`, {
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         });
 
         const html = await response.text();
-
         skeletons.forEach(s => s.remove());
 
         if (!response.ok || html.trim() === "") {
+
             hasMorePosts = false;
-            const culture = await getCurrentCulture();
+
+            let culture = "en";
+            try {
+                culture = await getCurrentCulture();
+            } catch (e) { culture = "en"; }
+
             const translations = {
-                "en": { noMorePosts: "No more posts to show" },
-                "bg": { noMorePosts: "Няма повече публикации" },
-                "de": { noMorePosts: "Keine weiteren Beiträge" },
-                "es": { noMorePosts: "No hay más publicaciones" },
-                "fr": { noMorePosts: "Plus de publications disponibles" }
+                "en": "No more posts to show",
+                "bg": "Няма повече публикации",
+                "de": "Keine weiteren Beiträge",
+                "es": "No hay más publicaciones",
+                "fr": "Plus de publications disponibles"
             };
-            sentinel.innerHTML = `<p class='text-center mt-4 text-muted'>${translations[culture].noMorePosts}.</p>`;
+
+            const msg = (translations[culture] || translations["en"]).noMorePosts || translations[culture] || translations["en"];
+            sentinel.innerHTML = `<p class='text-center mt-4 text-muted'>${msg}.</p>`;
             observer.unobserve(sentinel);
         } else {
             postList.insertAdjacentHTML('beforeend', html);
-            updateTimeAgo();
+            if (typeof updateTimeAgo === 'function') updateTimeAgo();
             currentPage = nextPage;
         }
     } catch (err) {
@@ -63,18 +73,66 @@ async function loadPosts() {
     }
 }
 
-async function savePost(btn, postId) {
-    try {
-        const response = await fetch(`/Post/Save/${postId}`, {
-            method: 'POST',
-            headers: { 'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value }
+document.addEventListener('DOMContentLoaded', function () {
+    const deleteModalElement = document.getElementById('deletePostModal');
+    const deleteForm = document.getElementById('deletePostForm');
+    const modalTitle = document.getElementById('modalPostTitle');
+
+    let currentPostId = null;
+
+    if (deleteModalElement) {
+        deleteModalElement.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            currentPostId = button.getAttribute('data-post-id');
+            const postTitle = button.getAttribute('data-post-title');
+            if (modalTitle) modalTitle.textContent = postTitle || "";
         });
 
-        if (response.ok) {
-            btn.classList.add('active');
-            btn.querySelector('.save-label').innerText = "Saved";
-        }
-    } catch (err) {
-        console.error("Save failed", err);
+        deleteModalElement.addEventListener('hidden.bs.modal', () => {
+            currentPostId = null;
+        });
     }
-}
+
+    if (deleteForm) {
+        deleteForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            if (deleteForm.querySelector(".btn-confirm-delete").classList.contains("Inactive")) {
+                return;
+            }
+            deleteForm.querySelector(".btn-confirm-delete").classList.add("Inactive");
+            if (!currentPostId) return;
+
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+            try {
+                const response = await fetch(`/Post/Delete/${currentPostId}`, {
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': token,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (response.ok) {
+                    const postElement = document.getElementById(`post-${currentPostId}`);
+                    if (postElement) {
+                        postElement.style.transition = "opacity 0.3s ease";
+                        postElement.style.opacity = "0";
+                        setTimeout(() => postElement.remove(), 300);
+                    }
+
+                    const modalInstance = bootstrap.Modal.getInstance(deleteModalElement);
+                    deleteForm.querySelector(".btn-confirm-delete").classList.remove("Inactive");
+                    modalInstance.hide();
+                } else {
+                    deleteForm.querySelector(".btn-confirm-delete").classList.remove("Inactive");
+                    alert("Error deleting post.");
+                }
+            } catch (err) {
+
+                deleteForm.querySelector(".btn-confirm-delete").classList.remove("Inactive");
+                console.error("Network error:", err);
+            }
+        });
+    }
+});

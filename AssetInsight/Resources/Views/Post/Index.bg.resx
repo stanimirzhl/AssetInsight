@@ -126,6 +126,18 @@
   <data name="CreatePost" xml:space="preserve">
     <value>Създай публикация</value>
   </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Да, изтрий</value>
+  </data>
+  <data name="DeletePost" xml:space="preserve">
+    <value>Изтриване на публикацията?</value>
+  </data>
+  <data name="DeleteWarning" xml:space="preserve">
+    <value>След като изтриете &lt;strong id="modalPostTitle"&gt;&lt;/strong&gt;, тя не може да бъде възстановена.</value>
+  </data>
+  <data name="GoBack" xml:space="preserve">
+    <value>Върни се</value>
+  </data>
   <data name="Locked" xml:space="preserve">
     <value>Заключено</value>
   </data>

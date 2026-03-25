@@ -117,22 +117,40 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Comments" xml:space="preserve">
-    <value>Commentaires</value>
+  <data name="Add" xml:space="preserve">
+    <value>Add</value>
   </data>
-  <data name="Delete" xml:space="preserve">
-    <value>Supprimer</value>
+  <data name="Back" xml:space="preserve">
+    <value>Back</value>
   </data>
-  <data name="Edit" xml:space="preserve">
-    <value>Modifier</value>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
   </data>
-  <data name="Locked" xml:space="preserve">
-    <value>Verrouillé</value>
+  <data name="EditPost" xml:space="preserve">
+    <value>Edit Post</value>
   </data>
-  <data name="PostedBy" xml:space="preserve">
-    <value>Publié par</value>
+  <data name="DragDrop" xml:space="preserve">
+    <value>Upload Images (Drag &amp; Drop)</value>
+  </data>
+  <data name="DropHere" xml:space="preserve">
+    <value>Drop images here</value>
+  </data>
+  <data name="EditAll" xml:space="preserve">
+    <value>Edit All</value>
+  </data>
+  <data name="EditGallery" xml:space="preserve">
+    <value>Edit gallery</value>
+  </data>
+  <data name="FFWarning" xml:space="preserve">
+    <value>⚠️We detected that you are using Firefox. Drag &amp; drop may not work correctly.</value>
+  </data>
+  <data name="MorePhotos" xml:space="preserve">
+    <value>Add more photos</value>
+  </data>
+  <data name="SaveChanges" xml:space="preserve">
+    <value>Save Changes</value>
   </data>
   <data name="Save" xml:space="preserve">
-    <value>Enregistrer</value>
+    <value>Save</value>
   </data>
 </root>

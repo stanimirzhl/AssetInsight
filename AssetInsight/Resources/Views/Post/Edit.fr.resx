@@ -117,20 +117,38 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Comments" xml:space="preserve">
-    <value>Commentaires</value>
+  <data name="Add" xml:space="preserve">
+    <value>Ajouter</value>
   </data>
-  <data name="Delete" xml:space="preserve">
-    <value>Supprimer</value>
+  <data name="Back" xml:space="preserve">
+    <value>Retour</value>
   </data>
-  <data name="Edit" xml:space="preserve">
-    <value>Modifier</value>
+  <data name="Cancel" xml:space="preserve">
+    <value>Annuler</value>
   </data>
-  <data name="Locked" xml:space="preserve">
-    <value>Verrouillé</value>
+  <data name="EditPost" xml:space="preserve">
+    <value>Modifier la publication</value>
   </data>
-  <data name="PostedBy" xml:space="preserve">
-    <value>Publié par</value>
+  <data name="DragDrop" xml:space="preserve">
+    <value>Télécharger des images (Drag &amp; Drop)</value>
+  </data>
+  <data name="DropHere" xml:space="preserve">
+    <value>Déposez les images ici</value>
+  </data>
+  <data name="EditAll" xml:space="preserve">
+    <value>Tout modifier</value>
+  </data>
+  <data name="EditGallery" xml:space="preserve">
+    <value>Modifier la galerie</value>
+  </data>
+  <data name="FFWarning" xml:space="preserve">
+    <value>⚠️Nous avons détecté que vous utilisez Firefox. Le glisser-déposer peut ne pas fonctionner correctement.</value>
+  </data>
+  <data name="MorePhotos" xml:space="preserve">
+    <value>Ajouter plus de photos</value>
+  </data>
+  <data name="SaveChanges" xml:space="preserve">
+    <value>Enregistrer les modifications</value>
   </data>
   <data name="Save" xml:space="preserve">
     <value>Enregistrer</value>

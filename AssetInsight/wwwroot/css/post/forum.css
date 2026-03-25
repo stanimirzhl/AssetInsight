@@ -29,6 +29,7 @@
 }
 
 .post-card {
+    position: relative;
     display: flex;
     background-color: var(--bs-body-emphasis);
     border-radius: 8px;
@@ -101,6 +102,13 @@
     margin-bottom: 10px;
 }
 
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 20px;
+}
+
 .post-footer {
     display: flex;
     align-items: center;
@@ -119,6 +127,66 @@
     .btn-save:hover {
         color: #ff4500;
     }
+
+.btn-dots {
+    background: #2a2e33; /* Dark circle */
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+    .btn-dots:hover {
+        background-color: rgba(215, 218, 220, 0.1);
+    }
+
+.btn-go-back {
+    background: #2d2d2e;
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 999px;
+    font-weight: bold;
+}
+
+.btn-confirm-delete {
+    background: #ff4500; /* Reddit Red */
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 999px;
+    font-weight: bold;
+}
+
+.btn-close-circle {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    background: #2d2d2e;
+    border: none;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 1;
+}
+
+.custom-delete-modal .modal-content {
+    background-color: #1a1a1b;
+    border: 1px solid #343536;
+    border-radius: 16px;
+    padding: 24px;
+    color: #fff;
+}
+.dropdown-toggle::after {
+    display: none !important;
+}
 
 .tag {
     background-color: var(--bs-secondary-bg);

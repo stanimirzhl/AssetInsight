@@ -117,22 +117,40 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Comments" xml:space="preserve">
-    <value>Commentaires</value>
+  <data name="Add" xml:space="preserve">
+    <value>Добави</value>
   </data>
-  <data name="Delete" xml:space="preserve">
-    <value>Supprimer</value>
+  <data name="Back" xml:space="preserve">
+    <value>Назад</value>
   </data>
-  <data name="Edit" xml:space="preserve">
-    <value>Modifier</value>
+  <data name="Cancel" xml:space="preserve">
+    <value>Отказ</value>
   </data>
-  <data name="Locked" xml:space="preserve">
-    <value>Verrouillé</value>
+  <data name="EditPost" xml:space="preserve">
+    <value>Редактиране на публикация</value>
   </data>
-  <data name="PostedBy" xml:space="preserve">
-    <value>Publié par</value>
+  <data name="DragDrop" xml:space="preserve">
+    <value>Качете снимки (Drag &amp; Drop)</value>
+  </data>
+  <data name="DropHere" xml:space="preserve">
+    <value>Пуснете снимките тук</value>
+  </data>
+  <data name="EditAll" xml:space="preserve">
+    <value>Редактирай всички</value>
+  </data>
+  <data name="EditGallery" xml:space="preserve">
+    <value>Редактирай галерията</value>
+  </data>
+  <data name="FFWarning" xml:space="preserve">
+    <value>⚠️Засякохме, че използвате Firefox. Възможно е плъзгането (drag &amp; drop) да не работи коректно.</value>
+  </data>
+  <data name="MorePhotos" xml:space="preserve">
+    <value>Добави още снимки</value>
+  </data>
+  <data name="SaveChanges" xml:space="preserve">
+    <value>Запази промените</value>
   </data>
   <data name="Save" xml:space="preserve">
-    <value>Enregistrer</value>
+    <value>Запази</value>
   </data>
 </root>

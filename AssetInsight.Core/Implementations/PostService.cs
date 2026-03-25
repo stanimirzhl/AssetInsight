@@ -53,6 +53,26 @@ namespace AssetInsight.Core.Implementations
 			.FirstOrDefaultAsync() ?? throw new NoEntityException($"No entity found with id: {id}!");
 		}
 
+		public async Task EditAsync(PostDto postDto)
+		{
+			Post? post = await repository.GetByIdAsync(postDto.Id);
+
+			post.Title = postDto.Title;
+			post.Content = postDto.Content;
+			post.EditedAt = DateTime.Now;
+
+			await repository.SaveChangesAsync();
+		}
+
+		public async Task DeleteAsync(Guid id)
+		{
+			Post post = await repository.GetByIdAsync(id)
+				?? throw new NoEntityException($"No entity found with id: {id}!");
+
+			await repository.DeleteAsync(post.Id);
+			await repository.SaveChangesAsync();
+		}
+
 		public async Task<PagingModel<PostDto>> GetAllPagedPostsAsync(int pageIndex, int pageSize)
 		{
 			IQueryable<PostDto> query = repository.AllAsReadOnly()

@@ -117,22 +117,40 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Comments" xml:space="preserve">
-    <value>Commentaires</value>
+  <data name="Add" xml:space="preserve">
+    <value>Agregar</value>
   </data>
-  <data name="Delete" xml:space="preserve">
-    <value>Supprimer</value>
+  <data name="Back" xml:space="preserve">
+    <value>Volver</value>
   </data>
-  <data name="Edit" xml:space="preserve">
-    <value>Modifier</value>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancelar</value>
   </data>
-  <data name="Locked" xml:space="preserve">
-    <value>Verrouillé</value>
+  <data name="EditPost" xml:space="preserve">
+    <value>Editar publicación</value>
   </data>
-  <data name="PostedBy" xml:space="preserve">
-    <value>Publié par</value>
+  <data name="DragDrop" xml:space="preserve">
+    <value>Subir imágenes (Drag &amp; Drop)</value>
+  </data>
+  <data name="DropHere" xml:space="preserve">
+    <value>Suelta las imágenes aquí</value>
+  </data>
+  <data name="EditAll" xml:space="preserve">
+    <value>Editar todo</value>
+  </data>
+  <data name="EditGallery" xml:space="preserve">
+    <value>Editar galería</value>
+  </data>
+  <data name="FFWarning" xml:space="preserve">
+    <value>⚠️Detectamos que estás usando Firefox. Es posible que arrastrar y soltar no funcione correctamente.</value>
+  </data>
+  <data name="MorePhotos" xml:space="preserve">
+    <value>Agregar más fotos</value>
+  </data>
+  <data name="SaveChanges" xml:space="preserve">
+    <value>Guardar cambios</value>
   </data>
   <data name="Save" xml:space="preserve">
-    <value>Enregistrer</value>
+    <value>Guardar</value>
   </data>
 </root>

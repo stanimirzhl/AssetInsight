@@ -3,15 +3,32 @@
 @inject IViewLocalizer Localizer
 @model IEnumerable<PostVM>
 
-@foreach (var post in Model.OrderByDescending(x => x.CreatedAt))
+@foreach (var post in Model.OrderByDescending(x => x.CreatedAt).ThenByDescending(x => x.EditedAt))
 {
-    <div class="post-card @(post.IsLocked ? "locked" : "")">
+    <div id="post-@post.Id" class="post-card @(post.IsLocked ? "locked" : "")">
 
         <div class="post-votes">
             <span class="vote-count">@post.ReactionsCount</span>
         </div>
 
         <div class="post-content">
+
+            <div class="dropdown d-flex justify-content-end">
+                <button class="btn-dots" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-three-dots"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item text-decoration-none" asp-action="Edit" asp-route-id="@post.Id">@Localizer["Edit"]</a></li>
+                    <li>
+                        <button type="button" class="dropdown-item text-danger"
+                                data-bs-toggle="modal" data-bs-target="#deletePostModal"
+                                data-post-id="@post.Id"
+                                data-post-title="@post.Title">
+                            @Localizer["Delete"]
+                        </button>
+                    </li>
+                </ul>
+            </div>
 
             <div class="post-meta">
                 <span class="author">
@@ -53,12 +70,6 @@
                         ⭐ @Localizer["Save"]
                     </button>
                 </form>
-
-                <span>
-                    <a asp-action="Edit" asp-route-id="@post.Id">
-                        Edit
-                    </a>
-                </span>
 
             @if (post.Tags.Any())
                 {

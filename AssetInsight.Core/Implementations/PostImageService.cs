@@ -5,6 +5,7 @@ using AssetInsight.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Formats.Asn1;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,6 +32,18 @@ namespace AssetInsight.Core.Implementations
 					PostId = postId
 				};
 				await repository.AddAsync(postImage);
+			}
+		}
+
+		public async Task DeleteAsync(Guid postId, List<int> imageIds)
+		{
+			foreach (int id in imageIds)
+			{
+				PostImage? image = await repository.GetByIdAsync(id);
+				if (image != null && image.PostId == postId)
+				{
+					await repository.DeleteAsync(id);
+				}
 			}
 		}
 

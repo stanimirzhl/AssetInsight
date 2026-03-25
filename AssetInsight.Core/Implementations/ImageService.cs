@@ -1,5 +1,6 @@
 ﻿using AssetInsight.Core.DTOs.Image_Error_Dto;
 using AssetInsight.Core.Interfaces;
+using AssetInsight.Data.Models;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Http;
@@ -46,6 +47,18 @@ namespace AssetInsight.Core.Implementations
 			}
 
 			return (uploadResults, errorImages);
+		}
+
+		public async Task DeleteAsync(Guid postId, string[] images)
+		{
+			try
+			{
+				await cloudinary.DeleteResourcesAsync(ResourceType.Image, images);
+			}
+			catch(Exception ex)
+			{
+				throw new Exception("Image upload failed: " + ex.Message);
+			}
 		}
 
 		private string FormatFileSize(long bytes)

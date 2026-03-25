@@ -126,6 +126,18 @@
   <data name="CreatePost" xml:space="preserve">
     <value>Create Post</value>
   </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Yes, Delete</value>
+  </data>
+  <data name="DeletePost" xml:space="preserve">
+    <value>Delete post?</value>
+  </data>
+  <data name="DeleteWarning" xml:space="preserve">
+    <value>Once you delete &lt;strong id="modalPostTitle"&gt;&lt;/strong&gt;, it can't be restored.</value>
+  </data>
+  <data name="GoBack" xml:space="preserve">
+    <value>Go Back</value>
+  </data>
   <data name="Locked" xml:space="preserve">
     <value>Locked</value>
   </data>
