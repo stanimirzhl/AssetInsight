@@ -479,3 +479,28 @@
     object-fit: contain;
     background: black;
 }
+
+@media (hover: none) {
+    .reddit-uploader-box #previewContainer .nav-arrow,
+    .reddit-uploader-box #previewContainer .carousel-top-controls,
+    .reddit-uploader-box #previewContainer .dot-container-wrapper {
+        opacity: 1;
+        pointer-events: auto;
+    }
+}
+
+#previewContainer .nav-arrow,
+#previewContainer .carousel-top-controls,
+#previewContainer .dot-container-wrapper {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+/* show on hover of parent box */
+.reddit-uploader-box:hover #previewContainer .nav-arrow,
+.reddit-uploader-box:hover #previewContainer .carousel-top-controls,
+.reddit-uploader-box:hover #previewContainer .dot-container-wrapper {
+    opacity: 1;
+    pointer-events: auto;
+}

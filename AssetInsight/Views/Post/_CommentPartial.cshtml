@@ -1,0 +1,30 @@
+﻿@model AssetInsight.Core.DTOs.Comment.CommentDto
+
+<div class="comment-thread mb-3 ms-n2" id="comment-@Model.Id">
+    <div class="d-flex">
+        <div class="vr mx-3 text-light opacity-100 thread-line" style="width: 2px; cursor: pointer;"></div>
+
+        <div class="flex-grow-1">
+            <div class="d-flex align-items-center mb-1">
+                <span class="fw-bold small me-2">u/@Model.AuthorName</span>
+                <span class="text-muted extra-small">@Model.CreatedOn.ToShortDateString()</span>
+            </div>
+
+            <div class="comment-text mb-2">@Model.Content</div>
+
+            <div class="comment-actions mb-2">
+                <button class="btn btn-link btn-sm p-0 text-muted me-3 text-decoration-none">Reply</button>
+
+                @if (Model.ReplyCount > 0 && Model.ParentCommentId == null)
+                {
+                    <button class="btn btn-link btn-sm p-0 text-primary text-decoration-none load-replies-btn"
+                            data-comment-id="@Model.Id">
+                        View @Model.ReplyCount Replies
+                    </button>
+                }
+            </div>
+
+            <div id="replies-container-@Model.Id" class="replies-list border-start ps-3"></div>
+        </div>
+    </div>
+</div>

@@ -34,6 +34,7 @@ namespace AssetInsight.Extensions
 			services.AddScoped<ITagService, TagService>();
 			services.AddScoped<IPostTagService, PostTagService>();
 			services.AddScoped<IPostImageService, PostImageService>();
+			services.AddScoped<ICommentService, CommentService>();
 
 			services.AddMvc(options =>
 				options

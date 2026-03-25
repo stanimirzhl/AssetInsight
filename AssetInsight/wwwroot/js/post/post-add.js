@@ -85,13 +85,15 @@
     document.addEventListener('keydown', function (e) {
         if (images.length === 0) return;
 
-        switch (e.key) {
-            case 'ArrowRight':
-                nextImg();
-                break;
-            case 'ArrowLeft':
-                prevImg();
-                break;
+        if (isModalOpen()) {
+            if (e.key === 'ArrowRight') {
+                changeModalImage(1);
+            } else if (e.key === 'ArrowLeft') {
+                changeModalImage(-1);
+            }
+        } else {
+            if (e.key === 'ArrowRight') nextImg();
+            if (e.key === 'ArrowLeft') prevImg();
         }
     });
 
@@ -110,6 +112,12 @@
         dropZone.classList.remove('drag-over');
         handleFiles(e.dataTransfer.files);
     });
+
+    /*dropZone.addEventListener('click', () => {
+        if (e.target === dropZone) {
+            fileInput.click();
+        }
+    });*/
 
     addBtnEmpty?.addEventListener('click', () => fileInput.click());
     addMorePhotosBtn?.addEventListener('click', () => fileInput.click());
@@ -132,12 +140,14 @@
 
             images.push({
                 file: file,
+                previewUrl: URL.createObjectURL(file),
                 isExisting: false
             });
         });
 
         currentIndex = images.length - 1;
         renderAll();
+        renderModalGrid();
     }
 
     function renderAll() {
@@ -159,7 +169,7 @@
     function renderCarousel() {
         carouselTrack.innerHTML = '';
 
-        images.forEach(img => {
+        images.forEach((img, index) => {
 
             //if (typeof img.url !== 'undefined') {
             const el = document.createElement('img');
@@ -167,10 +177,10 @@
 
             el.src = img.isExisting
                 ? img.url
-                : URL.createObjectURL(img.file);
+                : img.previewUrl;
 
             el.addEventListener('click', () => {
-                openImageModal(el.src);
+                openImageModal(index);
             });
 
             carouselTrack.appendChild(el);
@@ -184,12 +194,36 @@
         bootstrap.Modal.getInstance(document.getElementById('imagePreviewModal')).hide();
     });
 
-    function openImageModal(src) {
+    function openImageModal(index) {
+        currentIndex = index;
+
         const modalImg = document.getElementById('modalPreviewImage');
-        modalImg.src = src;
+        modalImg.src = images[currentIndex].isExisting
+            ? images[currentIndex].url
+            : images[currentIndex].previewUrl;
 
         const modal = new bootstrap.Modal(document.getElementById('imagePreviewModal'));
         modal.show();
+    }
+
+    function changeModalImage(direction) {
+        currentIndex += direction;
+
+        if (currentIndex < 0) currentIndex = images.length - 1;
+        if (currentIndex >= images.length) currentIndex = 0;
+
+        const modalImg = document.getElementById('modalPreviewImage');
+        modalImg.src = images[currentIndex].isExisting
+            ? images[currentIndex].url
+            : images[currentIndex].previewUrl;
+
+        updateCarousel();
+        renderDots();
+    }
+
+    function isModalOpen() {
+        const modalEl = document.getElementById('imagePreviewModal');
+        return modalEl.classList.contains('show');
     }
 
     function updateCarousel() {
@@ -208,6 +242,11 @@
 
     function removeImageAtIndex(index) {
         const img = images[index];
+
+        if (!img.isExisting && img.previewUrl) {
+            URL.revokeObjectURL(img.previewUrl); 
+        }
+
 
         if (img.isExisting) {
             deletedImageIds.push({ id: img.id, publicId: img.publicId });
@@ -306,7 +345,7 @@
             if (img.isExisting) {
                 render(img.url);
             } else {
-                render(URL.createObjectURL(img.file));
+                render(img.previewUrl);
             }
 
             modalGrid.appendChild(card);

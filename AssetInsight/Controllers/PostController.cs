@@ -21,13 +21,15 @@ namespace AssetInsight.Controllers
 		private readonly IPostTagService postTagService;
 		private readonly IImageService imageService;
 		private readonly IPostImageService postImageService;
+		private readonly ICommentService commentService;
 
 		public PostController(IPostService postService,
 			ITagService tagService,
 			IPostTagService postTagService,
 			ILogger<PostController> logger,
 			IImageService imageService,
-			IPostImageService postImageService)
+			IPostImageService postImageService,
+			ICommentService commentService)
 		{
 			this.postService = postService;
 			this.tagService = tagService;
@@ -35,6 +37,7 @@ namespace AssetInsight.Controllers
 			this.logger = logger;
 			this.imageService = imageService;
 			this.postImageService = postImageService;
+			this.commentService = commentService;
 		}
 
 		public async Task<IActionResult> Index(int page = 1, string? tag = null)
@@ -182,7 +185,7 @@ namespace AssetInsight.Controllers
 			{
 				return BadRequest();
 			}
-			model.Title = model.Title.Trim(); model.Content = model.Content.Trim();	ModelState.Clear();	TryValidateModel(model);
+			model.Title = model.Title.Trim(); model.Content = model.Content.Trim(); ModelState.Clear(); TryValidateModel(model);
 
 			if (!ModelState.IsValid)
 			{
@@ -282,6 +285,34 @@ namespace AssetInsight.Controllers
 			}
 
 			return Ok();
+		}
+
+		public async Task<IActionResult> Details(Guid? id)
+		{
+			PostDetailsViewModel model;
+			try
+			{
+				PostDto postDto = await postService.GetByIdAsync(id.Value);
+				model = new PostDetailsViewModel
+				{
+					Id = postDto.Id,
+					Title = postDto.Title,
+					Content = postDto.Content,
+					AuthorName = postDto.AuthorName,
+					CreatedAt = postDto.CreatedAt,
+					IsLocked = postDto.IsLocked,
+					UpvoteCount = postDto.ReactionsCount,
+					Tags = await tagService.GetAllTagsbyPostId(postDto.Id),
+					ImgUrls = await postImageService.GetAllByPostIdAsync(postDto.Id),
+					Comments = await commentService.GetRootCommentsPaginated(postDto.Id, 1),
+				};
+			}
+			catch (NoEntityException ex)
+			{
+				logger.LogError(ex, ex.Message);
+				return NotFound();
+			}
+			return View(model);
 		}
 	}
 }
