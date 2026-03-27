@@ -43,17 +43,27 @@ namespace AssetInsight.Core.Implementations
 		public async Task<List<CommentDto>> GetRepliesByParentId(Guid parentId)
 		{
 			return await repository.All()
-				.Where(x => x.ParentCommentId == parentId)
-				.Include(x => x.Author)
-				.OrderBy(x => x.CreatedAt)
-				.Select(x => new CommentDto
-				{
-					Id = x.Id,
-					Content = x.Content,
-					CreatedOn = x.CreatedAt,
-					AuthorName = x.Author == null ? "[deleted]" : x.Author.UserName,
-					ParentCommentId = x.ParentCommentId
-				}).ToListAsync();
+					.Where(c => c.ParentCommentId == parentId)
+					.Include(c => c.Replies)
+						.ThenInclude(r => r.Replies)
+					.Select(c => new CommentDto
+					{
+						Id = c.Id,
+						AuthorName = c.Author == null ? "[deleted]" : c.Author.UserName,
+						Content = c.Content,
+						CreatedOn = c.CreatedAt,
+						ReplyCount = c.Replies.Count,
+						ParentCommentId = c.ParentCommentId,
+						Replies = c.Replies.Select(r => new CommentDto
+						{
+							Id = c.Id,
+							AuthorName = c.Author == null ? "[deleted]" : c.Author.UserName,
+							Content = c.Content,
+							CreatedOn = c.CreatedAt,
+							ReplyCount = c.Replies.Count,
+							ParentCommentId = c.ParentCommentId,
+						})
+					}).ToListAsync();
 		}
 	}
 }

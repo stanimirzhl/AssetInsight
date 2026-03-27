@@ -18,15 +18,22 @@ namespace AssetInsight.Controllers
 		public async Task<IActionResult> GetMoreComments(Guid postId, int pageIndex)
 		{
 			var comments = await commentService.GetRootCommentsPaginated(postId, pageIndex);
-			if (!comments.Items.Any()) return NoContent();
+			if (comments == null || !comments.Items.Any()) return NoContent();
 
-			return PartialView("_CommentListPartial", comments.Items);
+			return PartialView("~/Views/Post/_CommentListPartial.cshtml", comments.Items);
 		}
 
 		public async Task<IActionResult> GetReplies(Guid parentId)
 		{
 			var replies = await commentService.GetRepliesByParentId(parentId);
-			return PartialView("_CommentListPartial", replies);
+
+			return PartialView("~/Views/Post/_CommentListPartial.cshtml", replies);
 		}
+
+		/*[HttpPost]
+		public async Task<IActionResult> Create(Guid postId)
+		{
+
+		}*/
 	}
 }

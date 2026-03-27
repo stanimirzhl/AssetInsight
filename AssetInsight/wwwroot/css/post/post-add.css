@@ -1,18 +1,17 @@
 ﻿.post-create-container {
     max-width: 740px;
-    margin: 20px auto 80px; /* Added bottom margin (80px) to clear the footer */
+    margin: 20px auto 80px;
     border: 1px solid #343536;
     background-color: #1A1A1B;
     border-radius: 8px;
 }
 
-/* Unified Uploader Box */
 .reddit-uploader-box {
     position: relative;
     background-color: #0b0b0b;
     border: 1px dashed #343536;
     border-radius: 16px;
-    height: 450px; /* Reduced slightly to save vertical space */
+    height: 450px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -26,7 +25,6 @@
         background-color: rgba(0, 121, 211, 0.05) !important;
     }
 
-/* --- Carousel Navigation Arrows --- */
 .nav-arrow {
     position: absolute;
     top: 50%;
@@ -40,7 +38,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 10; /* Ensure they stay above the image */
+    z-index: 10;
     cursor: pointer;
     transition: background 0.2s;
 }
@@ -57,12 +55,10 @@
         right: 15px;
     }
 
-    /* Hide arrows if they aren't needed (optional logic for JS) */
     .nav-arrow.d-none {
         display: none;
     }
 
-/* --- Image Handling --- */
 .main-img-wrapper {
     width: 100%;
     height: 100%;
@@ -79,7 +75,6 @@
     display: block;
 }
 
-/* --- Controls Overlay --- */
 .carousel-top-controls {
     position: absolute;
     top: 0;
@@ -145,11 +140,10 @@
         color: white;
     }
 .reddit-uploader-box.drag-over {
-    border: 2px solid #0079d3 !important; /* Reddit Blue */
+    border: 2px solid #0079d3 !important;
     background-color: rgba(0, 121, 211, 0.05) !important;
 }
 
-/* Ensure the box captures the drag events */
 .reddit-uploader-box {
     transition: all 0.2s ease;
     cursor: pointer;
@@ -167,7 +161,6 @@
     position: relative;
 }
 
-/* Pill Buttons */
 .btn-reddit-pill {
     background: rgba(26, 26, 27, 0.8);
     border: none;
@@ -190,7 +183,6 @@
     justify-content: center;
 }
 
-/* Dots Capsule */
 .dot-container-wrapper {
     position: absolute;
     bottom: 20px;
@@ -226,7 +218,6 @@
     position: relative;
 }
 
-/* Pill Buttons */
 .btn-reddit-pill {
     background: rgba(26, 26, 27, 0.8);
     border: none;
@@ -249,7 +240,6 @@
     justify-content: center;
 }
 
-/* Dots Capsule */
 .dot-container-wrapper {
     position: absolute;
     bottom: 20px;
@@ -277,7 +267,6 @@
         background: white;
     }
 
-/* Modal Styles */
 .reddit-modal {
     background-color: #1A1A1B !important;
     color: #D7DADC;
@@ -329,7 +318,6 @@
     width: 100%;
 }
 
-/* Textarea styling */
 .reddit-input {
     width: 100%;
     background: #0f1419;
@@ -342,17 +330,16 @@
     outline: none;
     display: block;
     min-height: 56px;
-    /* Vertically center text */
     display: flex;
     align-items: center;
-    line-height: normal; /* prevent squishing */
+    line-height: normal;
     height: 56px;
     box-sizing: border-box;
     transition: border-color 0.2s;
 }
 
     .reddit-input::placeholder {
-        color: transparent; /* hide placeholder but keep for label logic */
+        color: transparent;
     }
 
     .reddit-input:focus {
@@ -364,7 +351,6 @@
         border-width: 2px;
     }
 
-/* Floating label */
 .floating-label {
     position: absolute;
     left: 16px;
@@ -379,7 +365,6 @@
     user-select: none;
 }
 
-/* When textarea is focused or has text, move label up */
 .reddit-input:focus + .floating-label,
 .reddit-input:not(:placeholder-shown) + .floating-label {
     top: 6px;
@@ -388,7 +373,6 @@
     transform: none;
 }
 
-/* Error icon */
 .error-icon {
     display: none;
     position: absolute;
@@ -497,10 +481,18 @@
     transition: opacity 0.25s ease;
 }
 
-/* show on hover of parent box */
 .reddit-uploader-box:hover #previewContainer .nav-arrow,
 .reddit-uploader-box:hover #previewContainer .carousel-top-controls,
 .reddit-uploader-box:hover #previewContainer .dot-container-wrapper {
     opacity: 1;
     pointer-events: auto;
+}
+#dropZone {
+    cursor: pointer;
+}
+    #dropZone button {
+        cursor: pointer;
+    }
+.carousel-img {
+    cursor: zoom-in;
 }

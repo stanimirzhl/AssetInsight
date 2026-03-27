@@ -129,7 +129,7 @@
     }
 
 .btn-dots {
-    background: #2a2e33; /* Dark circle */
+    background: #2a2e33;
     border: none;
     border-radius: 50%;
     width: 32px;
@@ -154,7 +154,7 @@
 }
 
 .btn-confirm-delete {
-    background: #ff4500; /* Reddit Red */
+    background: #ff4500; 
     color: white;
     border: none;
     padding: 8px 20px;

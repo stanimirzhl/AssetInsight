@@ -1,0 +1,7 @@
+﻿@using AssetInsight.Core.DTOs.Comment
+@model IEnumerable<CommentDto>
+
+@foreach (var comment in Model)
+{
+    @await Html.PartialAsync("~/Views/Post/_CommentPartial.cshtml", comment)
+}

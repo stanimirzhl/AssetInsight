@@ -57,7 +57,7 @@ namespace AssetInsight.Core.Implementations
 			}
 			catch(Exception ex)
 			{
-				throw new Exception("Image upload failed: " + ex.Message);
+				throw new Exception($"Image deletion failed for post with Id: {postId} " + ex.Message);
 			}
 		}
 

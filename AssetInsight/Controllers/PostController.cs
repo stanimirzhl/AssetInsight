@@ -22,6 +22,7 @@ namespace AssetInsight.Controllers
 		private readonly IImageService imageService;
 		private readonly IPostImageService postImageService;
 		private readonly ICommentService commentService;
+		private readonly IPostReactionService postReactionService;
 
 		public PostController(IPostService postService,
 			ITagService tagService,
@@ -29,7 +30,8 @@ namespace AssetInsight.Controllers
 			ILogger<PostController> logger,
 			IImageService imageService,
 			IPostImageService postImageService,
-			ICommentService commentService)
+			ICommentService commentService,
+			IPostReactionService postReactionService)
 		{
 			this.postService = postService;
 			this.tagService = tagService;
@@ -38,6 +40,7 @@ namespace AssetInsight.Controllers
 			this.imageService = imageService;
 			this.postImageService = postImageService;
 			this.commentService = commentService;
+			this.postReactionService = postReactionService;
 		}
 
 		public async Task<IActionResult> Index(int page = 1, string? tag = null)
@@ -89,10 +92,8 @@ namespace AssetInsight.Controllers
 		//[Authorize]
 		public async Task<IActionResult> Create(PostFormModel model)
 		{
-			//model.Title = model.Title.Trim();
-			//model.Content = model.Content.Trim();
-			//ModelState.Clear();
-			//TryValidateModel(model);
+			TryValidateTitleAndContent(model);
+
 			if (!ModelState.IsValid)
 			{
 				return View(model);
@@ -185,7 +186,8 @@ namespace AssetInsight.Controllers
 			{
 				return BadRequest();
 			}
-			model.Title = model.Title.Trim(); model.Content = model.Content.Trim(); ModelState.Clear(); TryValidateModel(model);
+
+			TryValidateTitleAndContent(model);
 
 			if (!ModelState.IsValid)
 			{
@@ -301,7 +303,7 @@ namespace AssetInsight.Controllers
 					AuthorName = postDto.AuthorName,
 					CreatedAt = postDto.CreatedAt,
 					IsLocked = postDto.IsLocked,
-					UpvoteCount = postDto.ReactionsCount,
+					UpvoteCount = await postReactionService.GetPostReactionScoreAsync(postDto.Id),
 					Tags = await tagService.GetAllTagsbyPostId(postDto.Id),
 					ImgUrls = await postImageService.GetAllByPostIdAsync(postDto.Id),
 					Comments = await commentService.GetRootCommentsPaginated(postDto.Id, 1),
@@ -313,6 +315,14 @@ namespace AssetInsight.Controllers
 				return NotFound();
 			}
 			return View(model);
+		}
+
+		private void TryValidateTitleAndContent(PostFormModel model)
+		{
+			model.Title = model.Title.Trim(); 
+			model.Content = model.Content.Trim(); 
+			ModelState.Clear();
+			TryValidateModel(model);
 		}
 	}
 }

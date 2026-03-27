@@ -6,9 +6,9 @@ const postList = document.getElementById('post-list');
 const sentinel = document.getElementById('loading-sentinel');
 const skeletonTemplate = document.getElementById('skeleton-template');
 
-const observer = new IntersectionObserver((entries) => {
+const observer = new IntersectionObserver(async (entries) => {
     if (entries[0].isIntersecting && !isLoading && hasMorePosts) {
-        loadPosts();
+        await loadPosts();
     }
 }, {
     threshold: 0.1,

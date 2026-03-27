@@ -8,5 +8,7 @@
 		public DateTime CreatedOn { get; set; }
 		public int ReplyCount { get; set; }
 		public Guid? ParentCommentId { get; set; }
+
+		public IEnumerable<CommentDto> Replies { get; set; } = new List<CommentDto>();
 	}
 }

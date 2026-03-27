@@ -113,11 +113,15 @@
         handleFiles(e.dataTransfer.files);
     });
 
-    /*dropZone.addEventListener('click', () => {
-        if (e.target === dropZone) {
+    dropZone.addEventListener('click', (e) => {
+        const isButtonClick = e.target.closest('button');
+
+        const isImageClick = e.target.closest('#carouselTrack');
+
+        if (!isButtonClick && !isImageClick) {
             fileInput.click();
         }
-    });*/
+    });
 
     addBtnEmpty?.addEventListener('click', () => fileInput.click());
     addMorePhotosBtn?.addEventListener('click', () => fileInput.click());

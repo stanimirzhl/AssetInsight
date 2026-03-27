@@ -35,6 +35,7 @@ namespace AssetInsight.Extensions
 			services.AddScoped<IPostTagService, PostTagService>();
 			services.AddScoped<IPostImageService, PostImageService>();
 			services.AddScoped<ICommentService, CommentService>();
+			services.AddScoped<IPostReactionService, PostReactionService>();
 
 			services.AddMvc(options =>
 				options
@@ -259,8 +260,8 @@ namespace AssetInsight.Extensions
 		{
 			services.ConfigureApplicationCookie(options =>
 			{
-				options.LoginPath = "/Account/Login";
-				options.LogoutPath = "/Account/Logout";
+				options.LoginPath = "/identity/account/login";
+				options.LogoutPath = "/identity/account/logout";
 				options.AccessDeniedPath = "/Account/AccessDenied";
 				options.ReturnUrlParameter = "ReturnUrl";
 			});
