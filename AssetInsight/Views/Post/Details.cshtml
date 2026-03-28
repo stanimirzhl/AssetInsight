@@ -89,7 +89,7 @@
                             </div>
                             <textarea id="mainCommentInput" class="form-control" placeholder="What are your thoughts?" rows="4"></textarea>
                             <div class="comment-box-footer">
-                                <button class="btn-reddit-post">Comment</button>
+                                <button onclick="submitComment()" class="btn-reddit-post">Comment</button>
                             </div>
                         </div>
                     }
@@ -139,6 +139,7 @@
     </div>
 </div>
 
+@Html.AntiForgeryToken()
 <input type="hidden" id="currentPage" value="1" />
 <input type="hidden" id="postId" value="@Model.Id" />
 <input type="hidden" id="hasMore" value="@Model.Comments.HasNextPage.ToString().ToLower()" />

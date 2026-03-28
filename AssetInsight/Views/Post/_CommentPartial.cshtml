@@ -2,51 +2,53 @@
 
 <link rel="stylesheet" href="~/css/post/comment partial/comment-partial.css" />
 
-<div class="comment-thread" id="comment-container-@Model.Id">
-    <div class="d-flex">
-        <div class="thread-line-container" onclick="toggleComment('@Model.Id')" title="Collapse thread">
-            <div class="thread-line"></div>
+<div class="comment-thread @(Model.ParentCommentId != null ? "is-reply" : "")" id="comment-container-@Model.Id">
+
+    @* Vertical Line for this level *@
+    <div class="thread-line-container" onclick="toggleComment('@Model.Id')" title="Collapse thread">
+        <div class="thread-line"></div>
+    </div>
+
+    <div class="comment-content-wrapper">
+        @* Header: Avatar and Info *@
+        <div class="comment-header d-flex align-items-center mb-1" onclick="toggleComment('@Model.Id')">
+            <img src="https://ui-avatars.com/api/?name=@Model.AuthorName&background=random&size=18" class="author-avatar-sm me-2" />
+            <span class="collapsed-icon me-2"><i class="bi bi-plus-square"></i></span>
+            <span class="comment-author me-2">u/@Model.AuthorName</span>
+            <span class="comment-date">@Model.CreatedOn.ToString("MMM dd")</span>
         </div>
 
-        <div class="flex-grow-1 ps-2">
-            <div class="comment-header d-flex align-items-center mb-1" onclick="toggleComment('@Model.Id')">
-                <img src="https://ui-avatars.com/api/?name=@Model.AuthorName&background=random&size=16" class="author-avatar-sm me-2" />
-                <span class="collapsed-icon me-2"><i class="bi bi-plus-square"></i></span>
-                <span class="comment-author me-2">u/@Model.AuthorName</span>
-                <span class="comment-date">@Model.CreatedOn.ToString("MMM dd")</span>
-            </div>
+        @* Body Content *@
+        <div id="comment-body-wrapper-@Model.Id" class="comment-body-content">
+            <div class="comment-text mb-2">@Model.Content</div>
 
-            <div id="comment-body-wrapper-@Model.Id" class="comment-body-content">
-                <div class="comment-text mb-2">@Model.Content</div>
-
-                <div class="comment-actions d-flex align-items-center gap-3">
-                    <div class="comment-voting d-flex align-items-center">
-                        <button class="vote-btn-sm"><i class="bi bi-arrow-up"></i></button>
-                        <span class="vote-count-sm">0</span>
-                        <button class="vote-btn-sm"><i class="bi bi-arrow-down"></i></button>
-                    </div>
-
-                    <button class="comment-action-link"><i class="bi bi-chat-square"></i> Reply</button>
-                    <button class="comment-action-link">Share</button>
-
-                    @if (Model.ReplyCount > 0)
-                    {
-                        <button class="load-replies-btn" data-comment-id="@Model.Id">
-                            <i class="bi bi-chevron-down"></i> @Model.ReplyCount Replies
-                        </button>
-                    }
+            <div class="comment-actions d-flex align-items-center gap-3">
+                <div class="comment-voting d-flex align-items-center" id="voting-@Model.Id">
+                    <button class="vote-btn-sm up @(Model.UserVote == true ? "active" : "")"
+                            onclick="handleCommentVote('@Model.Id', true, this)">
+                        <i class="bi bi-arrow-up"></i>
+                    </button>
+                    <span class="vote-count-sm">@Model.UpvoteCount</span>
+                    <button class="vote-btn-sm down @(Model.UserVote == false ? "active" : "")"
+                            onclick="handleCommentVote('@Model.Id', false, this)">
+                        <i class="bi bi-arrow-down"></i>
+                    </button>
                 </div>
 
-                <div id="replies-container-@Model.Id" class="replies-list mt-2">
-                    @if (Model.Replies != null && Model.Replies.Any())
-                    {
-                        @foreach (var reply in Model.Replies)
-                        {
-                            @await Html.PartialAsync("~/Views/Post/_CommentPartial.cshtml", reply)
-                        }
-                    }
-                </div>
+                <button type="button" class="btn-action" onclick="showReplyBox('@Model.Id', '@Model.AuthorName')">
+                    <i class="bi bi-chat-left"></i> Reply
+                </button>
+
+                @if (Model.ReplyCount > 0)
+                {
+                    <button class="load-replies-btn" data-comment-id="@Model.Id">
+                        <i class="bi bi-chevron-down"></i> @Model.ReplyCount Replies
+                    </button>
+                }
             </div>
+
+            <div id="reply-container-@Model.Id" class="mt-2"></div>
+            <div id="replies-container-@Model.Id" class="replies-list mt-2"></div>
         </div>
     </div>
 </div>

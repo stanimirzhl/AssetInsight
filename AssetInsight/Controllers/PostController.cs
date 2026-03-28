@@ -306,7 +306,7 @@ namespace AssetInsight.Controllers
 					UpvoteCount = await postReactionService.GetPostReactionScoreAsync(postDto.Id),
 					Tags = await tagService.GetAllTagsbyPostId(postDto.Id),
 					ImgUrls = await postImageService.GetAllByPostIdAsync(postDto.Id),
-					Comments = await commentService.GetRootCommentsPaginated(postDto.Id, 1),
+					Comments = await commentService.GetRootCommentsPaginated(postDto.Id, 1, User.FindFirstValue(ClaimTypes.NameIdentifier)),
 				};
 			}
 			catch (NoEntityException ex)

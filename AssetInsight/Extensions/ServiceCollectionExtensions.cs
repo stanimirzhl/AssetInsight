@@ -36,6 +36,7 @@ namespace AssetInsight.Extensions
 			services.AddScoped<IPostImageService, PostImageService>();
 			services.AddScoped<ICommentService, CommentService>();
 			services.AddScoped<IPostReactionService, PostReactionService>();
+			services.AddScoped<ICommentReactionService, CommentReactionService>();	
 
 			services.AddMvc(options =>
 				options

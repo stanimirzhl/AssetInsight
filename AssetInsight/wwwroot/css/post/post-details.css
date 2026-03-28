@@ -14,8 +14,6 @@
     color: var(--text-main);
     min-height: 100vh;
 }
-
-/* Post Card */
 .reddit-post-card {
     background: var(--card-bg);
     border: 1px solid var(--border-color);
@@ -72,6 +70,50 @@
 .vote-count {
     font-size: 0.8rem;
     font-weight: 700;
+}
+
+.vote-btn-sm {
+    background: none;
+    border: none;
+    padding: 2px 5px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    color: #878a8c;
+}
+
+    .vote-btn-sm.up:hover {
+        color: #FF4500;
+        transform: scale(1.2);
+    }
+
+    .vote-btn-sm.down:hover {
+        color: #7193FF;
+        transform: scale(1.2);
+    }
+
+    .vote-btn-sm.up.active {
+        color: #FF4500 !important;
+    }
+
+    .vote-btn-sm.down.active {
+        color: #7193FF !important;
+    }
+
+/* Color the count based on active button */
+.comment-voting:has(.up.active) .vote-count-sm {
+    color: #FF4500;
+    font-weight: bold;
+}
+
+.comment-voting:has(.down.active) .vote-count-sm {
+    color: #7193FF;
+    font-weight: bold;
+}
+
+.vote-count-sm {
+    font-size: 0.85rem;
+    min-width: 20px;
+    text-align: center;
 }
 
 /* Body */
@@ -200,4 +242,25 @@
 
 .sidebar-body {
     padding: 12px;
+}
+
+
+/* Animation for the newly added comment */
+@keyframes slideInFade {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px);
+        background-color: #fff9db; /* Subtle yellow highlight */
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+        background-color: transparent;
+    }
+}
+
+.newly-added-comment {
+    animation: slideInFade 0.8s ease-out;
+    border-radius: 4px;
 }

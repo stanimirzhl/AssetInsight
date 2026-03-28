@@ -18,7 +18,7 @@ namespace AssetInsight.Controllers
 		}
 
 		[HttpPost]
-		[IgnoreAntiforgeryToken]
+		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> React(Guid postId, bool isUpVote)
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

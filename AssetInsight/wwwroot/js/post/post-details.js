@@ -90,7 +90,7 @@ async function handleVote(postId, isUpVote, btnElement) {
         const response = await fetch(url, {
             method: 'POST',
             headers: {
-                //'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
             }
         });
 
@@ -114,5 +114,129 @@ async function handleVote(postId, isUpVote, btnElement) {
         }
     } catch (err) {
         console.error("Voting failed:", err);
+    }
+}
+
+async function handleCommentVote(commentId, isUpVote, btnElement) {
+    const container = btnElement.closest('.comment-voting');
+    const scoreLabel = container.querySelector('.vote-count-sm');
+    const upBtn = container.querySelector('.vote-btn-sm.up');
+    const downBtn = container.querySelector('.vote-btn-sm.down');
+    const postId = document.getElementById('postId').value;
+
+    if (btnElement.disabled) return;
+    btnElement.disabled = true;
+
+    try {
+        const response = await fetch(`/CommentReaction/React?postId=${postId}&commentId=${commentId}&isUpVote=${isUpVote}`, {
+            method: 'POST',
+            headers: {
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.loginUrl) {
+            window.location.href = data.loginUrl;
+            return;
+        }
+
+        if (response.ok) {
+            scoreLabel.innerText = data.score;
+
+            upBtn.classList.remove('active');
+            downBtn.classList.remove('active');
+
+            if (data.status === 'upvoted') upBtn.classList.add('active');
+            if (data.status === 'downvoted') downBtn.classList.add('active');
+        }
+    } catch (err) {
+        console.error("Comment voting failed:", err);
+    } finally {
+        btnElement.disabled = false;
+    }
+}
+
+function showReplyBox(parentId, authorName) {
+    const container = document.getElementById(`reply-container-${parentId}`);
+
+    if (container.innerHTML !== "") return;
+
+    const html = `
+        <div class="mt-2 mb-3">
+            <textarea class="form-control form-control-sm mb-2" id="input-${parentId}" 
+                      placeholder="Reply to u/${authorName}..."></textarea>
+            <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-primary px-3" 
+                        onclick="submitComment('${parentId}')">Reply</button>
+                <button class="btn btn-sm btn-light" 
+                        onclick="closeReplyBox('${parentId}')">Cancel</button>
+            </div>
+        </div>
+    `;
+    container.innerHTML = html;
+}
+
+function closeReplyBox(parentId) {
+    document.getElementById(`reply-container-${parentId}`).innerHTML = "";
+}
+
+async function submitComment(parentId = null) {
+    const postId = document.getElementById('postId').value;
+    const inputId = parentId ? `input-${parentId}` : 'mainCommentInput';
+    const inputElement = document.getElementById(inputId);
+    const content = inputElement.value.trim();
+
+    if (!content) return;
+
+    // UI Feedback: Disable input while sending
+    inputElement.disabled = true;
+
+    try {
+        const response = await fetch('/Comment/Create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+            },
+            body: JSON.stringify({ postId, content, parentId })
+        });
+
+        const contentType = response.headers.get("content-type");
+
+        if (contentType && contentType.includes("application/json")) {
+            const data = await response.json();
+            if (data.loginUrl) {
+                window.location.href = data.loginUrl;
+                return;
+            }
+        }
+
+        if (response.ok) {
+            const htmlResponse = await response.text();
+
+            const tempDiv = document.createElement('div');
+            tempDiv.classList.add('newly-added-comment');
+            tempDiv.innerHTML = htmlResponse;
+
+            if (parentId) {
+                const container = document.getElementById(`replies-container-${parentId}`);
+                container.appendChild(tempDiv);
+                closeReplyBox(parentId);
+            } else {
+                const container = document.getElementById('comments-container');
+                container.prepend(tempDiv);
+                inputElement.value = '';
+            }
+        } else {
+            const errorMsg = await response.text();
+            alert(errorMsg || "Error posting comment.");
+        }
+    } catch (err) {
+        console.error("Critical error:", err);
+    } finally {
+        inputElement.disabled = false;
     }
 }
