@@ -1,7 +1,10 @@
-﻿using AssetInsight.Core.DTOs.Comment;
+﻿using AssetInsight.Core;
+using AssetInsight.Core.DTOs.Comment;
 using AssetInsight.Core.Interfaces;
 using Azure.Core;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Text.Json;
 
@@ -19,17 +22,17 @@ namespace AssetInsight.Controllers
 			this.commentService = commentService;
 		}
 
-		public async Task<IActionResult> GetMoreComments(Guid postId, int pageIndex)
+		public async Task<IActionResult> GetMoreComments(Guid postId, int pageIndex, string sortBy)
 		{
-			var comments = await commentService.GetRootCommentsPaginated(postId, pageIndex, this.GetUserId());
+			var comments = await commentService.GetRootCommentsPaginated(postId, pageIndex, this.GetUserId(), sortBy);
 			if (comments == null || !comments.Items.Any()) return NoContent();
 
 			return PartialView("~/Views/Post/_CommentListPartial.cshtml", comments.Items);
 		}
 
-		public async Task<IActionResult> GetReplies(Guid parentId)
+		public async Task<IActionResult> GetReplies(Guid parentId /*int skip = 0, int take = 5*/)
 		{
-			var replies = await commentService.GetRepliesByParentId(parentId, this.GetUserId());
+			var replies = await commentService.GetRepliesByParentId(parentId, this.GetUserId()/*, skip, take*/);
 
 			return PartialView("~/Views/Post/_CommentListPartial.cshtml", replies);
 		}
@@ -76,6 +79,8 @@ namespace AssetInsight.Controllers
 					userId,
 					parentId);
 
+				savedCommentDto.AuthorName = User.Identity.Name;
+
 				return PartialView("~/Views/Post/_CommentPartial.cshtml", savedCommentDto);
 			}
 			catch (Exception ex)
@@ -83,6 +88,92 @@ namespace AssetInsight.Controllers
 				logger.LogError(ex, "Error creating comment via JsonElement");
 				return StatusCode(500, "Internal server error");
 			}
+		}
+
+		//TODO EDIT/DELETE
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> Edit(Guid id, [FromBody] JsonElement request)
+		{
+			try
+			{
+				if (!request.TryGetProperty("postId", out var postElement) ||
+					!Guid.TryParse(postElement.GetString(), out Guid postId))
+				{
+					return BadRequest("Invalid Post ID.");
+				}
+
+				var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+				if (string.IsNullOrEmpty(userId))
+				{
+					var returnUrl = Url.Action("Details", "Post", new { id = postId });
+					var loginUrl = Url.Page("/Account/Login", null, new { area = "Identity", ReturnUrl = returnUrl });
+					return Json(new { loginUrl });
+				}
+
+				CommentDto comment = await commentService.GetByIdAsync(id);
+
+				if (comment.AuthorId != User.FindFirstValue(ClaimTypes.NameIdentifier))
+					return Forbid();
+
+				if (!request.TryGetProperty("content", out var contentElement) ||
+					string.IsNullOrWhiteSpace(contentElement.GetString()))
+				{
+					return BadRequest("Comment content is required.");
+				}
+
+				string content = contentElement.GetString()!;
+
+				await commentService.EditAsync(postId, id, content);
+			}
+			catch (NoEntityException ex)
+			{
+				logger.LogError(ex, ex.Message);
+				return NotFound();
+			}
+			catch (Exception ex)
+			{
+				logger.LogError(ex, "Error editing comment via JsonElement");
+				return StatusCode(500, "Internal server error");
+			}
+
+			return Ok();
+		}
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> Delete(Guid commentId, Guid postId)
+		{
+			try
+			{
+				CommentDto comment = await commentService.GetByIdAsync(commentId);
+
+				if (comment.AuthorId != User.FindFirstValue(ClaimTypes.NameIdentifier))
+					return Forbid();
+
+				var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+				if (string.IsNullOrEmpty(userId))
+				{
+					var returnUrl = Url.Action("Details", "Post", new { id = postId });
+					var loginUrl = Url.Page("/Account/Login", null, new { area = "Identity", ReturnUrl = returnUrl });
+					return Json(new { loginUrl });
+				}
+
+				await commentService.DeleteAsync(postId, commentId);
+
+			}
+			catch (NoEntityException ex)
+			{
+				logger.LogError(ex, ex.Message);
+				return NotFound();
+			}
+			catch (Exception ex)
+			{
+				logger.LogError(ex, ex.Message);
+				return StatusCode(500, "Internal server error");
+			}
+
+			return Ok();
 		}
 
 		private string GetUserId()

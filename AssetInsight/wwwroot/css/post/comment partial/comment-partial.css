@@ -102,3 +102,71 @@
 .collapsed-icon {
     display: none;
 }
+
+.author-controls {
+    display: flex;
+    gap: 12px;
+    font-size: 0.85rem;
+}
+
+.action-separator {
+    color: #6c757d;
+    padding-right: 4px;
+    user-select: none;
+}
+
+.btn-comment-action {
+    background: none;
+    border: none;
+    padding: 0;
+    font-weight: 600;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.edit-link:hover {
+    color: #0d6efd;
+}
+
+.delete-link:hover {
+    color: #dc3545;
+}
+
+.btn-comment-action:hover i {
+    transform: scale(1.1);
+}
+
+.comment-thread .author-controls {
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+}
+
+.comment-thread:hover .author-controls {
+    opacity: 1;
+}
+
+.edit-container {
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+    .edit-container textarea {
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        padding: 10px;
+        min-height: 80px;
+        width: 100%;
+        resize: vertical;
+    }
+
+        .edit-container textarea:focus {
+            outline: none;
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }

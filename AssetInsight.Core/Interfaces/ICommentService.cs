@@ -9,10 +9,16 @@ namespace AssetInsight.Core.Interfaces
 {
 	public interface ICommentService
 	{
-		Task<PagingModel<CommentDto>> GetRootCommentsPaginated(Guid postId, int pageIndex, string userId);
+		Task<PagingModel<CommentDto>> GetRootCommentsPaginated(Guid postId, int pageIndex, string userId, string sortBy = "best");
 
-		Task<List<CommentDto>> GetRepliesByParentId(Guid parentId, string userId);
+		Task<List<CommentDto>> GetRepliesByParentId(Guid parentId, string userId/*, int skip, int take*/);
 
 		Task<CommentDto> AddAsync(Guid postId, string content, string? authorId, Guid? parentCommentId = null);
+
+		Task<CommentDto> GetByIdAsync(Guid commentId);
+
+		Task EditAsync(Guid postId, Guid commentId, string content);
+
+		Task DeleteAsync(Guid commentId, Guid postId);
 	}
 }

@@ -94,6 +94,14 @@
                         </div>
                     }
 
+                    <div class="comment-sort-options mb-3 d-flex align-items-center gap-2">
+                        <span class="text-muted small fw-bold text-uppercase">Sort By:</span>
+                        <select id="commentSortSelect" class="form-select form-select-sm w-auto border-0 bg-transparent fw-bold" onchange="handleSortChange()">
+                            <option value="best">Best</option>
+                            <option value="newest">Newest</option>
+                        </select>
+                    </div>
+
                     <div id="comments-container">
                         @foreach (var comment in Model.Comments.Items)
                         {
@@ -140,6 +148,8 @@
 </div>
 
 @Html.AntiForgeryToken()
+<input type="hidden" id="currentSort" value="best" />
+<input type="hidden" id="currentPage" value="1" />
 <input type="hidden" id="currentPage" value="1" />
 <input type="hidden" id="postId" value="@Model.Id" />
 <input type="hidden" id="hasMore" value="@Model.Comments.HasNextPage.ToString().ToLower()" />

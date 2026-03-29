@@ -3,11 +3,6 @@ using AssetInsight.Core.Interfaces;
 using AssetInsight.Data.Common;
 using AssetInsight.Data.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AssetInsight.Core.Implementations
 {
@@ -20,7 +15,7 @@ namespace AssetInsight.Core.Implementations
 			this.repository = repository;
 		}
 
-		public async Task<PagingModel<CommentDto>> GetRootCommentsPaginated(Guid postId, int pageIndex, string userId)
+		public async Task<PagingModel<CommentDto>> GetRootCommentsPaginated(Guid postId, int pageIndex, string userId, string sortBy = "best")
 		{
 			IQueryable<Comment> comments = repository.All()
 				.Where(x => x.PostId == postId && x.ParentCommentId == null)
@@ -42,18 +37,26 @@ namespace AssetInsight.Core.Implementations
 				.Select(r => (bool?)r.IsUpVote)
 				.FirstOrDefault(),
 
-				ReplyCount = x.Replies.Count
+				ReplyCount = x.Replies.Count,
+				IsDeleted = x.IsDeleted
 			});
+
+			commentDtos = sortBy == "newest"
+					? commentDtos.OrderByDescending(c => c.CreatedOn)
+				: commentDtos.OrderByDescending(c => c.UpvoteCount).ThenByDescending(c => c.CreatedOn);
 
 			return await PagingModel<CommentDto>.CreateAsync(commentDtos, pageIndex, 5);
 		}
 
-		public async Task<List<CommentDto>> GetRepliesByParentId(Guid parentId, string userId)
+		public async Task<List<CommentDto>> GetRepliesByParentId(Guid parentId, string userId/*, int skip, int take*/)
 		{
 			return await repository.All()
 					.Where(c => c.ParentCommentId == parentId)
 					.Include(c => c.Replies)
 						.ThenInclude(r => r.Replies)
+					.Include(x => x.Author)
+					/*.Skip(skip)
+					.Take(take)*/
 					.Select(c => new CommentDto
 					{
 						Id = c.Id,
@@ -69,6 +72,9 @@ namespace AssetInsight.Core.Implementations
 						.Select(r => (bool?)r.IsUpVote)
 						.FirstOrDefault(),
 
+						IsAuthor = c.AuthorId == userId,
+						IsDeleted = c.IsDeleted,
+
 						Replies = c.Replies.Select(r => new CommentDto
 						{
 							Id = r.Id,
@@ -81,7 +87,9 @@ namespace AssetInsight.Core.Implementations
 							UserVote = r.Reactions
 							.Where(r => r.UserId == userId)
 							.Select(r => (bool?)r.IsUpVote)
-							.FirstOrDefault()
+							.FirstOrDefault(),
+							IsAuthor = r.AuthorId == userId,
+							IsDeleted = r.IsDeleted
 						})
 						.ToList()
 					})
@@ -107,7 +115,51 @@ namespace AssetInsight.Core.Implementations
 				AuthorName = comment.Author == null ? "[deleted]" : comment.Author.UserName,
 				ReplyCount = 0,
 				ParentCommentId = comment.ParentCommentId,
-				Replies = new List<CommentDto>()
+				IsAuthor = comment.AuthorId == authorId,
+				//Replies = new List<CommentDto>()
+			};
+		}
+
+		public async Task EditAsync(Guid postId, Guid commentId, string newContent)
+		{
+			var comment = await repository.GetByIdAsync(commentId) ?? throw new NoEntityException($"No entity found with id: {commentId}");
+
+			if(comment.PostId != postId)
+				throw new InvalidOperationException("Comment does not belong to the specified post.");
+
+			comment.Content = newContent;
+			comment.EditedAt = DateTime.Now;
+
+			await repository.SaveChangesAsync();
+		}
+
+		public async Task DeleteAsync(Guid postId, Guid commentId)
+		{
+			var comment = await repository.GetByIdAsync(commentId) ?? throw new NoEntityException($"No entity found with id: {commentId}");
+			if (comment.PostId != postId)
+				throw new InvalidOperationException("Comment does not belong to the specified post.");
+			//comment.Content = "[deleted]";
+			comment.IsDeleted = true;
+			//comment.AuthorId = null;
+			await repository.SaveChangesAsync();
+		}
+
+		public async Task<CommentDto> GetByIdAsync(Guid commentId)
+		{
+			var comment = await repository.All()
+				.Where(c => c.Id == commentId)
+				.Include(c => c.Author)
+				.Include(c => c.Reactions)
+				.FirstOrDefaultAsync() ?? throw new NoEntityException($"No entity found with id: {commentId}");
+
+
+			return new CommentDto
+			{
+				Id = comment.Id,
+				Content = comment.Content,
+				CreatedOn = comment.CreatedAt,
+				AuthorName = comment.Author == null ? "[deleted]" : comment.Author.UserName,
+				AuthorId = comment.AuthorId,
 			};
 		}
 	}

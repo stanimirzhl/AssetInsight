@@ -224,7 +224,6 @@
     font-size: 0.85rem;
 }
 
-/* Sidebar */
 .sidebar-card {
     background: var(--card-bg);
     border: 1px solid var(--border-color);
@@ -244,13 +243,11 @@
     padding: 12px;
 }
 
-
-/* Animation for the newly added comment */
 @keyframes slideInFade {
     0% {
         opacity: 0;
         transform: translateY(-10px);
-        background-color: #fff9db; /* Subtle yellow highlight */
+        background-color: #fff9db;
     }
 
     100% {

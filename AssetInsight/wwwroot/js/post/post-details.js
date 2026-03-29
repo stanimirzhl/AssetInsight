@@ -15,25 +15,39 @@ const observer = new IntersectionObserver(async (entries) => {
 const sentinel = document.getElementById('infinite-scroll-sentinel');
 if (sentinel) observer.observe(sentinel);
 
-async function loadMoreComments() {
+
+async function handleSortChange() {
+    const sort = document.getElementById('commentSortSelect').value;
+    document.getElementById('currentSort').value = sort;
+    document.getElementById('currentPage').value = "1";
+    document.getElementById('hasMore').value = "true";
+
+    document.getElementById('comments-container').innerHTML = '';
+    document.getElementById('status-message').classList.add('d-none');
+    document.getElementById('loader').classList.remove('d-none');
+
+    await loadMoreComments(true);
+}
+
+async function loadMoreComments(isReset = false) {
+    if (isFetching) return;
     isFetching = true;
 
     const pageInput = document.getElementById('currentPage');
     const hasMoreInput = document.getElementById('hasMore');
-    const loader = document.getElementById('loader');
-    const statusMsg = document.getElementById('status-message');
+    const sortBy = document.getElementById('currentSort').value;
     const postId = document.getElementById('postId').value;
-
-    let nextPage = parseInt(pageInput.value) + 1;
+    const loader = document.getElementById('loader');
+    
+    let nextPage = isReset ? 1 : parseInt(pageInput.value) + 1;
 
     try {
-        const response = await fetch(`/Comment/GetMoreComments?postId=${postId}&pageIndex=${nextPage}`);
+        const response = await fetch(`/Comment/GetMoreComments?postId=${postId}&pageIndex=${nextPage}&sortBy=${sortBy}`);
 
-        if (response.status === 204 || response.ok === false) {
+        if (response.status === 204) {
             hasMoreInput.value = "false";
             loader.classList.add('d-none');
-            statusMsg.classList.remove('d-none');
-            statusMsg.innerText = "No more comments.";
+            document.getElementById('status-message').classList.remove('d-none');
             return;
         }
 
@@ -48,10 +62,8 @@ async function loadMoreComments() {
 
         document.getElementById('comments-container').insertAdjacentHTML('beforeend', html);
         pageInput.value = nextPage;
-
     } catch (err) {
-        console.error("Infinite scroll error:", err);
-        loader.classList.add('d-none');
+        console.error("Load more error:", err);
     } finally {
         isFetching = false;
     }
@@ -190,7 +202,6 @@ async function submitComment(parentId = null) {
 
     if (!content) return;
 
-    // UI Feedback: Disable input while sending
     inputElement.disabled = true;
 
     try {
@@ -224,6 +235,7 @@ async function submitComment(parentId = null) {
             if (parentId) {
                 const container = document.getElementById(`replies-container-${parentId}`);
                 container.appendChild(tempDiv);
+                tempDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 closeReplyBox(parentId);
             } else {
                 const container = document.getElementById('comments-container');
@@ -238,5 +250,113 @@ async function submitComment(parentId = null) {
         console.error("Critical error:", err);
     } finally {
         inputElement.disabled = false;
+    }
+}
+
+function editComment(commentId) {
+    const textDiv = document.querySelector(`#comment-body-wrapper-${commentId} .comment-text`);
+    const actionsDiv = document.querySelector(`#comment-body-wrapper-${commentId} .comment-actions`);
+
+    const originalContent = textDiv.innerText.trim();
+
+    const editHtml = `
+        <div class="edit-container mt-2">
+            <textarea class="form-control mb-2" id="edit-input-${commentId}">${originalContent}</textarea>
+            <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-success" onclick="saveEdit('${commentId}')">Save</button>
+                <button class="btn btn-sm btn-outline-secondary" onclick="cancelEdit('${commentId}', \`${originalContent.replace(/`/g, '\\`')}\`)">Cancel</button>
+            </div>
+        </div>
+    `;
+
+    textDiv.style.display = 'none';
+    actionsDiv.classList.add('d-none');
+    textDiv.insertAdjacentHTML('afterend', editHtml);
+}
+
+function cancelEdit(commentId, originalContent) {
+    const container = document.querySelector(`#comment-body-wrapper-${commentId} .edit-container`);
+    const textDiv = document.querySelector(`#comment-body-wrapper-${commentId} .comment-text`);
+    const actionsDiv = document.querySelector(`#comment-body-wrapper-${commentId} .comment-actions`);
+
+    container.remove();
+    textDiv.style.display = 'block';
+    actionsDiv.style.display = 'flex';
+    actionsDiv.classList.remove('d-none')
+}
+
+async function saveEdit(commentId) {
+    const newText = document.getElementById(`edit-input-${commentId}`).value;
+    const postId = document.getElementById('postId').value;
+
+    const response = await fetch(`/Comment/Edit/${commentId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+        },        
+        body: JSON.stringify({ content: newText, postId: postId })
+    });
+
+    const contentType = response.headers.get("content-type");
+
+    if (contentType && contentType.includes("application/json")) {
+        const data = await response.json();
+        if (data.loginUrl) {
+            window.location.href = data.loginUrl;
+            return;
+        }
+    }
+
+    if (response.ok) {
+        const textDiv = document.querySelector(`#comment-body-wrapper-${commentId} .comment-text`);
+        textDiv.innerText = newText;
+        cancelEdit(commentId);
+    } else {
+        alert("Failed to save changes. Please try again.");
+    }
+}
+
+async function deleteComment(commentId) {
+    if (!confirm("Are you sure you want to delete this comment?")) return;
+
+    const postId = document.getElementById('postId').value;
+
+    const response = await fetch(`/Comment/Delete?commentId=${commentId}&postId=${postId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+        }
+    });
+
+    const contentType = response.headers.get("content-type");
+
+    if (contentType && contentType.includes("application/json")) {
+        const data = await response.json();
+        if (data.loginUrl) {
+            window.location.href = data.loginUrl;
+            return;
+        }
+    }
+
+    if (response.ok) {
+        const wrapper = document.getElementById(`comment-body-wrapper-${commentId}`);
+
+        const textDiv = wrapper.querySelector('.comment-text');
+        const actionsDiv = wrapper.querySelector('.comment-actions');
+
+        const loadRepliesBtn = actionsDiv.querySelector('.load-replies-btn');
+
+        textDiv.innerHTML = '<span class="text-muted fst-italic"><i class="bi bi-trash"></i> [Comment deleted]</span>';
+
+
+        actionsDiv.innerHTML = '';
+
+        if (loadRepliesBtn) {
+            actionsDiv.appendChild(loadRepliesBtn);
+        }
+
+        wrapper.classList.add('opacity-75');
     }
 }
