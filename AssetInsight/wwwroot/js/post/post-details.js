@@ -235,7 +235,7 @@ async function submitComment(parentId = null) {
             if (parentId) {
                 const container = document.getElementById(`replies-container-${parentId}`);
                 container.appendChild(tempDiv);
-                tempDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                //tempDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 closeReplyBox(parentId);
             } else {
                 const container = document.getElementById('comments-container');
@@ -358,5 +358,59 @@ async function deleteComment(commentId) {
         }
 
         wrapper.classList.add('opacity-75');
+    }
+}
+
+const btn = document.querySelector('.js-save-btn');
+
+if (btn) {
+    btn.addEventListener('click', async function (event) {
+        event.preventDefault();
+
+        const postId = btn.dataset.postId;
+        const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+        try {
+            const response = await fetch(`/Post/ToggleSave?postId=${postId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            const contentType = response.headers.get("content-type");
+
+            let data;
+            if (contentType && contentType.includes("application/json")) {
+                data = await response.json();
+            }
+
+            if (data?.loginUrl) {
+                window.location.href = data.loginUrl;
+                return;
+            }
+
+            if (response.ok && data) {
+                updateSaveButtonUI(btn, data.saved);
+                showToast(data.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    });
+    function updateSaveButtonUI(btn, isSaved) {
+        const textSpan = btn.querySelector('.save-text');
+        const icon = btn.querySelector('i');
+
+        if (isSaved) {
+            btn.classList.add('active');
+            if (textSpan) textSpan.textContent = 'Saved';
+            if (icon) icon.className = 'bi bi-bookmark-fill';
+        } else {
+            btn.classList.remove('active');
+            if (textSpan) textSpan.textContent = 'Save';
+            if (icon) icon.className = 'bi bi-bookmark';
+        }
     }
 }

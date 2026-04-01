@@ -1,0 +1,232 @@
+﻿@using AssetInsight.Core
+@using AssetInsight.Models.Post
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@model PagingModel<PostVM>
+
+
+<link rel="stylesheet" href="~/css/post/forum.css" />
+@{
+    var userName = ViewContext.RouteData.Values["userName"]?.ToString();
+    ViewData["Title"] = $"u/{userName} - AssetInsight";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-8">
+
+            <div class="profile-nav-container mb-3">
+                <ul class="nav profile-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" asp-action="UserPosts" asp-route-userName="@userName">
+                            @Localizer["Posts"]
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link disabled" href="#">@Localizer["Comments"]</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link disabled" href="#">@Localizer["Saved"]</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link disabled" href="#">@Localizer["Upvoted"]</a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="sort-bar mb-3">
+                <div class="d-flex align-items-center gap-3">
+                    <button class="btn btn-sort active"><i class="bi bi-brightness-high"></i> @Localizer["New"]</button>
+                    <button class="btn btn-sort"><i class="bi bi-graph-up-arrow"></i> @Localizer["Top"]</button>
+                    <button class="btn btn-sort"><i class="bi bi-fire"></i> @Localizer["Hot"]</button>
+                </div>
+            </div>
+
+            <div id="posts-feed">
+                @if (Model.Items.Any())
+                {
+                    <partial name="_PostPartial" model="Model.Items" />
+                }
+                else
+                {
+                    <div class="card p-5 text-center text-muted">
+                        <i class="bi bi-chat-left-dots fs-1"></i>
+                        <p class="mt-3">@Localizer["NoPostsYet"]</p>
+                    </div>
+                }
+            </div>
+
+            <div id="loading-sentinel" class="py-4 text-center" style="display: none;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 d-none d-lg-block">
+            <div class="sticky-top" style="top: 80px; z-index: 10;">
+
+                <div class="card user-profile-card border-0 shadow-sm mb-3">
+                    <div class="user-card-banner"></div>
+                    <div class="card-body pt-0 text-center">
+                        <div class="avatar-container">
+                            <img src="https://ui-avatars.com/api/?name=@userName&background=random&size=128"
+                                 class="profile-avatar-img shadow" alt="avatar" />
+                        </div>
+                        <h5 class="mt-2 mb-0">u/@userName</h5>
+                        <p class="text-muted small">@userName.ToLower()</p>
+
+                        <div class="d-flex justify-content-between text-start px-3 my-3">
+                            <div>
+                                <div class="fw-bold small">@Localizer["Karma"]</div>
+                                <div class="text-muted small"><i class="bi bi-star-fill text-warning"></i> 1,234</div>
+                            </div>
+                            <div>
+                                <div class="fw-bold small">@Localizer["CakeDay"]</div>
+                                <div class="text-muted small"><i class="bi bi-calendar3"></i> @DateTime.Now.ToString("MMM dd, yyyy")</div>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary w-100 rounded-pill fw-bold mb-2">@Localizer["Follow"]</button>
+                        <button class="btn btn-outline-primary w-100 rounded-pill fw-bold">@Localizer["Chat"]</button>
+                    </div>
+                </div>
+
+                <div class="card p-3 border-0 shadow-sm small text-muted">
+                    <div class="row g-2">
+                        <div class="col-6"><a href="#" class="text-decoration-none text-reset">User Agreement</a></div>
+                        <div class="col-6"><a href="#" class="text-decoration-none text-reset">Privacy Policy</a></div>
+                        <div class="col-6"><a href="#" class="text-decoration-none text-reset">Content Policy</a></div>
+                        <div class="col-6"><a href="#" class="text-decoration-none text-reset">Moderator Code</a></div>
+                    </div>
+                    <hr />
+                    <p class="mb-0">© 2026 AssetInsight, Inc. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let currentPage = 1;
+        let isLoading = false;
+        const userName = "@userName";
+
+        // Simple Infinite Scroll Logic
+        window.onscroll = function () {
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 800) {
+                if (!isLoading) {
+                    loadMorePosts();
+                }
+            }
+        };
+
+        async function loadMorePosts() {
+            isLoading = true;
+            currentPage++;
+            const sentinel = document.getElementById('loading-sentinel');
+            sentinel.style.display = 'block';
+
+            try {
+                const response = await fetch(`/${userName}?page=${currentPage}`, {
+                    headers: { "X-Requested-With": "XMLHttpRequest" }
+                });
+
+                if (response.status === 204) {
+                    sentinel.innerHTML = `<span class="text-muted small">@Localizer["NoMorePosts"]</span>`;
+                    window.onscroll = null; // Stop listening
+                    return;
+                }
+
+                const html = await response.text();
+                document.getElementById('posts-feed').insertAdjacentHTML('beforeend', html);
+                isLoading = false;
+                sentinel.style.display = 'none';
+            } catch (err) {
+                console.error("Failed to load posts", err);
+                isLoading = false;
+            }
+        }
+    </script>
+}
+
+<style>
+    /* Profile Navigation Tabs */
+    .profile-nav-container {
+        background-color: var(--bs-body-emphasis);
+        border-radius: 8px;
+        padding: 0 10px;
+    }
+
+    .profile-tabs .nav-link {
+        color: var(--bs-body-color);
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+        padding: 15px 20px;
+        border-bottom: 3px solid transparent;
+    }
+
+        .profile-tabs .nav-link:hover {
+            color: #ff4500;
+        }
+
+        .profile-tabs .nav-link.active {
+            color: #ff4500;
+            border-bottom: 3px solid #ff4500;
+        }
+
+    /* Sort Bar */
+    .sort-bar {
+        background-color: var(--bs-body-emphasis);
+        padding: 10px 15px;
+        border-radius: 8px;
+        border: 1px solid var(--bs-border-color);
+    }
+
+    .btn-sort {
+        border: none;
+        background: none;
+        color: var(--bs-body-tertiary);
+        font-weight: 700;
+        font-size: 0.9rem;
+        border-radius: 20px;
+        padding: 5px 12px;
+    }
+
+        .btn-sort:hover, .btn-sort.active {
+            background-color: var(--bs-secondary-bg);
+            color: #0079d3;
+        }
+
+    /* Sidebar User Card */
+    .user-profile-card {
+        overflow: hidden;
+        background-color: var(--bs-body-emphasis);
+    }
+
+    .user-card-banner {
+        height: 80px;
+        background-color: #33a8ff;
+    }
+
+    .avatar-container {
+        margin-top: -40px;
+    }
+
+    .profile-avatar-img {
+        width: 80px;
+        height: 80px;
+        border-radius: 8px;
+        border: 4px solid var(--bs-body-emphasis);
+        background-color: #fff;
+    }
+
+    /* Ensure feed items handle margins correctly */
+    #posts-feed .post-card {
+        margin-bottom: 10px;
+        border: 1px solid var(--bs-border-color);
+    }
+</style>

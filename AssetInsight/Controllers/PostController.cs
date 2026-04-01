@@ -4,11 +4,15 @@ using AssetInsight.Core.DTOs.Images_To_Be_Deleted_Dto;
 using AssetInsight.Core.DTOs.Post;
 using AssetInsight.Core.DTOs.Post_Image;
 using AssetInsight.Core.DTOs.Tag;
+using AssetInsight.Core.Implementations;
 using AssetInsight.Core.Interfaces;
 using AssetInsight.Data.Models;
 using AssetInsight.Models.Post;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Newtonsoft.Json;
+using System.Data;
 using System.Security.Claims;
 
 namespace AssetInsight.Controllers
@@ -23,6 +27,7 @@ namespace AssetInsight.Controllers
 		private readonly IPostImageService postImageService;
 		private readonly ICommentService commentService;
 		private readonly IPostReactionService postReactionService;
+		private readonly ISavedPostService savedPostService;
 
 		public PostController(IPostService postService,
 			ITagService tagService,
@@ -31,7 +36,8 @@ namespace AssetInsight.Controllers
 			IImageService imageService,
 			IPostImageService postImageService,
 			ICommentService commentService,
-			IPostReactionService postReactionService)
+			IPostReactionService postReactionService,
+			ISavedPostService savedPostService)
 		{
 			this.postService = postService;
 			this.tagService = tagService;
@@ -41,6 +47,7 @@ namespace AssetInsight.Controllers
 			this.postImageService = postImageService;
 			this.commentService = commentService;
 			this.postReactionService = postReactionService;
+			this.savedPostService = savedPostService;
 		}
 
 		public async Task<IActionResult> Index(int page = 1, string? tag = null)
@@ -289,11 +296,14 @@ namespace AssetInsight.Controllers
 			return Ok();
 		}
 
+
 		public async Task<IActionResult> Details(Guid? id)
 		{
 			PostDetailsViewModel model;
 			try
 			{
+				string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
 				PostDto postDto = await postService.GetByIdAsync(id.Value);
 				model = new PostDetailsViewModel
 				{
@@ -306,7 +316,8 @@ namespace AssetInsight.Controllers
 					UpvoteCount = await postReactionService.GetPostReactionScoreAsync(postDto.Id),
 					Tags = await tagService.GetAllTagsbyPostId(postDto.Id),
 					ImgUrls = await postImageService.GetAllByPostIdAsync(postDto.Id),
-					Comments = await commentService.GetRootCommentsPaginated(postDto.Id, 1, User.FindFirstValue(ClaimTypes.NameIdentifier)),
+					Comments = await commentService.GetRootCommentsPaginated(postDto.Id, 1, userId),
+					UserHasSaved = await savedPostService.HasUserSavedPost(postDto.Id, userId),
 				};
 			}
 			catch (NoEntityException ex)
@@ -315,6 +326,71 @@ namespace AssetInsight.Controllers
 				return NotFound();
 			}
 			return View(model);
+		}
+
+		[HttpGet]
+		[Route("u/{userName}")]
+		public async Task<IActionResult> UserPosts(string userName, int page = 1)
+		{
+			if (string.IsNullOrEmpty(userName) || userName == "[deleted]")
+			{
+				return BadRequest();
+			}
+
+			PagingModel<PostDto> pagedPostDtos = await postService.GetAllPagedPostsByUserNameAsync(userName, page, 5);
+			PagingModel<PostVM> pagedVMs = pagedPostDtos.Map(dto => new PostVM
+			{
+				Id = dto.Id,
+				Title = dto.Title,
+				Content = dto.Content,
+				AuthorUserName = dto.AuthorName,
+				CreatedAt = dto.CreatedAt,
+				EditedAt = dto.EditedAt,
+				IsLocked = dto.IsLocked,
+				CommentsCount = dto.CommentsCount,
+				ReactionsCount = dto.ReactionsCount,
+			});
+			foreach (PostVM post in pagedVMs.Items)
+			{
+				post.Tags = await tagService.GetAllTagsbyPostId(post.Id);
+			}
+			if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+			{
+				if (pagedVMs.Items.Count() == 0)
+				{
+					return NoContent();
+				}
+				return PartialView("_PostPartial", pagedVMs.Items);
+			}
+			return View(pagedVMs);
+		}
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> ToggleSave(Guid postId)
+	{
+			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			if (userId is null)
+			{
+				var returnUrl = Url.Action("Details", "Post", new { id = postId });
+				var loginUrl = Url.Page("/Account/Login", null, new { area = "Identity", ReturnUrl = returnUrl });
+				return Json(new { loginUrl });
+			}
+
+			try
+			{
+				await postService.GetByIdAsync(postId);
+			}
+			catch(Exception ex)
+			{
+				logger.LogError(ex, ex.Message);
+				return NotFound();	
+			}
+
+			bool isSaved = await savedPostService.ToggleSavePost(postId, userId);
+
+			return Json(new { saved = isSaved,
+				message = isSaved ? "Post saved!" : "Post removed from saved." });
 		}
 
 		private void TryValidateTitleAndContent(PostFormModel model)

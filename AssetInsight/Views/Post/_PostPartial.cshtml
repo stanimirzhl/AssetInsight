@@ -65,11 +65,9 @@
                     💬 @post.CommentsCount @Localizer["Comments"]
                 </span>
 
-                <form asp-action="Save" asp-route-id="@post.Id" method="post">
-                    <button type="submit" class="btn-save">
-                        ⭐ @Localizer["Save"]
-                    </button>
-                </form>
+                <button type="submit" class="btn-save js-save-btn" data-post-id="@post.Id">
+                    ⭐ @Localizer["Save"]
+                </button>
 
             @if (post.Tags.Any())
                 {

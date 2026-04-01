@@ -12,7 +12,11 @@
         <div class="comment-header d-flex align-items-center mb-1" onclick="toggleComment('@Model.Id')">
             <img src="https://ui-avatars.com/api/?name=@Model.AuthorName&background=random&size=18" class="author-avatar-sm me-2" />
             <span class="collapsed-icon me-2"><i class="bi bi-plus-square"></i></span>
-            <span class="comment-author me-2">u/@Model.AuthorName</span>
+            <span class="comment-author me-2">
+                <a asp-action="UserPosts" asp-route-userName="@Model.AuthorName" class="text-white text-decoration-none">
+                    u/@Model.AuthorName
+                </a>
+            </span>
             <span class="comment-date">@Model.CreatedOn.ToString("MMM dd")</span>
         </div>
 

@@ -16,6 +16,7 @@ namespace AssetInsight.Models.Post
 		public bool IsLocked { get; set; }
 		public int UpvoteCount { get; set; }
 		public bool? UserVote { get; set; }
+		public bool UserHasSaved { get; set; }
 
 		public List<TagDto> Tags { get; set; } = new();
 		public List<PostImageDto> ImgUrls { get; set; } = new();

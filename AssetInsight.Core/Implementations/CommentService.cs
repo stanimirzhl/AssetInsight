@@ -105,6 +105,7 @@ namespace AssetInsight.Core.Implementations
 				PostId = postId,
 				ParentCommentId = parentCommentId,
 			};
+
 			await repository.AddAsync(comment);
 
 			return new CommentDto

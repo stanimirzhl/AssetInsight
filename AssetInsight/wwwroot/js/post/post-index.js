@@ -1,4 +1,6 @@
-﻿let currentPage = 1;
+﻿// Global Variables
+
+let currentPage = 1;
 let isLoading = false;
 let hasMorePosts = true;
 
@@ -15,7 +17,10 @@ const observer = new IntersectionObserver(async (entries) => {
     //rootMargin: '100px'
 });
 
+
 if (sentinel) observer.observe(sentinel);
+
+// Functions
 
 async function loadPosts() {
     if (isLoading || !hasMorePosts) return;
@@ -135,4 +140,86 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
+    const postList = document.getElementById('post-list');
+
+    if (postList) {
+        postList.addEventListener('click', async function (event) {
+            const btn = event.target.closest('.js-save-btn');
+
+            if (!btn) return;
+
+            event.preventDefault();
+
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            const postId = btn.dataset.postId;
+
+            try {
+                const response = await fetch(`/Post/ToggleSave?postId=${postId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': token,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                const contentType = response.headers.get("content-type");
+
+                let data;
+                if (contentType && contentType.includes("application/json")) {
+                    data = await response.json();
+                }
+
+                if (data?.loginUrl) {
+                    window.location.href = data.loginUrl;
+                    return;
+                }
+
+                if (response.ok && data) {
+                    showToast(data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+    }
+    /*
+    document.querySelectorAll('.js-save-btn').forEach(btn => {
+        btn.addEventListener('click', async function (event) {
+            event.preventDefault();
+
+            const postId = btn.dataset.postId;
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            try {
+                const response = await fetch(`/Post/ToggleSave?postId=${postId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': token,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                const contentType = response.headers.get("content-type");
+
+                let data;
+                if (contentType && contentType.includes("application/json")) {
+                    data = await response.json();
+                }
+
+                if (data?.loginUrl) {
+                    window.location.href = data.loginUrl;
+                    return;
+                }
+
+                if (response.ok && data) {
+                    showToast(data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+    });*/
 });
+

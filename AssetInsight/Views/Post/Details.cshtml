@@ -1,7 +1,7 @@
 ﻿@using AssetInsight.Models.Post
 @model PostDetailsViewModel
 
-<link rel="stylesheet" href="~/css/post/post-details.css"/>
+<link rel="stylesheet" href="~/css/post/post-details.css" />
 
 <div class="forum-bg py-4">
     <div class="container forum-container">
@@ -25,7 +25,11 @@
                     <div class="reddit-post-body">
                         <div class="post-meta">
                             <img src="https://ui-avatars.com/api/?name=@Model.AuthorName&background=random" class="author-avatar" />
-                            <span class="author">u/@Model.AuthorName</span>
+                            <span class="author">
+                                <a asp-action="UserPosts" asp-route-userName="@Model.AuthorName" class="text-white text-decoration-none">
+                                    u/@Model.AuthorName
+                                </a>
+                            </span>
                             <span class="dot">•</span>
                             <span class="date">@Model.CreatedAt.ToString("MMM dd")</span>
                             @if (Model.IsLocked)
@@ -75,7 +79,10 @@
                         <div class="post-footer">
                             <button class="footer-btn"><i class="bi bi-chat-square-text"></i> @Model.Comments.TotalCount Comments</button>
                             <button class="footer-btn"><i class="bi bi-share"></i> Share</button>
-                            <button class="footer-btn"><i class="bi bi-bookmark"></i> Save</button>
+                            <button class="js-save-btn footer-btn" data-post-id="@Model.Id">
+                                <i class="bi @(Model.UserHasSaved ? "bi-bookmark-fill" : "bi-bookmark")"></i>
+                                <span class="save-text">@(Model.UserHasSaved ? "Saved" : "Save")</span>
+                            </button>
                         </div>
                     </div>
                 </article>

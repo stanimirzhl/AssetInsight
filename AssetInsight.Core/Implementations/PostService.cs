@@ -73,12 +73,37 @@ namespace AssetInsight.Core.Implementations
 			await repository.SaveChangesAsync();
 		}
 
+
 		public async Task<PagingModel<PostDto>> GetAllPagedPostsAsync(int pageIndex, int pageSize)
 		{
 			IQueryable<PostDto> query = repository.AllAsReadOnly()
 				.Include(x => x.Author)
 				.Include(x => x.Comments)
 				.Include(x => x.Reactions)
+			.Select(p => new PostDto
+			{
+				Id = p.Id,
+				Title = p.Title,
+				Content = p.Content,
+				AuthorName = p.Author == null ? "[deleted]" : p.Author.UserName,
+				CreatedAt = p.CreatedAt,
+				EditedAt = p.EditedAt,
+				IsLocked = p.IsLocked,
+				CommentsCount = p.Comments.Count,
+				ReactionsCount = p.Reactions.Count
+			})
+			.OrderByDescending(p => p.CreatedAt);
+
+			return await PagingModel<PostDto>.CreateAsync(query, pageIndex, pageSize);
+		}
+
+		public async Task<PagingModel<PostDto>> GetAllPagedPostsByUserNameAsync(string userName, int pageIndex, int pageSize)
+		{
+			IQueryable<PostDto> query = repository.AllAsReadOnly()
+				.Include(x => x.Author)
+				.Include(x => x.Comments)
+				.Include(x => x.Reactions)
+			.Where(p => p.Author != null && p.Author.UserName == userName)
 			.Select(p => new PostDto
 			{
 				Id = p.Id,

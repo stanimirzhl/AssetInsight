@@ -1,4 +1,8 @@
-﻿function getPreferredTheme() {
+﻿// Global Variables
+var timeout;
+
+// Functions
+function getPreferredTheme() {
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme) return savedTheme;
 
@@ -22,6 +26,7 @@ document.getElementById('cultureSelect').addEventListener('change', function () 
             if (response.ok) location.reload();
         });
 });
+
 
 /*window.addEventListener("contextmenu", function (e) {
     e.preventDefault();
@@ -204,3 +209,28 @@ passwordInput.addEventListener('input', () => {
         registerButton.disabled = !allValid;
     }
 });
+
+
+function showToast(message) {
+    var div;
+    if (document.querySelector(".savedModal")) {
+        div = document.querySelector(".savedModal");
+        window.clearTimeout(timeout);
+    }
+    else { 
+        div = document.createElement('div');
+    }
+    div.classList = "savedModal";
+    div.textContent = message;
+    div.style.position = 'fixed';
+    div.style.bottom = '20px';
+    div.style.right = '20px';
+    div.style.background = '#333';
+    div.style.color = '#fff';
+    div.style.padding = '10px 15px';
+    div.style.borderRadius = '5px';
+
+    document.body.appendChild(div);
+
+    timeout = window.setTimeout(() => div.remove(), 2000);
+}
