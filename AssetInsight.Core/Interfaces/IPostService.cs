@@ -13,6 +13,12 @@ namespace AssetInsight.Core.Interfaces
 
 		Task<PagingModel<PostDto>> GetAllPagedPostsByUserNameAsync(string userName, int pageIndex, int pageSize);
 
+		Task<PagingModel<PostDto>> GetSavedPostsPagedAsync(string userId, int pageIndex, int pageSize);
+
+		Task<PagingModel<PostDto>> GetUpvotedPostsPagedAsync(string userId, int pageIndex, int pageSize);
+
+		Task<PagingModel<PostDto>> GetDownvotedPostsPagedAsync(string userId, int pageIndex, int pageSize);
+
 		Task<Guid> AddAsync(PostDto postDto);
 
 		Task<PostDto> GetByIdAsync(Guid id);

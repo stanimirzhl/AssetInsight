@@ -48,6 +48,32 @@ namespace AssetInsight.Core.Implementations
 			return await PagingModel<CommentDto>.CreateAsync(commentDtos, pageIndex, 5);
 		}
 
+		public async Task<PagingModel<CommentDto>> GetPagedCommentsByUserAsync(string userId, int pageIndex, int pageSize)
+		{
+			IQueryable<CommentDto> query = repository.All()
+				.Where(c => c.AuthorId == userId)
+				.Include(c => c.Author)
+				.Include(c => c.ParentComment)
+				 .ThenInclude(pc => pc.Author)
+				.Include(c => c.Reactions)
+				.Select(c => new CommentDto
+				{
+					Id = c.Id,
+					Content = c.Content,
+					CreatedOn = c.CreatedAt,
+					ParentCommentAuthorName = c.ParentComment != null ? (c.ParentComment.Author == null ? "[deleted]" : c.ParentComment.Author.UserName) : null,
+					AuthorName = c.Author == null ? "[deleted]" : c.Author.UserName,
+					UpvoteCount = c.Reactions.Count(r => r.IsUpVote) - c.Reactions.Count(r => !r.IsUpVote),
+					UserVote = c.Reactions
+						.Where(r => r.UserId == userId)
+						.Select(r => (bool?)r.IsUpVote)
+						.FirstOrDefault(),
+					IsDeleted = c.IsDeleted
+				})
+				.OrderByDescending(c => c.CreatedOn);
+			return await PagingModel<CommentDto>.CreateAsync(query, pageIndex, pageSize);
+		}
+
 		public async Task<List<CommentDto>> GetRepliesByParentId(Guid parentId, string userId/*, int skip, int take*/)
 		{
 			return await repository.All()

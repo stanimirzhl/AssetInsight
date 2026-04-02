@@ -13,6 +13,8 @@ namespace AssetInsight.Core.Interfaces
 
 		Task<List<CommentDto>> GetRepliesByParentId(Guid parentId, string userId/*, int skip, int take*/);
 
+		Task<PagingModel<CommentDto>> GetPagedCommentsByUserAsync(string userId, int pageIndex, int pageSize);
+
 		Task<CommentDto> AddAsync(Guid postId, string content, string? authorId, Guid? parentCommentId = null);
 
 		Task<CommentDto> GetByIdAsync(Guid commentId);

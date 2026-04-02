@@ -10,6 +10,7 @@
 		public DateTime CreatedOn { get; set; }
 		public int ReplyCount { get; set; }
 		public Guid? ParentCommentId { get; set; }
+		public string? ParentCommentAuthorName { get; set; }
 		public int UpvoteCount { get; set; }
 		public bool? UserVote { get; set; }
 		public bool IsDeleted { get; set; } = false;

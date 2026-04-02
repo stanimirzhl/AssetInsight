@@ -1,8 +1,9 @@
 ﻿@using AssetInsight.Core
+@using AssetInsight.Models.Account
 @using AssetInsight.Models.Post
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
-@model PagingModel<PostVM>
+@model UserPostsViewModel
 
 
 <link rel="stylesheet" href="~/css/post/forum.css" />
@@ -18,18 +19,29 @@
             <div class="profile-nav-container mb-3">
                 <ul class="nav profile-tabs">
                     <li class="nav-item">
-                        <a class="nav-link active" asp-action="UserPosts" asp-route-userName="@userName">
+                        <a class="nav-link @(Model.Section == "posts" ? "active" : "")" asp-action="UserPosts" asp-route-userName="@userName" asp-route-section="posts">
                             @Localizer["Posts"]
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link disabled" href="#">@Localizer["Comments"]</a>
+                        <a class="nav-link @(Model.Section == "comments" ? "active" : "")" asp-action="UserPosts" asp-route-userName="@userName" asp-route-section="comments">
+                            @Localizer["Comments"]
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link disabled" href="#">@Localizer["Saved"]</a>
+                        <a class="nav-link @(Model.Section == "saved" ? "active" : "")" asp-action="UserPosts" asp-route-section="saved">
+                            @Localizer["Saved"]
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link disabled" href="#">@Localizer["Upvoted"]</a>
+                        <a class="nav-link @(Model.Section == "upvoted" ? "active" : "")" asp-action="UserPosts" asp-route-section="upvoted">
+                            @Localizer["Upvoted"]
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link @(Model.Section == "downvoted" ? "active" : "")" asp-action="UserPosts" asp-route-section="downvoted">
+                            @Localizer["Downvoted"]
+                        </a>
                     </li>
                 </ul>
             </div>
@@ -43,16 +55,19 @@
             </div>
 
             <div id="posts-feed">
-                @if (Model.Items.Any())
+                @if (Model.Section == "posts")
                 {
-                    <partial name="_PostPartial" model="Model.Items" />
-                }
-                else
-                {
-                    <div class="card p-5 text-center text-muted">
-                        <i class="bi bi-chat-left-dots fs-1"></i>
-                        <p class="mt-3">@Localizer["NoPostsYet"]</p>
-                    </div>
+                    @if (Model.Posts.Items.Any())
+                    {
+                        <partial name="_PostPartial" model="Model.Posts.Items" />
+                    }
+                    else
+                    {
+                        <div class="card p-5 text-center text-muted">
+                            <i class="bi bi-chat-left-dots fs-1"></i>
+                            <p class="mt-3">@Localizer["NoPostsYet"]</p>
+                        </div>
+                    }
                 }
             </div>
 

@@ -48,7 +48,7 @@ namespace AssetInsight.Core.Implementations
 				AuthorName = p.Author == null ? "[deleted]" : p.Author.UserName,
 				CreatedAt = p.CreatedAt,
 				EditedAt = p.EditedAt,
-				IsLocked = p.IsLocked,				
+				IsLocked = p.IsLocked,
 			})
 			.FirstOrDefaultAsync() ?? throw new NoEntityException($"No entity found with id: {id}!");
 		}
@@ -104,6 +104,79 @@ namespace AssetInsight.Core.Implementations
 				.Include(x => x.Comments)
 				.Include(x => x.Reactions)
 			.Where(p => p.Author != null && p.Author.UserName == userName)
+			.Select(p => new PostDto
+			{
+				Id = p.Id,
+				Title = p.Title,
+				Content = p.Content,
+				AuthorName = p.Author == null ? "[deleted]" : p.Author.UserName,
+				CreatedAt = p.CreatedAt,
+				EditedAt = p.EditedAt,
+				IsLocked = p.IsLocked,
+				CommentsCount = p.Comments.Count,
+				ReactionsCount = p.Reactions.Count
+			})
+			.OrderByDescending(p => p.CreatedAt);
+
+			return await PagingModel<PostDto>.CreateAsync(query, pageIndex, pageSize);
+		}
+
+		public async Task<PagingModel<PostDto>> GetSavedPostsPagedAsync(string userId, int pageIndex, int pageSize)
+		{
+			IQueryable<PostDto> query = repository.AllAsReadOnly()
+				.Include(x => x.Author)
+				.Include(x => x.Comments)
+				.Include(x => x.Reactions)
+				.Include(x => x.SavedPosts)
+			.Where(p => p.SavedPosts.Any(sp => sp.UserId == userId))
+			.Select(p => new PostDto
+			{
+				Id = p.Id,
+				Title = p.Title,
+				Content = p.Content,
+				AuthorName = p.Author == null ? "[deleted]" : p.Author.UserName,
+				CreatedAt = p.CreatedAt,
+				EditedAt = p.EditedAt,
+				IsLocked = p.IsLocked,
+				CommentsCount = p.Comments.Count,
+				ReactionsCount = p.Reactions.Count
+			})
+			.OrderByDescending(p => p.CreatedAt);
+
+			return await PagingModel<PostDto>.CreateAsync(query, pageIndex, pageSize);
+		}
+
+		public async Task<PagingModel<PostDto>> GetUpvotedPostsPagedAsync(string userId, int pageIndex, int pageSize)
+		{
+			IQueryable<PostDto> query = repository.AllAsReadOnly()
+				.Include(x => x.Author)
+				.Include(x => x.Comments)
+				.Include(x => x.Reactions)
+			.Where(p => p.Reactions.Any(pr => pr.UserId == userId && pr.IsUpVote))
+			.Select(p => new PostDto
+			{
+				Id = p.Id,
+				Title = p.Title,
+				Content = p.Content,
+				AuthorName = p.Author == null ? "[deleted]" : p.Author.UserName,
+				CreatedAt = p.CreatedAt,
+				EditedAt = p.EditedAt,
+				IsLocked = p.IsLocked,
+				CommentsCount = p.Comments.Count,
+				ReactionsCount = p.Reactions.Count
+			})
+			.OrderByDescending(p => p.CreatedAt);
+
+			return await PagingModel<PostDto>.CreateAsync(query, pageIndex, pageSize);
+		}
+
+		public async Task<PagingModel<PostDto>> GetDownvotedPostsPagedAsync(string userId, int pageIndex, int pageSize)
+		{
+			IQueryable<PostDto> query = repository.AllAsReadOnly()
+				.Include(x => x.Author)
+				.Include(x => x.Comments)
+				.Include(x => x.Reactions)
+			.Where(p => p.Reactions.Any(pr => pr.UserId == userId && !pr.IsUpVote))
 			.Select(p => new PostDto
 			{
 				Id = p.Id,

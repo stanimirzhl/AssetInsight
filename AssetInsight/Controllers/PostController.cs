@@ -7,6 +7,7 @@ using AssetInsight.Core.DTOs.Tag;
 using AssetInsight.Core.Implementations;
 using AssetInsight.Core.Interfaces;
 using AssetInsight.Data.Models;
+using AssetInsight.Models.Account;
 using AssetInsight.Models.Post;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -28,6 +29,7 @@ namespace AssetInsight.Controllers
 		private readonly ICommentService commentService;
 		private readonly IPostReactionService postReactionService;
 		private readonly ISavedPostService savedPostService;
+		private readonly UserManager<User> userManager;
 
 		public PostController(IPostService postService,
 			ITagService tagService,
@@ -37,7 +39,8 @@ namespace AssetInsight.Controllers
 			IPostImageService postImageService,
 			ICommentService commentService,
 			IPostReactionService postReactionService,
-			ISavedPostService savedPostService)
+			ISavedPostService savedPostService,
+			UserManager<User> userManager)
 		{
 			this.postService = postService;
 			this.tagService = tagService;
@@ -48,6 +51,7 @@ namespace AssetInsight.Controllers
 			this.commentService = commentService;
 			this.postReactionService = postReactionService;
 			this.savedPostService = savedPostService;
+			this.userManager = userManager;
 		}
 
 		public async Task<IActionResult> Index(int page = 1, string? tag = null)
@@ -330,45 +334,77 @@ namespace AssetInsight.Controllers
 
 		[HttpGet]
 		[Route("u/{userName}")]
-		public async Task<IActionResult> UserPosts(string userName, int page = 1)
+		public async Task<IActionResult> UserPosts(string userName, string section = "posts", int page = 1)
 		{
 			if (string.IsNullOrEmpty(userName) || userName == "[deleted]")
 			{
 				return BadRequest();
 			}
 
-			PagingModel<PostDto> pagedPostDtos = await postService.GetAllPagedPostsByUserNameAsync(userName, page, 5);
-			PagingModel<PostVM> pagedVMs = pagedPostDtos.Map(dto => new PostVM
+			string currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+			User user = await userManager.FindByNameAsync(userName);
+
+			var viewModel = new UserPostsViewModel { Section = section.ToLower() };
+
+			if (user == null)
 			{
-				Id = dto.Id,
-				Title = dto.Title,
-				Content = dto.Content,
-				AuthorUserName = dto.AuthorName,
-				CreatedAt = dto.CreatedAt,
-				EditedAt = dto.EditedAt,
-				IsLocked = dto.IsLocked,
-				CommentsCount = dto.CommentsCount,
-				ReactionsCount = dto.ReactionsCount,
-			});
-			foreach (PostVM post in pagedVMs.Items)
-			{
-				post.Tags = await tagService.GetAllTagsbyPostId(post.Id);
+				return BadRequest();
 			}
+
+			if (viewModel.Section == "saved" || viewModel.Section == "upvoted" || viewModel.Section == "downvoted")
+			{
+				if (user.Id != currentUserId) return Forbid();
+			}
+
+
+			switch (viewModel.Section)
+			{
+				case "comments":
+					viewModel.Comments = await commentService.GetPagedCommentsByUserAsync(user.Id, page, 5);
+					break;
+
+				case "saved":
+					var savedDtos = await postService.GetSavedPostsPagedAsync(user.Id, page, 5);
+					viewModel.Saved = await MapToPostVM(savedDtos);
+					break;
+
+				case "upvoted":
+					var upvotedDtos = await postService.GetUpvotedPostsPagedAsync(user.Id, page, 5);
+					viewModel.UpVoted = await MapToPostVM(upvotedDtos);
+					break;
+
+				case "downvoted":
+					var downvotedDtos = await postService.GetDownvotedPostsPagedAsync(user.Id, page, 5);
+					viewModel.DownVoted = await MapToPostVM(downvotedDtos);
+					break;
+
+				default:
+					var postDtos = await postService.GetAllPagedPostsByUserNameAsync(userName, page, 5);
+					viewModel.Posts = await MapToPostVM(postDtos);
+					break;
+			}
+
 			if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
 			{
-				if (pagedVMs.Items.Count() == 0)
+				return viewModel.Section switch
 				{
-					return NoContent();
-				}
-				return PartialView("_PostPartial", pagedVMs.Items);
+					"comments" => PartialView("_CommentPartial", viewModel.Comments.Items),
+					"posts" => PartialView("_PostPartial", viewModel.Posts.Items),
+					"saved" => PartialView("PostPartial", viewModel.Saved.Items),
+					"upvoted" => PartialView("_PostPartial", viewModel.UpVoted.Items),
+					"downvoted" => PartialView("_PostPartial", viewModel.DownVoted.Items),
+					_ => NoContent()
+				};
 			}
-			return View(pagedVMs);
+
+			return View(viewModel);
 		}
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> ToggleSave(Guid postId)
-	{
+		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 			if (userId is null)
 			{
@@ -381,22 +417,47 @@ namespace AssetInsight.Controllers
 			{
 				await postService.GetByIdAsync(postId);
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				logger.LogError(ex, ex.Message);
-				return NotFound();	
+				return NotFound();
 			}
 
 			bool isSaved = await savedPostService.ToggleSavePost(postId, userId);
 
-			return Json(new { saved = isSaved,
-				message = isSaved ? "Post saved!" : "Post removed from saved." });
+			return Json(new
+			{
+				saved = isSaved,
+				message = isSaved ? "Post saved!" : "Post removed from saved."
+			});
+		}
+
+		private async Task<PagingModel<PostVM>> MapToPostVM(PagingModel<PostDto> source)
+		{
+			var pagedVMs = source.Map(dto => new PostVM
+			{
+				Id = dto.Id,
+				Title = dto.Title,
+				Content = dto.Content,
+				AuthorUserName = dto.AuthorName,
+				CreatedAt = dto.CreatedAt,
+				CommentsCount = dto.CommentsCount,
+				ReactionsCount = dto.ReactionsCount,
+				IsLocked = dto.IsLocked,
+				EditedAt = dto.EditedAt,
+			});
+
+			foreach (var post in pagedVMs.Items)
+			{
+				post.Tags = await tagService.GetAllTagsbyPostId(post.Id);
+			}
+			return pagedVMs;
 		}
 
 		private void TryValidateTitleAndContent(PostFormModel model)
 		{
-			model.Title = model.Title.Trim(); 
-			model.Content = model.Content.Trim(); 
+			model.Title = model.Title.Trim();
+			model.Content = model.Content.Trim();
 			ModelState.Clear();
 			TryValidateModel(model);
 		}
