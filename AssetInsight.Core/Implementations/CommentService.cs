@@ -56,6 +56,7 @@ namespace AssetInsight.Core.Implementations
 				.Include(c => c.ParentComment)
 				 .ThenInclude(pc => pc.Author)
 				.Include(c => c.Reactions)
+				.Include(c => c.Post)
 				.Select(c => new CommentDto
 				{
 					Id = c.Id,
@@ -68,7 +69,10 @@ namespace AssetInsight.Core.Implementations
 						.Where(r => r.UserId == userId)
 						.Select(r => (bool?)r.IsUpVote)
 						.FirstOrDefault(),
-					IsDeleted = c.IsDeleted
+					IsDeleted = c.IsDeleted,
+					PostId = c.PostId,
+					PostTitle = c.Post.Title,
+					PostCreatedAt = c.Post.CreatedAt
 				})
 				.OrderByDescending(c => c.CreatedOn);
 			return await PagingModel<CommentDto>.CreateAsync(query, pageIndex, pageSize);
@@ -151,7 +155,7 @@ namespace AssetInsight.Core.Implementations
 		{
 			var comment = await repository.GetByIdAsync(commentId) ?? throw new NoEntityException($"No entity found with id: {commentId}");
 
-			if(comment.PostId != postId)
+			if (comment.PostId != postId)
 				throw new InvalidOperationException("Comment does not belong to the specified post.");
 
 			comment.Content = newContent;
@@ -163,10 +167,21 @@ namespace AssetInsight.Core.Implementations
 		public async Task DeleteAsync(Guid postId, Guid commentId)
 		{
 			var comment = await repository.GetByIdAsync(commentId) ?? throw new NoEntityException($"No entity found with id: {commentId}");
+
+			bool hasReplies = await repository.All()
+				.AnyAsync(x => x.ParentCommentId == commentId);
+
 			if (comment.PostId != postId)
 				throw new InvalidOperationException("Comment does not belong to the specified post.");
 			//comment.Content = "[deleted]";
-			comment.IsDeleted = true;
+			if (!hasReplies)
+			{
+				await repository.DeleteAsync(commentId);
+			}
+			else
+			{
+				comment.IsDeleted = true;
+			}
 			//comment.AuthorId = null;
 			await repository.SaveChangesAsync();
 		}

@@ -13,6 +13,9 @@
 		public string? ParentCommentAuthorName { get; set; }
 		public int UpvoteCount { get; set; }
 		public bool? UserVote { get; set; }
+		public string PostTitle { get; set; }
+		public Guid? PostId { get; set; }
+		public DateTime? PostCreatedAt { get; set; }
 		public bool IsDeleted { get; set; } = false;
 
 		public IEnumerable<CommentDto> Replies { get; set; } = new List<CommentDto>();
