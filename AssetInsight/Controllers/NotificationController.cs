@@ -18,6 +18,7 @@ namespace AssetInsight.Controllers
 		{
 			this.logger = logger;
 			this.notificationService = notificationService;
+			this.userManager = userManager;
 		}
 
 		[HttpGet]

@@ -87,3 +87,22 @@ body {
 a:hover {
     text-decoration: underline;
 }
+
+/* Make the badge look clean on top of the bell */
+#notification-count {
+    font-size: 0.65rem;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
+
+/* Add a hover effect to notification items */
+.notification-item:hover {
+    background-color: #f8f9fa;
+}
+
+/* Keep the link inside notifications from looking like a standard blue link */
+.notification-item {
+    color: #333;
+    white-space: normal; /* Allows text to wrap if message is long */
+}

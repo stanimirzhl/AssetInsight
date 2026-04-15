@@ -1,30 +1,37 @@
 ﻿@using AssetInsight.Models.Notification
 @model IEnumerable<NotificationVM>
 
-<div id="notificationList" class="dropdown-menu dropdown-menu-end shadow animated--grow-in">
-    <h6 class="dropdown-header">Notification Center</h6>
+<ul id="notificationList" class="dropdown-menu dropdown-menu-end shadow" style="width: 300px; max-height: 400px; overflow-y: auto;">
+    <li class="dropdown-header border-bottom">
+        <div class="d-flex justify-content-between align-items-center">
+            <span>Notification Center</span>
+        </div>
+    </li>
 
     @if (!Model.Any())
     {
-        <a class="dropdown-item text-center small text-gray-500" href="#">No new notifications</a>
+        <li id="no-notifications-msg">
+            <a class="dropdown-item text-center small text-muted py-3" href="#">No new notifications</a>
+        </li>
     }
 
     @foreach (var item in Model)
     {
-        <a class="dropdown-item d-flex align-items-center @(item.IsRead ? "" : "bg-light")" data-id="@item.Id" href="@item.TargetUrl">
-            <div>
-                <div class="small text-gray-500">@item.CreatedAt.ToString("MMM dd, HH:mm")</div>
-                <span class="@(item.IsRead ? "" : "font-weight-bold")">@item.Message</span>
-            </div>
-        </a>
+        <li>
+            <a class="dropdown-item py-3 border-bottom notification-item @(item.IsRead ? "" : "bg-light")"
+               data-id="@item.Id"
+               href="@item.TargetUrl">
+                <div class="d-flex flex-column">
+                    <small class="text-muted">@item.CreatedAt.ToString("MMM dd, HH:mm")</small>
+                    <span class="@(item.IsRead ? "" : "fw-bold")">@item.Message</span>
+                </div>
+            </a>
+        </li>
     }
-    <a class="dropdown-item text-center small text-gray-500" href="/Notifications">Show All Notifications</a>
-</div>
 
-@*<script>
-        $(document).on('click', '.notification-item', function(e) {
-        const notificationId = $(this).data('id');
-
-        fetch(`/Notification/MarkAsRead?id=${notificationId}`, { method: 'POST' });
-    });
-</script>*@
+    <li>
+        <a class="dropdown-item text-center small text-primary fw-bold" href="/Notifications">
+            View All Notifications
+        </a>
+    </li>
+</ul>
