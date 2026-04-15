@@ -12,6 +12,7 @@ using AssetInsight.Models.Post;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using System.Data;
 using System.Security.Claims;
@@ -30,6 +31,8 @@ namespace AssetInsight.Controllers
 		private readonly IPostReactionService postReactionService;
 		private readonly ISavedPostService savedPostService;
 		private readonly UserManager<User> userManager;
+		private readonly IFollowService followService;
+		private readonly INotificationService notificationService;
 
 		public PostController(IPostService postService,
 			ITagService tagService,
@@ -40,7 +43,9 @@ namespace AssetInsight.Controllers
 			ICommentService commentService,
 			IPostReactionService postReactionService,
 			ISavedPostService savedPostService,
-			UserManager<User> userManager)
+			UserManager<User> userManager,
+			IFollowService followService,
+			INotificationService notificationService)
 		{
 			this.postService = postService;
 			this.tagService = tagService;
@@ -52,6 +57,8 @@ namespace AssetInsight.Controllers
 			this.postReactionService = postReactionService;
 			this.savedPostService = savedPostService;
 			this.userManager = userManager;
+			this.followService = followService;
+			 this.notificationService = notificationService;
 		}
 
 		public async Task<IActionResult> Index(int page = 1, string? tag = null)
@@ -149,6 +156,14 @@ namespace AssetInsight.Controllers
 					}
 				}
 
+				var followers = await followService.GetFollowersIdsAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
+				foreach (var followerId in followers)
+				{
+					await notificationService.CreateNotification(
+						followerId,
+						$"New post from {User.Identity.Name}!",
+						$"/Post/Details/{postId}");
+				}
 			}
 			catch (Exception ex)
 			{
@@ -300,7 +315,6 @@ namespace AssetInsight.Controllers
 			return Ok();
 		}
 
-
 		public async Task<IActionResult> Details(Guid? id)
 		{
 			PostDetailsViewModel model;
@@ -334,7 +348,7 @@ namespace AssetInsight.Controllers
 
 		[HttpGet]
 		[Route("u/{userName}")]
-		public async Task<IActionResult> UserPosts(string userName, string section = "posts", int page = 1)
+		public async Task<IActionResult> UserPosts(string userName, string section = "posts", string sortBy = "top", int page = 1)
 		{
 			if (string.IsNullOrEmpty(userName) || userName == "[deleted]")
 			{
@@ -352,35 +366,44 @@ namespace AssetInsight.Controllers
 				return BadRequest();
 			}
 
+			if (currentUserId is not null)
+			{
+				bool following = await followService.IsFollowing(currentUserId, user.Id);
+				viewModel.IsFollowing = following;
+			}
+
 			if (viewModel.Section == "saved" || viewModel.Section == "upvoted" || viewModel.Section == "downvoted")
 			{
 				if (user.Id != currentUserId) return Forbid();
 			}
 
+			viewModel.IsUser = user.Id == currentUserId;
+
+			viewModel.SortBy = sortBy.ToLower() == "newest" ? "newest" : "top";
 
 			switch (viewModel.Section)
 			{
 				case "comments":
-					viewModel.Comments = await commentService.GetPagedCommentsByUserAsync(user.Id, page, 5);
+					viewModel.Comments = await commentService.GetPagedCommentsByUserAsync(user.Id, page, 5, viewModel.SortBy);
 					break;
 
 				case "saved":
-					var savedDtos = await postService.GetSavedPostsPagedAsync(user.Id, page, 5);
+					var savedDtos = await postService.GetSavedPostsPagedAsync(user.Id, page, 5, viewModel.SortBy);
 					viewModel.Saved = await MapToPostVM(savedDtos);
 					break;
 
 				case "upvoted":
-					var upvotedDtos = await postService.GetUpvotedPostsPagedAsync(user.Id, page, 5);
+					var upvotedDtos = await postService.GetUpvotedPostsPagedAsync(user.Id, page, 5, viewModel.SortBy);
 					viewModel.UpVoted = await MapToPostVM(upvotedDtos);
 					break;
 
 				case "downvoted":
-					var downvotedDtos = await postService.GetDownvotedPostsPagedAsync(user.Id, page, 5);
+					var downvotedDtos = await postService.GetDownvotedPostsPagedAsync(user.Id, page, 5, viewModel.SortBy);
 					viewModel.DownVoted = await MapToPostVM(downvotedDtos);
 					break;
 
 				default:
-					var postDtos = await postService.GetAllPagedPostsByUserNameAsync(userName, page, 5);
+					var postDtos = await postService.GetAllPagedPostsByUserNameAsync(userName, page, 5, viewModel.SortBy);
 					viewModel.Posts = await MapToPostVM(postDtos);
 					break;
 			}
@@ -389,7 +412,7 @@ namespace AssetInsight.Controllers
 			{
 				return viewModel.Section switch
 				{
-					"comments" => PartialView("_CommentPartial", viewModel.Comments.Items),
+					"comments" => PartialView("_UserCommentPartial", viewModel.Comments.Items),
 					"posts" => PartialView("_PostPartial", viewModel.Posts.Items),
 					"saved" => PartialView("PostPartial", viewModel.Saved.Items),
 					"upvoted" => PartialView("_PostPartial", viewModel.UpVoted.Items),

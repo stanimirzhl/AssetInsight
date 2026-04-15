@@ -1,0 +1,28 @@
+﻿@using AssetInsight.Core.DTOs.Comment
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@model List<CommentDto>
+
+@{
+    var userName = ViewContext.RouteData.Values["userName"]?.ToString();
+}
+
+@foreach (var comment in Model)
+{
+    <div class="card comment-card mb-3 shadow-sm border-0">
+        <div class="card-body">
+            <div class="d-flex align-items-center mb-2 small">
+                <i class="bi bi-chat-left-text me-2 text-primary"></i>
+                <span class="text-muted">@userName @Localizer["commentedOn"]</span>
+                <a asp-controller="Post" asp-action="Details" asp-route-id="@comment.PostId" class="ms-1 fw-bold text-decoration-none">
+                    "@(comment.PostTitle.Length > 150 ? comment.PostTitle.Substring(0, 150) + "..." : comment.PostTitle)"
+                </a>
+                <span class="mx-2">•</span>
+                <span class="text-muted">@comment.PostCreatedAt.Value.ToString("MMM dd")</span>
+            </div>
+            <div class="comment-content ps-4 border-start">
+                @comment.Content
+            </div>
+        </div>
+    </div>
+}

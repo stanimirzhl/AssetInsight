@@ -28,31 +28,34 @@
                             <i class="bi bi-chat-dots me-2"></i>@Localizer["Comments"]
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link @(Model.Section == "saved" ? "active" : "")"
-                           asp-action="UserPosts" asp-route-section="saved">
-                            <i class="bi bi-bookmark me-2"></i>@Localizer["Saved"]
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link @(Model.Section == "upvoted" ? "active" : "")"
-                           asp-action="UserPosts" asp-route-section="upvoted">
-                            @Localizer["Upvoted"]
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link @(Model.Section == "downvoted" ? "active" : "")"
-                           asp-action="UserPosts" asp-route-section="downvoted">
-                            @Localizer["Downvoted"]
-                        </a>
-                    </li>
+                    @if (Model.IsUser)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link @(Model.Section == "saved" ? "active" : "")"
+                               asp-action="UserPosts" asp-route-section="saved">
+                                <i class="bi bi-bookmark me-2"></i>@Localizer["Saved"]
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(Model.Section == "upvoted" ? "active" : "")"
+                               asp-action="UserPosts" asp-route-section="upvoted">
+                                @Localizer["Upvoted"]
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(Model.Section == "downvoted" ? "active" : "")"
+                               asp-action="UserPosts" asp-route-section="downvoted">
+                                @Localizer["Downvoted"]
+                            </a>
+                        </li>
+                    }
                 </ul>
             </div>
 
             <div class="sort-bar mb-3 d-flex align-items-center justify-content-between px-3 py-2 shadow-sm">
                 <div class="d-flex gap-2">
-                    <button class="btn btn-sm btn-sort active"><i class="bi bi-brightness-high"></i> @Localizer["New"]</button>
-                    <button class="btn btn-sm btn-sort"><i class="bi bi-fire"></i> @Localizer["Hot"]</button>
+                    <a asp-action="UserPosts" asp-route-section="@Model.Section" asp-route-sortBy="newest" class="btn btn-sm btn-sort @(Model.SortBy == "newest" ? "active" : "")"><i class="bi bi-brightness-high"></i> @Localizer["New"]</a>
+                    <a asp-action="UserPosts" asp-route-section="@Model.Section" asp-route-sortBy="top" class="btn btn-sm btn-sort @(Model.SortBy == "top" ? "active" : "")"><i class="bi bi-fire"></i> @Localizer["Top"]</a>
                 </div>
                 <div class="view-options d-none d-md-block">
                     <i class="bi bi-view-list text-muted"></i>
@@ -78,25 +81,7 @@
                 {
                     @if (Model.Comments?.Items.Any() == true)
                     {
-                        @foreach (var comment in Model.Comments.Items)
-                        {
-                            <div class="card comment-card mb-3 shadow-sm border-0">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center mb-2 small">
-                                        <i class="bi bi-chat-left-text me-2 text-primary"></i>
-                                        <span class="text-muted">@userName @Localizer["commentedOn"]</span>
-                                        <a asp-controller="Post" asp-action="Details" asp-route-id="@comment.PostId" class="ms-1 fw-bold text-decoration-none">
-                                            "@comment.PostTitle"
-                                        </a>
-                                        <span class="mx-2">•</span>
-                                        <span class="text-muted">@comment.PostCreatedAt.Value.ToString("MMM dd")</span>
-                                    </div>
-                                    <div class="comment-content ps-4 border-start">
-                                        @comment.Content
-                                    </div>
-                                </div>
-                            </div>
-                        }
+                        <partial name="_UserCommentPartial" model="Model.Comments.Items" />
                     }
                     else
                     {
@@ -108,7 +93,7 @@
                 }
             </div>
 
-            <div id="loading-sentinel" class="py-4 text-center" style="display: none;">
+            <div id="loading-sentinel" class="py-4 text-center" style="display: block;">
                 <div class="spinner-grow text-primary spinner-grow-sm" role="status"></div>
             </div>
         </div>
@@ -126,12 +111,27 @@
                         <p class="text-muted small mb-4">@@@userName.ToLower()</p>
 
                         <div class="d-grid gap-2">
-                            <button class="btn btn-primary rounded-pill fw-bold py-2">
-                                <i class="bi bi-person-plus-fill me-2"></i>@Localizer["Follow"]
-                            </button>
-                            <button class="btn btn-light rounded-pill fw-bold py-2 border">
-                                <i class="bi bi-chat-right-text me-2"></i>@Localizer["Chat"]
-                            </button>
+                            @if (Model.IsUser)
+                            {
+                                <a href="/Identity/Account/Manage" class="btn btn-outline-secondary rounded-pill fw-bold py-2">
+                                    <i class="bi bi-gear"></i>
+                                </a>
+                            }
+                            else
+                            {
+                                @if (Model.IsFollowing)
+                                {
+                                    <button class="btn btn-primary rounded-pill fw-bold py-2 follow-btn" data-user-name="@userName">
+                                        <i class="bi bi-person-plus-fill me-2"></i>@Localizer["Following"]
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-primary rounded-pill fw-bold py-2 follow-btn" data-user-name="@userName">
+                                        <i class="bi bi-person-plus-fill me-2"></i>@Localizer["Follow"]
+                                    </button>
+                                }
+                            }
                         </div>
                     </div>
                 </div>
@@ -152,45 +152,44 @@
     </div>
 </div>
 
+@Html.AntiForgeryToken()
+
 @section Scripts {
+    <script src="~/js/post/post-userposts.js"></script>
     <script>
-        // State Management
+
         let currentPage = 1;
         let isLoading = false;
         let hasMore = true;
 
-        // Context Variables from Razor
         const userName = "@userName";
         const currentSection = "@Model.Section";
+        const currentSortBy = "@Model.SortBy";
 
-        // Elements
         const feed = document.getElementById('posts-feed');
         const sentinel = document.getElementById('loading-sentinel');
 
-        /**
-         * Uses IntersectionObserver for a smoother "infinite scroll"
-         * experience compared to window.onscroll.
-         */
         const observer = new IntersectionObserver((entries) => {
             const entry = entries[0];
             if (entry.isIntersecting && !isLoading && hasMore) {
                 loadMoreContent();
             }
         }, {
-            rootMargin: '200px' // Start loading before the user reaches the bottom
+                //rootMargin: '2px'
+                threshold: 0.1,
         });
 
-        // Start watching the sentinel div
         observer.observe(sentinel);
 
         async function loadMoreContent() {
+            if (isLoading || !hasMore) return;
+
             isLoading = true;
             currentPage++;
             sentinel.style.display = 'block';
 
             try {
-                // Construct URL with current section and page
-                const url = `/${userName}?section=${currentSection}&page=${currentPage}`;
+                const url = `/u/${userName}?section=${currentSection}&sortBy=${currentSortBy}&page=${currentPage}`;
 
                 const response = await fetch(url, {
                     headers: { "X-Requested-With": "XMLHttpRequest" }
@@ -198,9 +197,7 @@
 
                 // 204 No Content means we've reached the end
                 if (response.status === 204) {
-                    hasMore = false;
-                    sentinel.innerHTML = `<div class="py-3 text-muted small">@Localizer["NoMoreContent"]</div>`;
-                    observer.unobserve(sentinel);
+                    handleNoMoreContent();
                     return;
                 }
 
@@ -208,18 +205,23 @@
 
                 const html = await response.text();
 
-                // Append new content with a slight fade-in effect
+                // If the response is empty string, handle as end of feed
+                if (!html.trim()) {
+                    handleNoMoreContent();
+                    return;
+                }
+
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = html;
-                tempDiv.style.opacity = '0';
 
+                // Simple fade-in animation
+                tempDiv.style.opacity = '0';
                 feed.appendChild(tempDiv);
 
-                // Trigger reflow for animation
-                setTimeout(() => {
-                    tempDiv.style.transition = 'opacity 0.3s ease';
-                    tempDiv.style.opacity = '1';
-                }, 10);
+                // Force a reflow for transition
+                tempDiv.offsetHeight;
+                tempDiv.style.transition = 'opacity 0.3s ease';
+                tempDiv.style.opacity = '1';
 
                 isLoading = false;
             } catch (err) {
@@ -229,19 +231,13 @@
             }
         }
 
-        /**
-         * Helper: If you want the sort buttons to work via AJAX
-         * without a full page reload, you can add listeners here.
-         */
-        document.querySelectorAll('.btn-sort').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.btn-sort').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-
-                // Note: Logic for re-sorting would go here (typically resetting
-                // currentPage to 1 and clearing the feed).
-            });
-        });
+        function handleNoMoreContent() {
+            hasMore = false;
+            isLoading = false;
+            sentinel.style.display = 'block';
+            sentinel.innerHTML = `<div class="py-3 text-muted small">@Localizer["NoMoreContent"]</div>`;
+            observer.unobserve(sentinel);
+        }
     </script>
 }
 

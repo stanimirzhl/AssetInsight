@@ -40,6 +40,19 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Post" asp-action="Index">Posts</a>
                         </li>
+                        <li class="nav-item dropdown">
+
+                            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                                <i class="fas fa-bell"></i>
+
+                                <span id="notification-count" class="badge bg-danger">
+                                    0
+                                </span>
+                            </a>
+
+                            @await Component.InvokeAsync("Notification")
+
+                        </li>
                     </ul>
 
                     <button id="themeToggle" class="btn btn-outline-secondary btn-sm">
@@ -74,6 +87,74 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="https://cdn.jsdelivr.net/npm/autosize@4.0.2/dist/autosize.min.js"></script>
+    <script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
+    <script>
+        const connection = new signalR.HubConnectionBuilder().withUrl("/notificationHub").build();
+
+        connection.on("ReceiveNotification", (message, url) => {
+            let $badge = $("#notification-count");
+            let count = parseInt($badge.text()) || 0;
+            $badge.text(count + 1).show();
+
+            const newNotificationHtml = `
+                <a class="dropdown-item d-flex align-items-center bg-light" href="${url}">
+                    <div>
+                        <div class="small text-gray-500">Just now</div>
+                        <span class="font-weight-bold">${message}</span>
+                    </div>
+                </a>`;
+
+            $("#notificationList").prepend(newNotificationHtml);
+
+            $("#no-notifications-msg").remove();
+        });
+
+        connection.start().catch(err => console.error(err.toString()));
+    </script>
+    <script>
+        $(document).ready(function() {
+            // Detect when the Bootstrap dropdown is shown
+            $('#notificationDropdown').on('show.bs.dropdown', function () {
+                // 1. Hide the badge immediately for a snappy UI
+                const badge = $("#notification-count");
+                badge.hide().text("0");
+
+                // 2. Tell the server to mark all as read
+                fetch('/Notification/MarkAsRead', {
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() // Essential for Security
+                    }
+                });
+
+                // 3. Optional: Remove the "bold" styling from the items currently in the list
+                $("#notificationList .font-weight-bold").removeClass("font-weight-bold");
+                $("#notificationList .bg-light").removeClass("bg-light");
+            });
+        });
+    </script>
+    <script>
+        async function loadUnreadCount() {
+            try {
+                const res = await fetch('/Notification/GetUnreadCount');
+                const count = await res.json();
+
+                const badge = document.getElementById("notification-count");
+
+                if (count > 0) {
+                    badge.textContent = count;
+                    badge.style.display = "inline-block";
+                } else {
+                    badge.style.display = "none";
+                }
+
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        loadUnreadCount();
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

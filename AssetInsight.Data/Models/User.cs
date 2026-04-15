@@ -30,5 +30,8 @@ namespace AssetInsight.Data.Models
 
 		public virtual ICollection<Comment> Comments { get; set; } = new HashSet<Comment>();
 
+		public virtual ICollection<Follow> Followers { get; set; } = new HashSet<Follow>();
+		public virtual ICollection<Follow> Following { get; set; } = new HashSet<Follow>();
+
 	}
 }

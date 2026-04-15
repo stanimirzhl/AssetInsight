@@ -6,6 +6,7 @@ using AssetInsight.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -97,7 +98,7 @@ namespace AssetInsight.Core.Implementations
 			return await PagingModel<PostDto>.CreateAsync(query, pageIndex, pageSize);
 		}
 
-		public async Task<PagingModel<PostDto>> GetAllPagedPostsByUserNameAsync(string userName, int pageIndex, int pageSize)
+		public async Task<PagingModel<PostDto>> GetAllPagedPostsByUserNameAsync(string userName, int pageIndex, int pageSize, string sortBy)
 		{
 			IQueryable<PostDto> query = repository.AllAsReadOnly()
 				.Include(x => x.Author)
@@ -118,10 +119,14 @@ namespace AssetInsight.Core.Implementations
 			})
 			.OrderByDescending(p => p.CreatedAt);
 
+			query = sortBy == "top"
+					? query.OrderByDescending(p => p.ReactionsCount).ThenByDescending(p => p.CreatedAt)
+				: query.OrderByDescending(p => p.CreatedAt);
+
 			return await PagingModel<PostDto>.CreateAsync(query, pageIndex, pageSize);
 		}
 
-		public async Task<PagingModel<PostDto>> GetSavedPostsPagedAsync(string userId, int pageIndex, int pageSize)
+		public async Task<PagingModel<PostDto>> GetSavedPostsPagedAsync(string userId, int pageIndex, int pageSize, string sortBy)
 		{
 			IQueryable<PostDto> query = repository.AllAsReadOnly()
 				.Include(x => x.Author)
@@ -143,10 +148,14 @@ namespace AssetInsight.Core.Implementations
 			})
 			.OrderByDescending(p => p.CreatedAt);
 
+			query = sortBy == "top"
+					? query.OrderByDescending(p => p.ReactionsCount).ThenByDescending(p => p.CreatedAt)
+				: query.OrderByDescending(p => p.CreatedAt);
+
 			return await PagingModel<PostDto>.CreateAsync(query, pageIndex, pageSize);
 		}
 
-		public async Task<PagingModel<PostDto>> GetUpvotedPostsPagedAsync(string userId, int pageIndex, int pageSize)
+		public async Task<PagingModel<PostDto>> GetUpvotedPostsPagedAsync(string userId, int pageIndex, int pageSize, string sortBy)
 		{
 			IQueryable<PostDto> query = repository.AllAsReadOnly()
 				.Include(x => x.Author)
@@ -167,10 +176,14 @@ namespace AssetInsight.Core.Implementations
 			})
 			.OrderByDescending(p => p.CreatedAt);
 
+			query = sortBy == "top"
+					? query.OrderByDescending(p => p.ReactionsCount).ThenByDescending(p => p.CreatedAt)
+				: query.OrderByDescending(p => p.CreatedAt);
+
 			return await PagingModel<PostDto>.CreateAsync(query, pageIndex, pageSize);
 		}
 
-		public async Task<PagingModel<PostDto>> GetDownvotedPostsPagedAsync(string userId, int pageIndex, int pageSize)
+		public async Task<PagingModel<PostDto>> GetDownvotedPostsPagedAsync(string userId, int pageIndex, int pageSize, string sortBy)
 		{
 			IQueryable<PostDto> query = repository.AllAsReadOnly()
 				.Include(x => x.Author)
@@ -190,6 +203,10 @@ namespace AssetInsight.Core.Implementations
 				ReactionsCount = p.Reactions.Count
 			})
 			.OrderByDescending(p => p.CreatedAt);
+
+			query = sortBy == "top"
+					? query.OrderByDescending(p => p.ReactionsCount).ThenByDescending(p => p.CreatedAt)
+				: query.OrderByDescending(p => p.CreatedAt);
 
 			return await PagingModel<PostDto>.CreateAsync(query, pageIndex, pageSize);
 		}

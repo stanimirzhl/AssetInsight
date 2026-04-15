@@ -1,6 +1,8 @@
 ﻿using AssetInsight.Core;
 using AssetInsight.Core.DTOs.Comment;
+using AssetInsight.Core.Implementations;
 using AssetInsight.Core.Interfaces;
+using AssetInsight.Data.Models;
 using Azure.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,12 +16,15 @@ namespace AssetInsight.Controllers
 	{
 		private readonly ILogger<CommentController> logger;
 		private readonly ICommentService commentService;
+		private readonly INotificationService notificationService;
 
 		public CommentController(ILogger<CommentController> logger,
-			ICommentService commentService)
+			ICommentService commentService,
+			INotificationService notificationService)
 		{
 			this.logger = logger;
 			this.commentService = commentService;
+			this.notificationService = notificationService;
 		}
 
 		public async Task<IActionResult> GetMoreComments(Guid postId, int pageIndex, string sortBy)
@@ -81,6 +86,16 @@ namespace AssetInsight.Controllers
 
 				savedCommentDto.AuthorName = User.Identity.Name;
 
+				if (parentId.HasValue)
+				{
+					var parentComment = await commentService.GetByIdAsync(parentId.Value);
+
+					await notificationService.CreateNotification(
+						parentComment.AuthorId,
+						$"{User.Identity.Name} replied to your comment.",
+						$"/Post/Details/{postId}");
+				}
+
 				return PartialView("~/Views/Post/_CommentPartial.cshtml", savedCommentDto);
 			}
 			catch (Exception ex)
@@ -90,7 +105,6 @@ namespace AssetInsight.Controllers
 			}
 		}
 
-		//TODO EDIT/DELETE
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> Edit(Guid id, [FromBody] JsonElement request)

@@ -1,0 +1,30 @@
+﻿@using AssetInsight.Models.Notification
+@model IEnumerable<NotificationVM>
+
+<div id="notificationList" class="dropdown-menu dropdown-menu-end shadow animated--grow-in">
+    <h6 class="dropdown-header">Notification Center</h6>
+
+    @if (!Model.Any())
+    {
+        <a class="dropdown-item text-center small text-gray-500" href="#">No new notifications</a>
+    }
+
+    @foreach (var item in Model)
+    {
+        <a class="dropdown-item d-flex align-items-center @(item.IsRead ? "" : "bg-light")" data-id="@item.Id" href="@item.TargetUrl">
+            <div>
+                <div class="small text-gray-500">@item.CreatedAt.ToString("MMM dd, HH:mm")</div>
+                <span class="@(item.IsRead ? "" : "font-weight-bold")">@item.Message</span>
+            </div>
+        </a>
+    }
+    <a class="dropdown-item text-center small text-gray-500" href="/Notifications">Show All Notifications</a>
+</div>
+
+@*<script>
+        $(document).on('click', '.notification-item', function(e) {
+        const notificationId = $(this).data('id');
+
+        fetch(`/Notification/MarkAsRead?id=${notificationId}`, { method: 'POST' });
+    });
+</script>*@

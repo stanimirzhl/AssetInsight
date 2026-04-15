@@ -33,6 +33,10 @@ namespace AssetInsight.Data
 
 		public virtual DbSet<PostImage> PostImages { get; set; }
 
+		public virtual DbSet<Follow> Follows { get; set; }
+
+		public virtual DbSet<Notification> Notifications { get; set; }
+
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
 			modelBuilder.Entity<Post>()
@@ -156,6 +160,17 @@ namespace AssetInsight.Data
 				.HasForeignKey(x => x.PostId)
 				.OnDelete(DeleteBehavior.Cascade);
 
+			modelBuilder.Entity<Follow>()
+				.HasOne(x => x.Follower)
+				.WithMany(x => x.Following)
+				.HasForeignKey(x => x.FollowerId)
+				.OnDelete(DeleteBehavior.NoAction);
+
+			modelBuilder.Entity<Follow>()
+				.HasOne(x => x.FollowedUser)
+				.WithMany(x => x.Followers)
+				.HasForeignKey(x => x.FollowedUserId)
+				.OnDelete(DeleteBehavior.NoAction);
 
 			base.OnModelCreating(modelBuilder);
 		}

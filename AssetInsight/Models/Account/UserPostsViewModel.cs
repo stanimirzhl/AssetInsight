@@ -17,5 +17,11 @@ namespace AssetInsight.Models.Account
 		public PagingModel<PostVM> DownVoted { get; set; }
 
 		public string Section { get; set; }
+
+		public bool IsUser { get; set; }
+
+		public string SortBy { get; set; } = "newest";
+
+		public bool IsFollowing { get; set; }
 	}
 }

@@ -48,7 +48,7 @@ namespace AssetInsight.Core.Implementations
 			return await PagingModel<CommentDto>.CreateAsync(commentDtos, pageIndex, 5);
 		}
 
-		public async Task<PagingModel<CommentDto>> GetPagedCommentsByUserAsync(string userId, int pageIndex, int pageSize)
+		public async Task<PagingModel<CommentDto>> GetPagedCommentsByUserAsync(string userId, int pageIndex, int pageSize, string sortBy)
 		{
 			IQueryable<CommentDto> query = repository.All()
 				.Where(c => c.AuthorId == userId)
@@ -75,6 +75,11 @@ namespace AssetInsight.Core.Implementations
 					PostCreatedAt = c.Post.CreatedAt
 				})
 				.OrderByDescending(c => c.CreatedOn);
+
+			query = sortBy == "top"
+					? query.OrderByDescending(c => c.UpvoteCount).ThenByDescending(c => c.CreatedOn)
+				: query.OrderByDescending(p => p.CreatedOn);
+
 			return await PagingModel<CommentDto>.CreateAsync(query, pageIndex, pageSize);
 		}
 

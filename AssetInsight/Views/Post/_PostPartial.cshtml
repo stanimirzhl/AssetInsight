@@ -31,9 +31,21 @@
             </div>
 
             <div class="post-meta">
-                <span class="author">
-                    @Localizer["PostedBy"] @post.AuthorUserName
-                </span>
+                @if (post.AuthorUserName == "[deleted]")
+                {
+                    <span class="author">
+                        @Localizer["PostedBy"] @post.AuthorUserName
+                    </span>
+                }
+                else
+                {
+                    <span class="author">
+                        @Localizer["PostedBy"]
+                        <a class="text-decoration-none" asp-action="UserPosts" asp-controller="Post" asp-route-userName="@post.AuthorUserName">
+                            @post.AuthorUserName
+                        </a>
+                    </span>
+                }
                 <span class="time-ago" data-time="@post.CreatedAt.ToUniversalTime().ToString("o")"></span>
 
                 @if (post.EditedAt.HasValue)

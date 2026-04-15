@@ -1,5 +1,6 @@
 using AssetInsight.Data;
 using AssetInsight.Extensions;
+using AssetInsight.Hubs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +20,7 @@ builder.Services.Authentication(builder.Configuration);
 builder.Services.AddRouteOptions();
 builder.Services.AddAccountOptions();
 builder.Services.Localization();
+builder.Services.AddSignalR();
 
 
 var app = builder.Build();
@@ -37,6 +39,8 @@ else
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
+
+app.MapHub<NotificationHub>("/notificationHub");
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
