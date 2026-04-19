@@ -33,5 +33,7 @@ namespace AssetInsight.Data.Models
 		public virtual ICollection<Follow> Followers { get; set; } = new HashSet<Follow>();
 		public virtual ICollection<Follow> Following { get; set; } = new HashSet<Follow>();
 
+		public virtual ICollection<WatchList> WatchList { get; set; } = new HashSet<WatchList>();
+
 	}
 }

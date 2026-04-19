@@ -40,6 +40,8 @@ namespace AssetInsight.Extensions
 			services.AddScoped<ISavedPostService, SavedPostService>();
 			services.AddScoped<INotificationService, NotificationService>();
 			services.AddScoped<IFollowService, FollowService>();
+			services.AddScoped<IStockService, StockService>();
+			services.AddScoped<IWatchListService, WatchListService>();
 
 			services.AddMvc(options =>
 				options
@@ -47,6 +49,7 @@ namespace AssetInsight.Extensions
 				.Add(new AutoValidateAntiforgeryTokenAttribute()));
 
 			services.AddResponseCompression();
+			services.AddHttpClient();
 
 
 			if (string.IsNullOrEmpty(config["Cloudinary:CloudName"])

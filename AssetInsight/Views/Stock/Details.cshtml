@@ -1,0 +1,126 @@
+﻿@using AssetInsight.Core.DTOs.Stock
+@using Microsoft.AspNetCore.Mvc.Localization
+@model StockHistoryDtoModel
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = $"{Model.Symbol} Market Data";
+}
+
+@if (User.Identity.IsAuthenticated)
+{
+    <button id="followBtn" data-symbol="@Model.Symbol" class="btn @(Model.IsFollowing ? "btn-warning" : "btn-outline-warning") ms-3">
+        <i class="bi @(Model.IsFollowing ? "bi-star-fill" : "bi-star")"></i> 
+        @if(Model.IsFollowing)
+        {
+            <span id="followText">@Localizer["Following"]</span>
+        }
+        else
+        {
+            <span id="followText">@Localizer["Follow"]</span>
+        }
+    </button>
+}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-0 fw-bold">@Model.Symbol <span class="text-muted fs-5">Market Analysis</span></h2>
+        </div>
+        
+        <form asp-controller="Stock" asp-action="Details" method="get" class="d-flex gap-2">
+            <input type="text" name="symbol" value="@Model.Symbol" class="form-control" placeholder="Search Ticker (e.g. TSLA)" required />
+            <select name="range" class="form-select">
+                <!option value="1mo" @(Model.CurrentRange == "1mo" ? "selected" : "")>1 Month</!option>
+                <!option value="3mo" @(Model.CurrentRange == "3mo" ? "selected" : "")>3 Months</!option>
+                <!option value="6mo" @(Model.CurrentRange == "6mo" ? "selected" : "")>6 Months</!option>
+                <!option value="1y" @(Model.CurrentRange == "1y" ? "selected" : "")>1 Year</!option>
+            </select>
+            <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i></button>
+        </form>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body">
+            <div id="stockChart"></div>
+        </div>
+    </div>
+</div>
+@Html.AntiForgeryToken()
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var chartData = @Json.Serialize(Model.History.Select(x => new {
+                x = x.Date.ToString("yyyy-MM-dd"),
+                y = new[] { x.Open, x.High, x.Low, x.ClosePrice }
+            }));
+
+            var options = {
+                series: [{
+                    name: 'Price',
+                    data: chartData
+                }],
+                chart: {
+                    type: 'candlestick',
+                    height: 450,
+                    fontFamily: 'inherit',
+                    toolbar: { show: true }
+                },
+                plotOptions: {
+                    candlestick: {
+                        colors: {
+                            upward: '#198754', 
+                            downward: '#dc3545'  
+                        }
+                    }
+                },
+                xaxis: {
+                    type: 'datetime',
+                    labels: { style: { colors: '#6c757d' } }
+                },
+                yaxis: {
+                    tooltip: { enabled: true },
+                    labels: {
+                        formatter: function (val) { return "$" + val.toFixed(2); }
+                    }
+                },
+                theme: { mode: 'light' }
+            };
+
+            var chart = new ApexCharts(document.querySelector("#stockChart"), options);
+            chart.render();
+        });
+    </script>
+    <script>
+    document.getElementById('followBtn')?.addEventListener('click', function() {
+        const symbol = this.getAttribute('data-symbol');
+        const btn = this;
+        const textSpan = document.getElementById('followText');
+        const icon = btn.querySelector('i');
+    
+        fetch('/Stock/ToggleFollow', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+            },
+            body: JSON.stringify(symbol)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                if (data.isFollowing) {
+                    btn.classList.replace('btn-outline-warning', 'btn-warning');
+                    icon.classList.replace('bi-star', 'bi-star-fill');
+                    textSpan.innerText = 'Following';
+                } else {
+                    btn.classList.replace('btn-warning', 'btn-outline-warning');
+                    icon.classList.replace('bi-star-fill', 'bi-star');
+                    textSpan.innerText = 'Follow';
+                }
+            }
+        });
+    });
+    </script>
+}

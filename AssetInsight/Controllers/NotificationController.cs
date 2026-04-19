@@ -1,12 +1,15 @@
 ﻿using AssetInsight.Core.Implementations;
 using AssetInsight.Core.Interfaces;
 using AssetInsight.Data.Models;
+using AssetInsight.Models.Notification;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
 namespace AssetInsight.Controllers
 {
+	[Authorize]
 	public class NotificationController : Controller
 	{
 		private readonly ILogger<NotificationController> logger;
@@ -34,7 +37,26 @@ namespace AssetInsight.Controllers
 			return Json(count);
 		}
 
+		//[Authorize]
+		public async Task<IActionResult> GetFullNotificationsPartial()
+		{
+			var userId = userManager.GetUserId(User);
+			var notifications = await notificationService.GetAllByIdAsync(userId);
+
+			return PartialView("_NotificationFullListPartial", notifications
+				.Select(x => new NotificationVM
+				{
+					Id = x.Id,
+					ReceiverId = x.ReceiverId,
+					Message = x.Message,
+					TargetUrl = x.TargetUrl,
+					IsRead = x.IsRead,
+					CreatedAt = x.CreatedAt
+				}).ToList());
+		}
+
 		[HttpPost]
+		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> MarkAsRead(int? id)
 		{
 			var userId = userManager.GetUserId(User);
@@ -49,6 +71,11 @@ namespace AssetInsight.Controllers
 			}
 
 			return Ok();
+		}
+
+		public IActionResult Refresh()
+		{
+			return ViewComponent("Notification");
 		}
 	}
 }

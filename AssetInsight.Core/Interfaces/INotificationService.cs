@@ -14,5 +14,6 @@ namespace AssetInsight.Core.Interfaces
 		Task<int> GetUnreadCountAsync(string userId);
 		Task MarkAsReadAsync(int id, string userId);
 		Task MarkAllAsReadAsync(string userId);
+		Task<List<Notification>> GetAllByIdAsync(string userId);
 	}
 }

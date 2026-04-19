@@ -10,28 +10,65 @@
 
     @if (!Model.Any())
     {
-        <li id="no-notifications-msg">
-            <a class="dropdown-item text-center small text-muted py-3" href="#">No new notifications</a>
+        <li id="no-notifications-msg" class="text-center py-4">
+            <i class="bi bi-bell-slash text-muted fs-3 d-block mb-2"></i>
+            <span class="text-muted small">You're all caught up!</span>
         </li>
     }
 
     @foreach (var item in Model)
     {
         <li>
-            <a class="dropdown-item py-3 border-bottom notification-item @(item.IsRead ? "" : "bg-light")"
+            <a class="dropdown-item py-3 border-bottom notification-item @(item.IsRead ? "" : "notification-unread")"
                data-id="@item.Id"
                href="@item.TargetUrl">
                 <div class="d-flex flex-column">
-                    <small class="text-muted">@item.CreatedAt.ToString("MMM dd, HH:mm")</small>
-                    <span class="@(item.IsRead ? "" : "fw-bold")">@item.Message</span>
+                    <small class="notification-date">@item.CreatedAt.ToString("MMM dd, HH:mm")</small>
+                    <span class="notification-text @(item.IsRead ? "" : "fw-bold")">
+                        @item.Message
+                    </span>
                 </div>
             </a>
         </li>
     }
 
     <li>
-        <a class="dropdown-item text-center small text-primary fw-bold" href="/Notifications">
+        <button type="button"
+                class="dropdown-item small text-primary fw-bold"
+                id="viewAllBtn">
             View All Notifications
-        </a>
+        </button>
     </li>
 </ul>
+<style>
+    .notification-text {
+        display: block;
+        white-space: normal;
+        overflow-wrap: break-word;
+        line-height: 1.4;
+    }
+
+    .notification-unread {
+        background-color: #f8f9fa;
+    }
+
+    .notification-date {
+        color: #6c757d;
+    }
+
+    [data-bs-theme="dark"] .notification-unread {
+        background-color: #2a2d31; 
+    }
+
+    [data-bs-theme="dark"] .notification-date {
+        color: #adb5bd;
+    }
+
+    [data-bs-theme="dark"] .dropdown-item {
+        color: #e9ecef;
+    }
+
+        [data-bs-theme="dark"] .dropdown-item:hover {
+            background-color: #343a40;
+        }
+</style>

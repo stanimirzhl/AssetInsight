@@ -1,0 +1,49 @@
+﻿@model IEnumerable<AssetInsight.Models.Notification.NotificationVM>
+
+<div class="list-group list-group-flush">
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-bell-slash fs-1 d-block mb-3"></i>
+            <p>You have no notifications yet.</p>
+        </div>
+    }
+    else
+    {
+        @foreach (var item in Model)
+        {
+            <div class="list-group-item list-group-item-action p-3 @(item.IsRead ? "" : "bg-primary-subtle")">
+                <div class="d-flex align-items-start">
+                    <div class="me-3 mt-1">
+                        @if (!item.IsRead)
+                        {
+                            <span class="badge bg-primary rounded-circle p-1"></span>
+                        }
+                    </div>
+
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-muted small">
+                                <i class="bi bi-clock me-1"></i> @item.CreatedAt.ToString("MMM dd, HH:mm")
+                            </span>
+                        </div>
+                        <p class="mb-2 text-body @(item.IsRead ? "" : "fw-bold")">
+                            @item.Message
+                        </p>
+                        <a href="@item.TargetUrl"
+                           class="text-decoration-none fw-semibold small notification-link"
+                           data-id="@item.Id">
+                            View details <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+@Html.AntiForgeryToken()
+<style>
+    .bg-primary-subtle {
+        background-color: var(--bs-primary-bg-subtle) !important;
+    }
+</style>

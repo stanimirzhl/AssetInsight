@@ -39,7 +39,7 @@ namespace AssetInsight.Controllers
 				return NotFound();
 			}
 
-			var isFollowing = await followService.ToggleFollowAsync(user.Id, userId);
+			var isFollowing = await followService.ToggleFollowAsync(userId, user.Id);
 
 			if (isFollowing)
 			{

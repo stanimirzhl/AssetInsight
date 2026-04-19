@@ -30,7 +30,16 @@ namespace AssetInsight.Core.Implementations
 				.All()
 				.Where(n => n.ReceiverId == userId)
 				.OrderByDescending(n => n.CreatedAt)
-				.Take(10)
+				.Take(5)
+				.ToListAsync();
+		}
+
+		public async Task<List<Notification>> GetAllByIdAsync(string userId)
+		{
+			return await repository
+				.All()
+				.Where(n => n.ReceiverId == userId)
+				.OrderByDescending(n => n.CreatedAt)
 				.ToListAsync();
 		}
 

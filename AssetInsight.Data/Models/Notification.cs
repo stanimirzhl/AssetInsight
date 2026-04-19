@@ -13,6 +13,6 @@ namespace AssetInsight.Data.Models
 		public string Message { get; set; }
 		public string TargetUrl { get; set; }
 		public bool IsRead { get; set; } = false;
-		public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+		public DateTime CreatedAt { get; set; } = DateTime.Now;
 	}
 }

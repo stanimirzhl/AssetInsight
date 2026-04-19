@@ -37,6 +37,8 @@ namespace AssetInsight.Data
 
 		public virtual DbSet<Notification> Notifications { get; set; }
 
+		public virtual DbSet<WatchList> WatchLists { get; set; }
+
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
 			modelBuilder.Entity<Post>()
