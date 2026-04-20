@@ -1,0 +1,126 @@
+﻿@using AssetInsight.Models.Backtest
+@model BacktestResultViewModel
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-end border-bottom pb-3 mb-4">
+        <div>
+            <h1 class="fw-bold mb-0">Backtest Report</h1>
+            <p class="text-muted mb-0">Strategy: <span class="text-primary fw-bold">@Model.StrategyName</span> | Asset: <span class="badge bg-dark">@Model.Symbol</span></p>
+        </div>
+        <a asp-controller="Backtest" asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Run Another
+        </a>
+    </div>
+
+    <div class="row g-3 mb-5">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-uppercase text-muted small fw-bold">Initial Capital</h6>
+                    <h4 class="fw-bold mb-0">$@Model.InitialBalance.ToString("N2")</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-uppercase text-muted small fw-bold">Final Value</h6>
+                    <h4 class="fw-bold mb-0 @(Model.FinalBalance >= Model.InitialBalance ? "text-success" : "text-danger")">
+                        $@Model.FinalBalance.ToString("N2")
+                    </h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-uppercase text-muted small fw-bold">Net Profit ($)</h6>
+                    <h4 class="fw-bold mb-0 @(Model.FinalBalance >= Model.InitialBalance ? "text-success" : "text-danger")">
+                        $@((Model.FinalBalance - Model.InitialBalance).ToString("N2"))
+                    </h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h6 class="text-uppercase text-muted small fw-bold">Total Return</h6>
+                    <div class="d-flex align-items-center">
+                        <h4 class="fw-bold mb-0 @(Model.ProfitPercentage >= 0 ? "text-success" : "text-danger")">
+                            @Model.ProfitPercentage.ToString("N2")%
+                        </h4>
+                        <i class="bi @(Model.ProfitPercentage >= 0 ? "bi-caret-up-fill text-success" : "bi-caret-down-fill text-danger") ms-2"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3">
+            <h5 class="card-title fw-bold mb-0">Execution Log</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Date</th>
+                        <th>Type</th>
+                        <th>Price</th>
+                        <th class="text-end pe-4">Status/Balance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var log in Model.TradeLogs)
+                    {
+                        bool isBuy = log.Contains("BUY");
+                        <tr>
+                            <td class="ps-4">
+                                <span class="text-muted small">@log.Split(':')[0]</span>
+                            </td>
+                            <td>
+                                <span class="badge @(isBuy ? "bg-success-soft text-success border border-success" : "bg-danger-soft text-danger border border-danger") px-3">
+                                    @(isBuy ? "BUY" : "SELL")
+                                </span>
+                            </td>
+                            <td class="fw-bold">
+                                @{
+                                    var pricePart = log.Contains("at") ? log.Split("at")[1].Split('|')[0].Trim() : "N/A";
+                                }
+                                $@pricePart
+                            </td>
+                            <td class="text-end pe-4">
+                                <span class="text-muted small">
+                                    @(log.Contains('|') ? log.Split('|')[1].Trim() : "Order Filled")
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-success-soft {
+        background-color: #e6f4ea;
+    }
+
+    .bg-danger-soft {
+        background-color: #fce8e6;
+    }
+
+    .card {
+        transition: transform 0.2s;
+    }
+
+        .card:hover {
+            transform: translateY(-3px);
+        }
+
+    .table-responsive {
+        max-height: 600px;
+        overflow-y: auto;
+    }
+</style>

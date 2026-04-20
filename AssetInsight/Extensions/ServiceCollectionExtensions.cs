@@ -42,6 +42,8 @@ namespace AssetInsight.Extensions
 			services.AddScoped<IFollowService, FollowService>();
 			services.AddScoped<IStockService, StockService>();
 			services.AddScoped<IWatchListService, WatchListService>();
+			services.AddScoped<IBacktestService, BacktestService>();
+			services.AddScoped<IStrategyService, StrategyService>();
 
 			services.AddMvc(options =>
 				options

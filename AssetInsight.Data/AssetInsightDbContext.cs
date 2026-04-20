@@ -1,4 +1,5 @@
-﻿using AssetInsight.Data.Models;
+﻿using AssetInsight.Data.Configurations;
+using AssetInsight.Data.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -39,9 +40,11 @@ namespace AssetInsight.Data
 
 		public virtual DbSet<WatchList> WatchLists { get; set; }
 
+		public virtual DbSet<TradingStrategy> TradingStrategies { get; set; }
+
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
-			modelBuilder.Entity<Post>()
+			/*modelBuilder.Entity<Post>()
 				.HasMany(x => x.Reactions)
 				.WithOne(x => x.Post)
 				.HasForeignKey(x => x.PostId)
@@ -63,9 +66,9 @@ namespace AssetInsight.Data
 				.HasMany(x => x.SavedPosts)
 				.WithOne(x => x.Post)
 				.HasForeignKey(x => x.PostId)
-				.OnDelete(DeleteBehavior.Cascade);
+				.OnDelete(DeleteBehavior.Cascade);*/
 
-			modelBuilder.Entity<Comment>()
+			/*modelBuilder.Entity<Comment>()
 				.HasOne(c => c.ParentComment)
 				.WithMany(c => c.Replies)
 				.HasForeignKey(c => c.ParentCommentId)
@@ -82,9 +85,9 @@ namespace AssetInsight.Data
 				.HasOne(x => x.ParentComment)
 				.WithMany(x => x.Replies)
 				.HasForeignKey(x => x.ParentCommentId)
-				.OnDelete(DeleteBehavior.NoAction);
+				.OnDelete(DeleteBehavior.NoAction);*/
 
-			modelBuilder.Entity<User>()
+			/*modelBuilder.Entity<User>()
 				.HasMany(x => x.SavedPosts)
 				.WithOne(x => x.User)
 				.HasForeignKey(x => x.UserId)
@@ -112,9 +115,9 @@ namespace AssetInsight.Data
 				.HasMany(x => x.Comments)
 				.WithOne(x => x.Author)
 				.HasForeignKey(x => x.AuthorId)
-				.OnDelete(DeleteBehavior.SetNull);
+				.OnDelete(DeleteBehavior.SetNull);*/
 
-			modelBuilder.Entity<CommentReaction>()
+			/*modelBuilder.Entity<CommentReaction>()
 				.HasOne(x => x.Comment)
 				.WithMany(x => x.Reactions)
 				.HasForeignKey(x => x.CommentId)
@@ -124,9 +127,9 @@ namespace AssetInsight.Data
 				.HasOne(x => x.User)
 				.WithMany(x => x.CommentReactions)
 				.HasForeignKey(x => x.UserId)
-				.OnDelete(DeleteBehavior.Cascade);
+				.OnDelete(DeleteBehavior.Cascade);*/
 
-			modelBuilder.Entity<PostReaction>()
+			/*modelBuilder.Entity<PostReaction>()
 				.HasOne(x => x.Post)
 				.WithMany(x => x.Reactions)
 				.HasForeignKey(x => x.PostId)
@@ -136,9 +139,9 @@ namespace AssetInsight.Data
 				.HasOne(x => x.User)
 				.WithMany(x => x.PostReactions)
 				.HasForeignKey(x => x.UserId)
-				.OnDelete(DeleteBehavior.Cascade);
+				.OnDelete(DeleteBehavior.Cascade);*/
 
-			modelBuilder.Entity<PostTag>()
+			/*modelBuilder.Entity<PostTag>()
 				.HasOne(x => x.Tag)
 				.WithMany(x => x.PostTags)
 				.HasForeignKey(x => x.TagId)
@@ -148,9 +151,9 @@ namespace AssetInsight.Data
 				.HasOne(x => x.Post)
 				.WithMany(x => x.PostTags)
 				.HasForeignKey(x => x.PostId)
-				.OnDelete(DeleteBehavior.Cascade);
+				.OnDelete(DeleteBehavior.Cascade);*/
 
-			modelBuilder.Entity<SavedPost>()
+			/*modelBuilder.Entity<SavedPost>()
 				.HasOne(x => x.User)
 				.WithMany(x => x.SavedPosts)
 				.HasForeignKey(x => x.UserId)
@@ -160,9 +163,9 @@ namespace AssetInsight.Data
 				.HasOne(x => x.Post)
 				.WithMany(x => x.SavedPosts)
 				.HasForeignKey(x => x.PostId)
-				.OnDelete(DeleteBehavior.Cascade);
+				.OnDelete(DeleteBehavior.Cascade);*/
 
-			modelBuilder.Entity<Follow>()
+			/*modelBuilder.Entity<Follow>()
 				.HasOne(x => x.Follower)
 				.WithMany(x => x.Following)
 				.HasForeignKey(x => x.FollowerId)
@@ -172,7 +175,31 @@ namespace AssetInsight.Data
 				.HasOne(x => x.FollowedUser)
 				.WithMany(x => x.Followers)
 				.HasForeignKey(x => x.FollowedUserId)
-				.OnDelete(DeleteBehavior.NoAction);
+				.OnDelete(DeleteBehavior.NoAction);*/
+
+			/*modelBuilder.Entity<TradingStrategy>().HasData(new TradingStrategy
+			{
+				Id = 1,
+				Name = "RSI Oversold Strategy",
+				UserId = null,
+				DefinitionJson = @"{
+				    ""type"": ""Condition"",
+				    ""indicator"": ""RSI"",
+				    ""period"": 14,
+				    ""operator"": ""<"",
+				    ""value"": 30
+				}",
+				CreatedAt = DateTime.UtcNow
+			});*/
+
+			modelBuilder.ApplyConfiguration(new PostConfiguration());
+			modelBuilder.ApplyConfiguration(new CommentConfiguration());
+			modelBuilder.ApplyConfiguration(new PostReactionConfiguration());
+			modelBuilder.ApplyConfiguration(new CommentReactionConfiguration());
+			modelBuilder.ApplyConfiguration(new PostTagConfiguration());
+			modelBuilder.ApplyConfiguration(new SavedPostConfiguration());
+			modelBuilder.ApplyConfiguration(new UserConfiguration());
+			modelBuilder.ApplyConfiguration(new FollowConfiguration());
 
 			base.OnModelCreating(modelBuilder);
 		}
