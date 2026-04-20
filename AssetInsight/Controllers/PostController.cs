@@ -63,7 +63,7 @@ namespace AssetInsight.Controllers
 
 		public async Task<IActionResult> Index(int page = 1, string? tag = null)
 		{
-			PagingModel<PostDto> pagedPostDtos = await postService.GetAllPagedPostsAsync(page, 5);
+			PagingModel<PostDto> pagedPostDtos = await postService.GetAllPagedPostsAsync(page, 5, tag);
 
 			PagingModel<PostVM> pagedVMs = pagedPostDtos.Map(dto => new PostVM
 			{
@@ -83,10 +83,10 @@ namespace AssetInsight.Controllers
 				post.Tags = await tagService.GetAllTagsbyPostId(post.Id);
 			}
 
-			if (!string.IsNullOrEmpty(tag))
+			/*if (!string.IsNullOrEmpty(tag))
 			{
 				pagedVMs.Items = pagedVMs.Items.Where(p => p.Tags.Any(t => t.Name == tag)).ToList();
-			}
+			}*/
 
 			if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
 			{

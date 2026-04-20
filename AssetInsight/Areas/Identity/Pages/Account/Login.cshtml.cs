@@ -4,7 +4,6 @@
 
 using AssetInsight.Data.Models;
 using AssetInsight.Models.Account;
-using Humanizer.Localisation;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Html;

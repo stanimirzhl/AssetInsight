@@ -1,0 +1,99 @@
+﻿@using InfoSurge.Areas.Admin.Models.Users
+@{
+    ViewData["Title"] = "Създаване на нов потребител";
+}
+@model EditUserFormModel
+
+<div class="row justify-content-center">
+    <div class="col-xl-5 col-lg-6 col-md-8 col-sm-10">
+        <form id="registerForm" method="post" class="p-4 shadow rounded bg-white" asp-action="Create" asp-controller="Admin">
+            <h2 class="mb-3 text-center">Създай нов потребител</h2>
+            <hr class="mb-4" />
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+            <div class="mb-3">
+                <label asp-for="@Model.Email" class="form-label">Електронна поща:</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
+                    <input asp-for="@Model.Email" class="form-control" />
+                </div>
+                <span asp-validation-for="@Model.Email" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="@Model.UserName" class="form-label">Потребителско име:</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+                    <input asp-for="@Model.UserName" class="form-control" />
+                </div>
+                <span asp-validation-for="@Model.UserName" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="@Model.FirstName" class="form-label">Име:</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+                    <input asp-for="@Model.FirstName" class="form-control" />
+                </div>
+                <span asp-validation-for="@Model.FirstName" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="@Model.LastName" class="form-label">Фамилия:</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+                    <input asp-for="@Model.LastName" class="form-control" />
+                </div>
+                <span asp-validation-for="@Model.LastName" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="@Model.Password" class="form-label">Парола:</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                    <input asp-for="@Model.Password" class="form-control" />
+                </div>
+                <span asp-validation-for="@Model.Password" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="@Model.ConfirmPassword" class="form-label">Потвърдете паролата:</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                    <input asp-for="@Model.ConfirmPassword" class="form-control" />
+                </div>
+                <span asp-validation-for="@Model.ConfirmPassword" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label d-block">Роли (по избор, може повече от една):</label>
+                <select id="multiSelectDropdown"
+                        name="SelectedRolesIds"
+                        multiple="multiple"
+                        class="form-select">
+                    @foreach (SelectListItem role in Model.Roles)
+                    {
+                        <!option value="@role.Value" @(Model.SelectedRolesIds.Contains(role.Value) ? "selected" : "")>
+                            @role.Text
+                        </!option>
+                    }
+                </select>
+            </div>
+
+            <button type="submit" class="w-100 btn btn-primary mb-2">Създай</button>
+            <a asp-action="AllUsers" asp-controller="Admin" class="w-100 btn btn-secondary">Върни се обратно</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+            $('#multiSelectDropdown').select2({
+                placeholder: 'Изберете роли',
+                allowClear: true
+            });
+        });
+    </script>
+}

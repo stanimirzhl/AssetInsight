@@ -6,20 +6,20 @@
 
 @{
     ViewData["Title"] = "Log in";
+    ViewBag.HideFooter = true;
 }
 
-@if (Model.Step == LoginStep.Login)
-{
-    <link rel="stylesheet" href="~/css/login/login.css" />
+<link rel="stylesheet" href="~/css/login/login.css" />
 
-    <h1>@Localizer["LoginTitle"]</h1>
-    <div class="login-wrapper">
+<div class="auth-container">
+    @if (Model.Step == LoginStep.Login)
+    {
+        <h1 class="auth-brand">Asset<span>Insight</span></h1>
 
-        @if ((Model.ExternalLogins?.Count ?? 0) > 0)
-        {
-            <div class="login-card card-hover">
+        <div class="login-wrapper">
+            <div class="login-card main-card">
                 <form id="account" method="post">
-                    <hr />
+                    <h2 class="card-title">@Localizer["LoginTitle"]</h2>
                     <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
 
                     <div class="form-floating mb-3">
@@ -32,192 +32,126 @@
                         <div class="form-floating position-relative">
                             <input asp-for="Input.Password" id="password" class="form-control" autocomplete="current-password" placeholder="Password" />
                             <label asp-for="Input.Password">@Localizer["Password"]</label>
-                            <span class="toggle-password position-absolute top-50 end-0 translate-middle-y me-3" data-target="password">
+                            <span class="toggle-password" data-target="password">
                                 <i id="eyeIcon" class="bi bi-eye-slash"></i>
                             </span>
                         </div>
                         <span asp-validation-for="Input.Password" class="text-danger"></span>
                     </div>
 
-                    <small>
-                        @Localizer["NoAccount"]
-                        <a asp-route-returnUrl="@Model.ReturnUrl" asp-area="Identity" asp-page="/Account/Register">@Localizer["RegisterMessage"]</a>
-                    </small>
-
-                    <div class="mt-3">
-                        <button type="submit" class="w-100 btn btn-primary">@Localizer["LoginButton"]</button>
+                    <div class="auth-options">
+                        <small>
+                            @Localizer["NoAccount"]
+                            <a asp-route-returnUrl="@Model.ReturnUrl" asp-area="Identity" asp-page="/Account/Register">@Localizer["RegisterMessage"]</a>
+                        </small>
                     </div>
+
+                    <button type="submit" class="btn btn-primary-finance w-100 mt-3">@Localizer["LoginButton"]</button>
                 </form>
             </div>
 
-            <div class="col-auto d-none d-lg-flex align-items-start">
-                <div class="vr" style="min-height: 400px;"></div>
-            </div>
-
-            <div class="login-card d-flex flex-column card-hover">
-                <h5 class="text-center mb-4 text-muted">@Localizer["OrSignUpWith"]</h5>
-
-                <div class="external-login-container d-grid gap-3">
-                    @foreach (var provider in Model.ExternalLogins!)
-                    {
-                        <form method="post" asp-route-returnUrl="@Model.ReturnUrl" asp-controller="Auth" asp-action="ExternalLogin" class="w-100">
-                            <button type="submit" name="provider" value="@provider.Name"
-                                    class="btn provider-btn w-100 d-flex align-items-center justify-content-center rounded-3 py-2 px-4 shadow-sm"
-                                    title="Log in using your @provider.DisplayName account">
-
-                                <span class="provider-icon-wrapper d-flex align-items-center justify-content-center">
-                                    @Model.GetProviderSvg(provider.Name)
-                                </span>
-
-                                <span class="ms-3 fw-medium">@Localizer["ContinueWith"] @provider.DisplayName</span>
-                            </button>
-                        </form>
-                    }
+            @if ((Model.ExternalLogins?.Count ?? 0) > 0)
+            {
+                <div class="auth-divider">
+                    <div class="vr"></div>
                 </div>
+
+                <div class="login-card external-card">
+                    <div class="external-content">
+                        <h5 class="external-title">@Localizer["OrSignUpWith"]</h5>
+                        <div class="external-login-container">
+                            @foreach (var provider in Model.ExternalLogins!)
+                            {
+                                <form method="post" asp-route-returnUrl="@Model.ReturnUrl" asp-controller="Auth" asp-action="ExternalLogin" class="w-100 mb-3">
+                                    <button type="submit" name="provider" value="@provider.Name" class="btn provider-btn w-100">
+                                        <span class="provider-icon-wrapper">
+                                            @Model.GetProviderSvg(provider.Name)
+                                        </span>
+                                        <span class="ms-3">@provider.DisplayName</span>
+                                    </button>
+                                </form>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else if (Model.Step == LoginStep.ConfirmLink)
+    {
+        <div class="step-card-wrapper">
+            <div class="login-card step-card">
+                <div class="user-avatar">
+                    <i class="bi bi-person-check"></i>
+                </div>
+                <h2 class="card-title">@Localizer["ExistingAccount"]</h2>
+
+                <div class="info-group">
+                    <div class="info-row">
+                        <span class="label">@Localizer["Email"]</span>
+                        <span class="value">@Model.ConfirmLink.Email</span>
+                    </div>
+                    <div class="info-row border-0">
+                        <span class="label">@Localizer["UserName"]</span>
+                        <span class="value">@Model.ConfirmLink.UserName</span>
+                    </div>
+                </div>
+
+                <form method="post" asp-page-handler="ConfirmLink">
+                    <input type="hidden" asp-for="ConfirmLink.Email" />
+                    <input type="hidden" asp-for="ConfirmLink.Provider" />
+                    <input type="hidden" asp-for="ConfirmLink.FullName" />
+                    <button type="submit" class="btn btn-primary-finance w-100">@Localizer["MyAccount"]</button>
+                </form>
+
+                <a href="/Identity/Account/Login?clearlogin=true" class="btn-back mt-3">
+                    <i class="bi bi-arrow-left"></i> @Localizer["LoginPage"]
+                </a>
             </div>
-        }
-        else
-        {
-            <div class="login-card card-hover">
-                <form id="account" method="post">
-                    <hr />
-                    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+        </div>
+    }
+    else if (Model.Step == LoginStep.EnterPassword)
+    {
+        <div class="step-card-wrapper">
+            <div class="login-card step-card">
+                <div class="user-avatar">
+                    <i class="bi bi-shield-lock"></i>
+                </div>
+                <p class="description">
+                    <strong>@Model.LinkExternal.FullName</strong><br />
+                    @Html.Raw(string.Format(Localizer["Link"].Value, Model.LinkExternal.Provider))
+                </p>
+
+                <div class="info-row mb-4">
+                    <span class="label">@Localizer["Email"]</span>
+                    <span class="value">@Model.LinkExternal.Email</span>
+                </div>
+
+                <form method="post" asp-page-handler="LinkExternal">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="LinkExternal.Email" />
+                    <input type="hidden" asp-for="LinkExternal.FullName" />
+                    <input type="hidden" asp-for="LinkExternal.Provider" />
 
                     <div class="form-floating mb-3">
-                        <input asp-for="Input.UserNameEmail" class="form-control" autocomplete="username" placeholder="name@example.com" />
-                        <label asp-for="Input.UserNameEmail">@Localizer["UserName"]</label>
-                        <span asp-validation-for="Input.UserNameEmail" class="text-danger"></span>
+                        <input asp-for="LinkExternal.LinkPassword" id="password" class="form-control" type="password" placeholder="Password" />
+                        <label asp-for="LinkExternal.LinkPassword">@Localizer["Password"]</label>
+                        <span class="toggle-password" data-target="password">
+                            <i id="eyeIcon" class="bi bi-eye-slash"></i>
+                        </span>
                     </div>
+                    <span asp-validation-for="LinkExternal.LinkPassword" class="text-danger"></span>
 
-                    <div class="mb-3">
-                        <div class="form-floating position-relative">
-                            <input asp-for="Input.Password" id="password" class="form-control" autocomplete="current-password" placeholder="Password" />
-                            <label asp-for="Input.Password">@Localizer["Password"]</label>
-                            <span class="toggle-password position-absolute top-50 end-0 translate-middle-y me-3" data-target="password">
-                                <i id="eyeIcon" class="bi bi-eye-slash"></i>
-                            </span>
-                        </div>
-                        <span asp-validation-for="Input.Password" class="text-danger"></span>
-                    </div>
-
-                    <small>
-                        @Localizer["NoAccount"]
-                        <a asp-route-returnUrl="@Model.ReturnUrl" asp-area="Identity" asp-page="/Account/Register">@Localizer["RegisterMessage"]</a>
-                    </small>
-
-                    <div class="mt-3">
-                        <button type="submit" class="w-100 btn btn-primary">@Localizer["LoginButton"]</button>
-                    </div>
+                    <button class="btn btn-primary-finance w-100">@Localizer["Continue"]</button>
                 </form>
-            </div>
-        }
-    </div>
-}
-else if (Model.Step == LoginStep.ConfirmLink)
-{
 
-    <link rel="stylesheet" href="~/css/login/login-1.css"/>
-
-    <div class="account-card d-flex justify-content-center align-items-center">
-        <div class="card-box text-center">
-
-            <div class="avatar"></div>
-
-            <p class="title">
-                @Localizer["ExistingAccount"]
-            </p>
-
-            <div class="info-row">
-                <span class="label">@Localizer["Email"]:</span>
-                <span class="value">@Model.ConfirmLink.Email</span>
-            </div>
-
-            <div class="info-row">
-                <span class="label">@Localizer["UserName"]:</span>
-                <span class="value">@Model.ConfirmLink.UserName</span>
-            </div>
-
-            <form method="post" asp-page-handler="ConfirmLink">
-                <input type="hidden" asp-for="ConfirmLink.Email" />
-                <input type="hidden" asp-for="ConfirmLink.Provider" />
-                <input type="hidden" asp-for="ConfirmLink.FullName" />
-
-                <button type="submit" class="btn-confirm">
-                    @Localizer["MyAccount"]
-                </button>
-            </form>
-
-            <p class="btn-gray">
-                @Localizer["Back"]
-                <a href="/Identity/Account/Login?clearlogin=true" class="back-link">
-                    <span>@Localizer["LoginPage"]</span>
+                <a href="/Identity/Account/Login?clearlogin=true" class="btn-back mt-3">
+                    <i class="bi bi-arrow-left"></i> @Localizer["LoginPage"]
                 </a>
-            </p>
-
-        </div>
-    </div>
-}
-else if (Model.Step == LoginStep.EnterPassword)
-{
-    <link rel="stylesheet" href="~/css/login/login-2.css"/>
-
-    <div class="account-wrapper d-flex justify-content-center align-items-center">
-
-        <div class="account-card text-center">
-
-            <div class="avatar"></div>
-
-            <p class="description">
-                @Model.LinkExternal.FullName, @Html.Raw(string.Format(Localizer["Link"].Value, Model.LinkExternal.Provider))
-            </p>
-
-            <div class="info-row">
-                <span class="label">@Localizer["Email"]:</span>
-                <span class="value">@Model.LinkExternal.Email</span>
             </div>
-
-            <form method="post" asp-page-handler="LinkExternal">
-
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-                <input type="hidden" asp-for="LinkExternal.Email" />
-                <input type="hidden" asp-for="LinkExternal.FullName" />
-                <input type="hidden" asp-for="LinkExternal.Provider" />
-
-                <div class="password-box">
-                    <input asp-for="LinkExternal.LinkPassword"
-                           id="password"
-                           type="password"
-                           placeholder="@Localizer["Password"]"
-                           autocomplete="current-password" />
-                    <span class="toggle-password" data-target="password">
-                        <i id="eyeIcon" class="bi bi-eye-slash"></i>
-                    </span>
-                </div>
-
-                <span asp-validation-for="LinkExternal.LinkPassword" class="text-danger"></span>
-
-                <button class="btn-continue">
-                    @Localizer["Continue"]
-                </button>
-
-            </form>
-
-            @*<p class="btn-gray">
-                @Html.Raw(Localizer["ForgotPassword"].Value)
-            </p>*@
-
-            <p class="btn-gray">
-                @Localizer["Back"]
-                <a href="/Identity/Account/Login?clearlogin=true" class="back-link">
-                    <span>@Localizer["LoginPage"]</span>
-                </a>
-            </p>
-
         </div>
-
-    </div>
-}
+    }
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

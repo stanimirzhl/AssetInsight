@@ -9,7 +9,7 @@ namespace AssetInsight.Core.Interfaces
 {
 	public interface IPostService
 	{
-		Task<PagingModel<PostDto>> GetAllPagedPostsAsync(int pageIndex, int pageSize);
+		Task<PagingModel<PostDto>> GetAllPagedPostsAsync(int pageIndex, int pageSize, string tag);
 
 		Task<PagingModel<PostDto>> GetAllPagedPostsByUserNameAsync(string userName, int pageIndex, int pageSize, string sortBy);
 

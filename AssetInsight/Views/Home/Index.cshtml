@@ -4,13 +4,60 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">
-        @Localizer["CommunityPosts"]
-    </h1>
-    @if (User.Identity.IsAuthenticated)
+@* Hero Section - Matching the dark theme *@
+<div class="py-5 px-4 text-center rounded-4 mb-5 border" style="background-color: var(--bg-card); border-color: var(--border) !important;">
+    <h1 class="display-4 fw-bold mb-3" style="color: var(--text-main);">@Localizer["WelcomeToAssetInsight"]</h1>
+    <p class="lead mx-auto mb-4" style="max-width: 700px; color: var(--text-muted);">
+        The all-in-one platform for algorithmic trading, community insights, and real-time market analysis.
+    </p>
+
+    @if (!User.Identity.IsAuthenticated)
     {
-        <p>logged in</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-lg px-5" style="background-color: var(--accent); color: var(--bg-main); font-weight: 700;">Get Started</a>
+            <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-outline-light btn-lg px-5">Login</a>
+        </div>
     }
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    else
+    {
+        <span class="badge px-4 py-2 fs-6 border" style="background: rgba(34, 211, 238, 0.1); color: var(--accent); border-color: var(--accent);">
+            <i class="bi bi-person-check-fill me-2"></i>Welcome back, @User.Identity.Name!
+        </span>
+    }
 </div>
+
+<div class="row g-4 pb-4">
+    @{
+        var features = new[] {
+        new { Icon = "bi-cpu", Title = "Strategy Builder", Desc = "Construct complex Buy/Sell logic using RSI, SMA, and more.", Link = "Backtest/Index", Text = "Try Builder" },
+        new { Icon = "bi-chat-left-dots", Title = "Community Hub", Desc = "Share backtest results and discuss market trends.", Link = "Post/Index", Text = "View Posts" },
+        new { Icon = "bi-bar-chart", Title = "Real-time Data", Desc = "Analyze live performance against historical price action.", Link = "Stock/Details", Text = "Market View" }
+        };
+    }
+
+    @foreach (var f in features)
+    {
+        <div class="col-md-4">
+            <div class="card h-100 p-4 hover-lift" style="background-color: var(--bg-card); border: 1px solid var(--border);">
+                <div class="mb-3" style="color: var(--accent);">
+                    <i class="bi @f.Icon fs-1"></i>
+                </div>
+                <h5 class="fw-bold" style="color: var(--text-main);">@f.Title</h5>
+                <p class="small flex-grow-1" style="color: var(--text-muted);">@f.Desc</p>
+                <a href="/@f.Link" class="text-decoration-none fw-bold" style="color: var(--accent);">@f.Text &rarr;</a>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .hover-lift {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+        .hover-lift:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent) !important;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4) !important;
+        }
+</style>

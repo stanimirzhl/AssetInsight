@@ -3,47 +3,39 @@
 
 <div class="container mt-5 pb-5">
     <form asp-action="Create" id="strategyForm">
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-header bg-primary text-white p-3">
-                <h4 class="mb-0"><i class="bi bi-cpu"></i> Strategy Designer</h4>
-            </div>
-            <div class="card-body p-4">
-                <div class="mb-4">
-                    <label class="form-label fw-bold">Strategy Name</label>
-                    <input asp-for="Name" class="form-control form-control-lg" placeholder="e.g. Golden Cross Strategy" required />
-                </div>
-                <input type="hidden" asp-for="DefinitionJson" id="DefinitionJson" />
-            </div>
+        <div class="content-card mb-4">
+            <h4 class="mb-4 d-flex align-items-center"><i class="bi bi-cpu me-2"></i> Strategy Designer</h4>
+            <label class="form-label fw-bold">Strategy Name</label>
+            <input asp-for="Name" class="form-control custom-input form-control-lg" placeholder="e.g. Golden Cross Strategy" required />
+            <input type="hidden" asp-for="DefinitionJson" id="DefinitionJson" />
         </div>
 
-        <div class="row">
+        <div class="row g-4">
             <div class="col-lg-6">
-                <div class="card border-success mb-4 shadow-sm">
-                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">BUY Rules (Entry)</h5>
-                        <button type="button" class="btn btn-light btn-sm" onclick="addRuleRow('buy')">+ Add</button>
+                <div class="content-card h-100 border-top border-success border-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="text-success mb-0">BUY Rules (Entry)</h5>
+                        <button type="button" class="btn btn-sm btn-outline-success" onclick="addRuleRow('buy')">+ Add</button>
                     </div>
-                    <div class="card-body bg-light" id="buy-rules-list"></div>
+                    <div id="buy-rules-list"></div>
                 </div>
             </div>
 
             <div class="col-lg-6">
-                <div class="card border-danger mb-4 shadow-sm">
-                    <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">SELL Rules (Exit)</h5>
-                        <button type="button" class="btn btn-light btn-sm" onclick="addRuleRow('sell')">+ Add</button>
+                <div class="content-card h-100 border-top border-danger border-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="text-danger mb-0">SELL Rules (Exit)</h5>
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="addRuleRow('sell')">+ Add</button>
                     </div>
-                    <div class="card-body bg-light" id="sell-rules-list"></div>
+                    <div id="sell-rules-list"></div>
                 </div>
             </div>
         </div>
 
-        <div class="card shadow-sm border-0">
-            <div class="card-body">
-                <button type="submit" class="btn btn-primary btn-lg w-100" onclick="generateJson()">
-                    <i class="bi bi-save"></i> Save Strategy & Initialize Logic
-                </button>
-            </div>
+        <div class="content-card mt-4">
+            <button type="submit" class="btn btn-accent btn-lg w-100" onclick="generateJson()">
+                <i class="bi bi-save"></i> Save Strategy & Initialize Logic
+            </button>
         </div>
     </form>
 </div>
@@ -53,49 +45,48 @@
         const container = document.getElementById(`${type}-rules-list`);
         const rowId = Date.now();
         const row = `
-            <div class="rule-row bg-white p-3 rounded border mb-3 shadow-sm">
-                <div class="row g-2">
-                    <div class="col-md-4">
-                        <label class="small text-muted">Indicator</label>
-                        <select class="form-select indicator">
-                            <option value="RSI">RSI</option>
-                            <option value="SMA">SMA</option>
-                        </select>
-                        <input type="number" class="form-control form-control-sm mt-1 period" value="14" title="Period">
-                    </div>
-                    <div class="col-md-2 text-center">
-                        <label class="small text-muted">Is</label>
-                        <select class="form-select operator">
-                            <option value=">">></option>
-                            <option value="<"><</option>
-                            <option value=">=">>=</option>
-                            <option value="<="><=</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="small text-muted">Compare To</label>
-                        <select class="form-select compare-type mb-1" onchange="toggleCompare(this)">
-                            <option value="value">Static Value</option>
-                            <option value="indicator">Another Indicator</option>
-                        </select>
-
-                        <div class="value-input-div">
-                            <input type="number" class="form-control value" placeholder="Value (e.g. 70)">
-                        </div>
-
-                        <div class="indicator-compare-div d-none p-2 bg-light rounded border">
-                            <select class="form-select form-select-sm compare-indicator">
-                                <option value="SMA">SMA</option>
+                <div class="rule-row p-3 rounded border border-secondary mb-3" style="background-color: var(--bg-main);">
+                    <div class="row g-2">
+                        <div class="col-md-4">
+                            <label class="small text-muted">Indicator</label>
+                            <select class="form-select custom-input indicator">
                                 <option value="RSI">RSI</option>
+                                <option value="SMA">SMA</option>
                             </select>
-                            <input type="number" class="form-control form-control-sm mt-1 compare-period" placeholder="Period">
+                            <input type="number" class="form-control custom-input mt-1 period" value="14">
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <label class="small text-muted">Is</label>
+                            <select class="form-select custom-input operator">
+                                <option value=">">></option>
+                                <option value="<"><</option>
+                                <option value=">=">>=</option>
+                                <option value="<="><=</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="small text-muted">Compare To</label>
+                            <select class="form-select custom-input compare-type mb-1" onchange="toggleCompare(this)">
+                                <option value="value">Static Value</option>
+                                <option value="indicator">Another Indicator</option>
+                            </select>
+                            <div class="value-input-div">
+                                <input type="number" class="form-control custom-input value" placeholder="Value">
+                            </div>
+                            <div class="indicator-compare-div d-none p-2 border border-secondary rounded">
+                                <select class="form-select custom-input compare-indicator">
+                                    <option value="SMA">SMA</option>
+                                    <option value="RSI">RSI</option>
+                                </select>
+                                <input type="number" class="form-control custom-input mt-1 compare-period" placeholder="Period">
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="text-end mt-2">
-                    <button type="button" class="btn btn-link btn-sm text-danger p-0" onclick="this.closest('.rule-row').remove()">Remove Rule</button>
-                </div>
-            </div>`;
+                    <div class="text-end mt-2">
+                        <button type="button" class="btn btn-link btn-sm text-danger p-0" onclick="this.closest('.rule-row').remove()">Remove Rule</button>
+                    </div>
+                </div>`;
+
         container.insertAdjacentHTML('beforeend', row);
     }
 

@@ -195,7 +195,6 @@
                     headers: { "X-Requested-With": "XMLHttpRequest" }
                 });
 
-                // 204 No Content means we've reached the end
                 if (response.status === 204) {
                     handleNoMoreContent();
                     return;
@@ -205,7 +204,6 @@
 
                 const html = await response.text();
 
-                // If the response is empty string, handle as end of feed
                 if (!html.trim()) {
                     handleNoMoreContent();
                     return;
@@ -214,11 +212,9 @@
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = html;
 
-                // Simple fade-in animation
                 tempDiv.style.opacity = '0';
                 feed.appendChild(tempDiv);
 
-                // Force a reflow for transition
                 tempDiv.offsetHeight;
                 tempDiv.style.transition = 'opacity 0.3s ease';
                 tempDiv.style.opacity = '1';
@@ -243,95 +239,48 @@
 
 <style>
     :root {
-        --profile-accent: #0D6EFD;
-        --card-bg: var(--bs-body-bg);
+        --profile-accent: var(--accent);
+        --card-bg: var(--bg-card);
     }
 
-    /* Tabs Styling */
-    .profile-nav-card {
-        background: var(--card-bg);
-        border-radius: 12px;
-        border: 1px solid var(--bs-border-color);
+    body {
+        background-color: var(--bg-main) !important;
+        color: var(--text-main) !important;
+    }
+
+    .profile-nav-card, .sort-bar, .card, .footer-links-card, .empty-state {
+        background-color: var(--card-bg) !important;
+        border: 1px solid var(--border) !important;
+        color: var(--text-main) !important;
     }
 
     .nav-pills .nav-link {
-        color: var(--bs-secondary-color);
-        font-weight: 600;
-        font-size: 0.9rem;
-        border-radius: 8px;
-        transition: all 0.2s ease;
+        color: var(--text-muted);
     }
 
-        .nav-pills .nav-link.active {
-            background-color: var(--profile-accent);
-            color: white;
-        }
-
-    /* Sort Bar */
-    .sort-bar {
-        background: var(--card-bg);
-        border-radius: 10px;
-        border: 1px solid var(--bs-border-color);
+    .nav-pills .nav-link.active {
+        background-color: var(--profile-accent) !important;
+        color: var(--bg-main) !important;
     }
 
     .btn-sort {
-        border-radius: 20px;
-        font-weight: 600;
-        color: var(--bs-secondary-color);
-        border: 1px solid transparent;
+        color: var(--text-muted) !important;
     }
 
-        .btn-sort:hover, .btn-sort.active {
-            background-color: var(--bs-tertiary-bg);
-            color: var(--profile-accent);
-        }
-
-    /* Comment Cards */
-    .comment-card {
-        border-radius: 12px;
-        transition: transform 0.15s ease;
+    .btn-sort.active {
+        background-color: var(--bg-main) !important;
+        color: var(--profile-accent) !important;
     }
 
-        .comment-card:hover {
-            transform: translateY(-2px);
-        }
-
-    .comment-content {
-        font-size: 0.95rem;
-        color: var(--bs-body-color);
-        border-color: var(--bs-primary-border-subtle) !important;
-    }
-
-    /* Sidebar & Avatar */
-    .user-card-banner {
-        height: 100px;
-        background: linear-gradient(135deg, #0D6EFD 0%, #00d4ff 100%);
-    }
-
-    .avatar-wrapper {
-        margin-top: -50px;
-    }
+    .text-muted { color: var(--text-muted) !important; }
 
     .profile-avatar-img {
-        width: 100px;
-        height: 100px;
-        border-radius: 20px; /* Squircle style */
-        border: 5px solid var(--card-bg);
-        object-fit: cover;
+        border: 5px solid var(--card-bg) !important;
     }
 
-    /* Empty State */
-    .empty-state {
-        text-align: center;
-        padding: 5rem 1rem;
-        background: var(--card-bg);
-        border-radius: 12px;
-        border: 2px dashed var(--bs-border-color);
-        color: var(--bs-secondary-color);
+    .user-card-banner {
+        background: linear-gradient(135deg, var(--accent) 0%, #444 100%);
     }
 
-    .footer-links-card {
-        background: var(--card-bg);
-        border-radius: 12px;
-    }
+    .empty-state { border-style: dashed; }
 </style>

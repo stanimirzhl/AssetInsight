@@ -9,16 +9,10 @@
 
 @if (User.Identity.IsAuthenticated)
 {
-    <button id="followBtn" data-symbol="@Model.Symbol" class="btn @(Model.IsFollowing ? "btn-warning" : "btn-outline-warning") ms-3">
+    <button id="followBtn" data-symbol="@Model.Symbol" 
+            class="btn @(Model.IsFollowing ? "btn-accent" : "btn-outline-accent") ms-3">
         <i class="bi @(Model.IsFollowing ? "bi-star-fill" : "bi-star")"></i> 
-        @if(Model.IsFollowing)
-        {
-            <span id="followText">@Localizer["Following"]</span>
-        }
-        else
-        {
-            <span id="followText">@Localizer["Follow"]</span>
-        }
+        <span id="followText">@(Model.IsFollowing ? Localizer["Following"] : Localizer["Follow"])</span>
     </button>
 }
 <div class="container mt-4">
@@ -28,24 +22,21 @@
         </div>
         
         <form asp-controller="Stock" asp-action="Details" method="get" class="d-flex gap-2">
-            <input type="text" name="symbol" value="@Model.Symbol" class="form-control" placeholder="Search Ticker (e.g. TSLA)" required />
-            <select name="range" class="form-select">
-                <!option value="1mo" @(Model.CurrentRange == "1mo" ? "selected" : "")>1 Month</!option>
-                <!option value="3mo" @(Model.CurrentRange == "3mo" ? "selected" : "")>3 Months</!option>
-                <!option value="6mo" @(Model.CurrentRange == "6mo" ? "selected" : "")>6 Months</!option>
-                <!option value="1y" @(Model.CurrentRange == "1y" ? "selected" : "")>1 Year</!option>
+            <input type="text" name="symbol" value="@Model.Symbol" class="form-control custom-input" placeholder="Ticker (e.g. TSLA)" required />
+            <select name="range" class="form-select custom-input">
+                <option value="1mo" selected="@(Model.CurrentRange == "1mo")">1 Month</option>
+                <option value="3mo" selected="@(Model.CurrentRange == "3mo")">3 Months</option>
+                <option value="6mo" selected="@(Model.CurrentRange == "6mo")">6 Months</option>
+                <option value="1y" selected="@(Model.CurrentRange == "1y")">1 Year</option>
             </select>
-            <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i></button>
+            <button type="submit" class="btn btn-accent"><i class="bi bi-search"></i></button>
         </form>
     </div>
 
-    <div class="card shadow-sm border-0 rounded-4">
-        <div class="card-body">
-            <div id="stockChart"></div>
-        </div>
+    <div class="content-card">
+        <div id="stockChart"></div>
     </div>
 </div>
-@Html.AntiForgeryToken()
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
@@ -57,70 +48,34 @@
             }));
 
             var options = {
-                series: [{
-                    name: 'Price',
-                    data: chartData
-                }],
+                series: [{ name: 'Price', data: chartData }],
                 chart: {
                     type: 'candlestick',
                     height: 450,
-                    fontFamily: 'inherit',
-                    toolbar: { show: true }
+                    toolbar: { autoSelected: 'zoom' },
+                    foreColor: 'var(--text-muted)'
                 },
                 plotOptions: {
                     candlestick: {
                         colors: {
-                            upward: '#198754', 
-                            downward: '#dc3545'  
+                            upward: '#22c55e', 
+                            downward: '#ef4444' 
                         }
                     }
                 },
-                xaxis: {
-                    type: 'datetime',
-                    labels: { style: { colors: '#6c757d' } }
-                },
+                xaxis: { type: 'datetime' },
                 yaxis: {
-                    tooltip: { enabled: true },
                     labels: {
-                        formatter: function (val) { return "$" + val.toFixed(2); }
+                        formatter: (val) => "$" + val.toFixed(2),
+                        style: { colors: 'var(--text-muted)' }
                     }
                 },
-                theme: { mode: 'light' }
+                grid: { borderColor: 'var(--border)' },
+                tooltip: { theme: 'dark' }
             };
 
             var chart = new ApexCharts(document.querySelector("#stockChart"), options);
             chart.render();
         });
-    </script>
-    <script>
-    document.getElementById('followBtn')?.addEventListener('click', function() {
-        const symbol = this.getAttribute('data-symbol');
-        const btn = this;
-        const textSpan = document.getElementById('followText');
-        const icon = btn.querySelector('i');
-    
-        fetch('/Stock/ToggleFollow', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
-            },
-            body: JSON.stringify(symbol)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                if (data.isFollowing) {
-                    btn.classList.replace('btn-outline-warning', 'btn-warning');
-                    icon.classList.replace('bi-star', 'bi-star-fill');
-                    textSpan.innerText = 'Following';
-                } else {
-                    btn.classList.replace('btn-warning', 'btn-outline-warning');
-                    icon.classList.replace('bi-star-fill', 'bi-star');
-                    textSpan.innerText = 'Follow';
-                }
-            }
-        });
-    });
     </script>
 }

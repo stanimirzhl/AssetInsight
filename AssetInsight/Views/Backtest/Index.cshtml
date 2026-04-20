@@ -2,14 +2,14 @@
 @model IEnumerable<TradingStrategy>
 
 <div class="container mt-4">
-    <div class="row">
+    <div class="row g-4">
         <div class="col-md-6">
-            <div class="card shadow-sm p-4">
-                <h3>Run Backtest</h3>
+            <div class="content-card">
+                <h3 class="mb-4">Run Backtest</h3>
                 <form asp-controller="Backtest" asp-action="Run" method="post">
                     <div class="mb-3">
-                        <label class="form-label">Select Strategy</label>
-                        <select name="strategyId" class="form-select" required>
+                        <label class="form-label text-muted">Select Strategy</label>
+                        <select name="strategyId" class="form-select custom-input" required>
                             <option value="">-- Choose a Strategy --</option>
                             @foreach (var s in Model)
                             {
@@ -18,29 +18,30 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Stock Symbol</label>
-                        <input type="text" name="symbol" class="form-control" value="AAPL" required />
+                        <label class="form-label text-muted">Stock Symbol</label>
+                        <input type="text" name="symbol" class="form-control custom-input" value="AAPL" required />
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Initial Balance ($)</label>
-                        <input type="number" name="initialBalance" class="form-control" value="10000" step="0.01" />
+                        <label class="form-label text-muted">Initial Balance ($)</label>
+                        <input type="number" name="initialBalance" class="form-control custom-input" value="10000" step="0.01" />
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">Run Backtest</button>
+                    <button type="submit" class="btn btn-accent w-100 mt-2">Run Backtest</button>
                 </form>
             </div>
         </div>
 
         <div class="col-md-6">
-            <div class="card shadow-sm p-4">
+            <div class="content-card h-100">
                 <h3>Manage Strategies</h3>
                 <p class="text-muted">Don't see a strategy you like?</p>
-                <a asp-controller="Strategy" asp-action="Create" class="btn btn-success mb-3">Create New Custom Strategy</a>
+                <a asp-controller="Strategy" asp-action="Create" class="btn btn-outline-accent mb-4 w-100">Create New Custom Strategy</a>
 
-                <hr />
+                <hr class="border-secondary mb-4" />
+
                 <h5>Quick Guide</h5>
-                <ul class="text-secondary small">
-                    <li><strong>Global Strategies:</strong> Pre-built by the system for testing.</li>
-                    <li><strong>Custom Strategies:</strong> Created by you using our rule-builder.</li>
+                <ul class="text-secondary small list-unstyled">
+                    <li class="mb-2"><i class="bi bi-globe me-2"></i><strong>Global Strategies:</strong> Pre-built by the system.</li>
+                    <li><i class="bi bi-person me-2"></i><strong>Custom Strategies:</strong> Your personal rule-built strategies.</li>
                 </ul>
             </div>
         </div>
@@ -50,3 +51,47 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
+
+<style>
+    .content-card {
+        background-color: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .custom-input {
+        background-color: var(--bg-main) !important;
+        border: 1px solid var(--border) !important;
+        color: var(--text-main) !important;
+        padding: 0.75rem;
+        border-radius: 8px;
+    }
+
+        .custom-input:focus {
+            border-color: var(--accent) !important;
+            box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.2);
+        }
+
+    .btn-accent {
+        background-color: var(--accent) !important;
+        color: white !important;
+        font-weight: 600;
+        border-radius: 8px;
+        padding: 0.75rem;
+    }
+
+    .btn-outline-accent {
+        border: 1px solid var(--accent) !important;
+        color: var(--accent) !important;
+        font-weight: 600;
+        border-radius: 8px;
+        padding: 0.75rem;
+    }
+
+        .btn-outline-accent:hover {
+            background-color: var(--accent) !important;
+            color: white !important;
+        }
+</style>

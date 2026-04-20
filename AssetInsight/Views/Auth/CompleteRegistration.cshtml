@@ -25,24 +25,16 @@
             <input type="hidden" asp-for="FirstName" />
             <input type="hidden" asp-for="LastName" />
 
-            <div class="username-row">
-
+            <div class="username-container d-flex flex-column gap-3">
                 <div class="username-left">
-
-                    <label asp-for="UserName" class="form-label"></label>
-
-                    <input asp-for="UserName"
-                           id="usernameInput"
-                           class="form-control wot-input"
-                           autocomplete="off" />
-
-                    <small id="usernameError" class="text-danger d-none">
-                    </small>
-
+                    <label asp-for="UserName" class="form-label fw-bold"></label>
+                    <input asp-for="UserName" id="usernameInput" class="form-control wot-input" autocomplete="off" />
+                    <small id="usernameError" class="text-danger d-none mt-2"></small>
                 </div>
 
-                <div id="usernameSuggestions" class="username-suggestions d-none"></div>
-
+                <div id="usernameSuggestions" class="username-suggestions d-none">
+                    <small class="text-muted d-block mb-2">Suggestions:</small>
+                </div>
             </div>
 
             <button id="continueBtn" class="btn wot-btn w-100" type="submit">

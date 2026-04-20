@@ -496,3 +496,42 @@
 .carousel-img {
     cursor: zoom-in;
 }
+
+.post-create-container {
+    background-color: var(--bg-card) !important;
+    border: 1px solid var(--border) !important;
+}
+
+
+.reddit-input {
+    background-color: var(--bg-main) !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--border) !important;
+}
+
+    .reddit-input:focus {
+        border-color: var(--accent) !important;
+        box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.2);
+    }
+
+
+.reddit-uploader-box {
+    background-color: var(--bg-main);
+    border: 2px dashed var(--border);
+    transition: border-color 0.2s;
+}
+
+    .reddit-uploader-box:hover {
+        border-color: var(--accent);
+    }
+
+.btn-reddit-pill {
+    background: rgba(0,0,0,0.3);
+    color: var(--text-main);
+    border: 1px solid var(--border);
+}
+
+    .btn-reddit-pill:hover {
+        background: var(--accent);
+        color: var(--bg-main);
+    }

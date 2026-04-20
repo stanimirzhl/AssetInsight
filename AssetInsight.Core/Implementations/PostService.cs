@@ -75,12 +75,16 @@ namespace AssetInsight.Core.Implementations
 		}
 
 
-		public async Task<PagingModel<PostDto>> GetAllPagedPostsAsync(int pageIndex, int pageSize)
+		public async Task<PagingModel<PostDto>> GetAllPagedPostsAsync(int pageIndex, int pageSize, string tag)
 		{
 			IQueryable<PostDto> query = repository.AllAsReadOnly()
 				.Include(x => x.Author)
 				.Include(x => x.Comments)
 				.Include(x => x.Reactions)
+				.Include(x => x.PostTags)
+				 .ThenInclude(x => x.Tag)
+			.Where(p => string.IsNullOrEmpty(tag)
+				|| p.PostTags.Any(pt => pt.Tag.Name == tag))
 			.Select(p => new PostDto
 			{
 				Id = p.Id,
