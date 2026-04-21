@@ -8,21 +8,28 @@ namespace AssetInsight.Core.StrategyEngine.Context
 {
 	public class IndicatorContext
 	{
-		private readonly Dictionary<string, decimal> _values;
+		private readonly Dictionary<string, decimal[]> _indicatorCache;
+		private readonly int _currentIndex;
+		private readonly decimal _currentPrice;
 
-		public IndicatorContext(Dictionary<string, decimal> values)
+		public IndicatorContext(Dictionary<string, decimal[]> indicatorCache, int currentIndex, decimal currentPrice)
 		{
-			_values = values;
+			_indicatorCache = indicatorCache;
+			_currentIndex = currentIndex;
+			_currentPrice = currentPrice;
 		}
 
 		public decimal GetValue(string indicator, int period)
 		{
-			var key = $"{indicator}_{period}";
+			if (indicator.ToUpper() == "PRICE")
+				return _currentPrice;
 
-			if (!_values.TryGetValue(key, out var value))
+			var key = $"{indicator.ToUpper()}_{period}";
+
+			if (!_indicatorCache.TryGetValue(key, out var values))
 				throw new Exception($"Missing indicator value: {key}");
 
-			return value;
+			return values[_currentIndex];
 		}
 	}
 }

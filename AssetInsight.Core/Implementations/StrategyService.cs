@@ -50,14 +50,7 @@ namespace AssetInsight.Core.Implementations
 
 		public async Task CreateCustomStrategyAsync(StrategyDto dto, string userId)
 		{
-			try
-			{
-				JsonSerializer.Deserialize<IStrategyNode>(dto.DefinitionJson, StrategyJsonOptions.Default);
-			}
-			catch
-			{
-				throw new Exception("Invalid Strategy Format. Logic tree is corrupted.");
-			}
+			ValidateStrategyJson(dto.DefinitionJson);
 
 			var strategy = new TradingStrategy
 			{
@@ -67,6 +60,39 @@ namespace AssetInsight.Core.Implementations
 			};
 
 			await repository.AddAsync(strategy);
+		}
+
+		public async Task UpdateCustomStrategyAsync(int id, StrategyDto dto, string userId)
+		{
+			ValidateStrategyJson(dto.DefinitionJson);
+
+			var strategy = await repository.All().FirstOrDefaultAsync(s => s.Id == id && s.UserId == userId)
+				?? throw new UnauthorizedAccessException("Strategy not found or access denied.");
+
+			strategy.Name = dto.Name;
+			strategy.DefinitionJson = dto.DefinitionJson;
+
+			await repository.SaveChangesAsync();
+		}
+
+		public async Task DeleteStrategyAsync(int id, string userId)
+		{
+			var strategy = await repository.All().FirstOrDefaultAsync(s => s.Id == id && s.UserId == userId)
+				?? throw new UnauthorizedAccessException("Strategy not found or access denied.");
+
+			await repository.DeleteAsync(strategy.Id);
+		}
+
+		private void ValidateStrategyJson(string json)
+		{
+			try
+			{
+				JsonSerializer.Deserialize<StrategyDefinition>(json, StrategyJsonOptions.Default);
+			}
+			catch
+			{
+				throw new Exception("Invalid Strategy Format. Logic tree is corrupted.");
+			}
 		}
 	}
 }

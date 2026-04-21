@@ -102,6 +102,21 @@ namespace AssetInsight.Extensions
 			return services;
 		}
 
+		public static void MapFinnhubSecret(this IConfiguration configuration)
+		{
+			var secretJson = configuration["Finnhub:Credentials"];
+
+			if (string.IsNullOrWhiteSpace(secretJson))
+			{
+				logger.LogWarning("Finnhub secret not found in Key Vault.");
+				return;
+			}
+
+			var secretObj = JObject.Parse(secretJson);
+
+			configuration["Finnhub:ApiKey"] = secretObj["ApiKey"]?.ToString().Trim();
+		}
+
 		public static void MapCloudinarySecret(this IConfiguration configuration)
 		{
 			var secretJson = configuration["Cloudinary:Credentials"];
@@ -345,6 +360,19 @@ namespace AssetInsight.Extensions
 			UserManager<User> userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
 
 			await db.Database.MigrateAsync();
+
+			string[] roleNames = { "Admin", "Moderator", "User" };
+
+			foreach (var roleName in roleNames)
+			{
+				var roleExists = await roleManager.RoleExistsAsync(roleName);
+				if (!roleExists)
+				{
+					await roleManager.CreateAsync(new IdentityRole(roleName));
+				}
+			}
+
+
 		}
 
 	}

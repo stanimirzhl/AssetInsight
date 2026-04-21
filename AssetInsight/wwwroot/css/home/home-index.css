@@ -1,0 +1,200 @@
+﻿.landing-wrapper {
+    padding-top: 2rem;
+    overflow-x: hidden;
+}
+
+
+.pulsing-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--bg-main);
+    border-radius: 50%;
+    display: inline-block;
+    animation: pulse-dot 1.5s infinite;
+}
+
+@keyframes pulse-dot {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+    }
+
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 6px rgba(255, 255, 255, 0);
+    }
+
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+    }
+}
+
+.ticker-link:hover {
+    color: var(--accent) !important;
+    text-decoration: underline !important;
+}
+
+#news-ticker-container::-webkit-scrollbar {
+    display: none;
+}
+
+
+.hero-glow {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(34, 211, 238, 0.15) 0%, transparent 70%);
+    filter: blur(40px);
+    z-index: -1;
+}
+
+.btn-glow {
+    box-shadow: 0 0 20px rgba(34, 211, 238, 0.4);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+    .btn-glow:hover {
+        box-shadow: 0 0 30px rgba(34, 211, 238, 0.6);
+        transform: translateY(-2px);
+    }
+
+.terminal-window {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.terminal-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background: linear-gradient(to bottom, transparent, var(--bg-card));
+}
+
+.code-line {
+    opacity: 0;
+    animation: type-line 0.1s forwards;
+}
+    .code-line:nth-child(1) {
+        animation-delay: 0.1s;
+    }
+
+    .code-line:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .code-line:nth-child(3) {
+        animation-delay: 0.3s;
+    }
+
+    .code-line:nth-child(4) {
+        animation-delay: 0.4s;
+    }
+
+    .code-line:nth-child(5) {
+        animation-delay: 0.6s;
+    }
+
+    .code-line:nth-child(6) {
+        animation-delay: 0.8s;
+    }
+
+    .code-line:nth-child(7) {
+        animation-delay: 1.0s;
+    }
+
+    .code-line:nth-child(8) {
+        animation-delay: 1.1s;
+    }
+
+    .code-line:nth-child(9) {
+        animation-delay: 1.3s;
+    }
+
+    .code-line:nth-child(10) {
+        animation-delay: 1.4s;
+    }
+
+    .code-line:nth-child(11) {
+        animation-delay: 1.5s;
+    }
+
+    .code-line:nth-child(12) {
+        animation-delay: 1.6s;
+    }
+
+@keyframes type-line {
+    to {
+        opacity: 1;
+    }
+}
+
+.glass-panel {
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.feature-card {
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease;
+}
+
+    .feature-card:hover {
+        transform: translateY(-10px);
+        border-color: rgba(255,255,255,0.2) !important;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2) !important;
+    }
+
+.hover-arrow .arrow {
+    display: inline-block;
+    transition: transform 0.3s ease;
+}
+
+.feature-card:hover .hover-arrow .arrow {
+    transform: translateX(8px);
+}
+
+.reveal-on-scroll {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+    .reveal-on-scroll.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+.news-modal-item {
+    transition: background-color 0.2s ease;
+}
+
+    .news-modal-item:hover {
+        background-color: var(--bg-card) !important;
+    }
+
+.filter-btn {
+    background-color: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    transition: all 0.2s ease;
+}
+
+    .filter-btn:hover {
+        border-color: var(--accent);
+        color: var(--text-main);
+    }
+
+    .filter-btn.active {
+        background-color: var(--accent);
+        color: var(--bg-main) !important;
+        border-color: var(--accent);
+    }
+
+.news-modal-item {
+    transition: background-color 0.2s ease;
+}
+
+    .news-modal-item:hover {
+        background-color: var(--bg-card) !important;
+    }

@@ -26,6 +26,19 @@ namespace AssetInsight.Core.Implementations
 				.SumAsync(r => r.IsUpVote ? 1 : -1);
 		}
 
+		public async Task<bool?> UserVote(Guid postId, string userId)
+		{
+			var reaction = await repository.All()
+				.FirstOrDefaultAsync(r => r.PostId == postId && r.UserId == userId);
+
+			if (reaction == null)
+			{
+				return null;
+			}
+
+			return reaction.IsUpVote;
+		}
+
 		public async Task<(int score, string status)> ToggleReactionAsync(Guid postId, string userId, bool isUpVote)
 		{
 			var existing = await repository.All()

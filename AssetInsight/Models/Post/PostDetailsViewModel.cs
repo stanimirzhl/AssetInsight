@@ -21,5 +21,6 @@ namespace AssetInsight.Models.Post
 		public List<TagDto> Tags { get; set; } = new();
 		public List<PostImageDto> ImgUrls { get; set; } = new();
 		public PagingModel<CommentDto> Comments { get; set; }
+		public IEnumerable<TagDto> TrendingTags { get; set; } = new List<TagDto>();
 	}
 }

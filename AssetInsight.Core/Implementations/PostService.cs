@@ -74,6 +74,11 @@ namespace AssetInsight.Core.Implementations
 			await repository.SaveChangesAsync();
 		}
 
+		public async Task<bool> IsAuthor(Guid postId, string userId)
+		{
+			return await repository.AllAsReadOnly()
+				.AnyAsync(p => p.Id == postId && p.AuthorId == userId);
+		}
 
 		public async Task<PagingModel<PostDto>> GetAllPagedPostsAsync(int pageIndex, int pageSize, string tag)
 		{

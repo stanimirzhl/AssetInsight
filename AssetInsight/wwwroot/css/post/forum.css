@@ -1,107 +1,189 @@
 ﻿.forum-container {
     width: 100%;
-    max-width: 850px;
+    max-width: 900px;
     margin: 30px auto;
 }
 
-.forum-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-    color: var(--text-main);
-}
 
 .btn-create {
     background-color: var(--accent);
-    color: var(--bg-main);
-    padding: 10px 20px;
-    border-radius: 8px;
-    text-decoration: none;
+    color: var(--bg-main) !important;
     font-weight: 700;
-    transition: background-color 0.2s;
+    padding: 10px 24px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
 }
 
     .btn-create:hover {
-        background-color: var(--accent-hover);
-        color: var(--bg-main);
+        background-color: var(--accent);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(34, 211, 238, 0.3);
     }
+
 
 .post-card {
     display: flex;
     background-color: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: 12px;
-    margin-bottom: 15px;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
     overflow: hidden;
-    transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
     .post-card:hover {
         border-color: var(--accent);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        transform: translateY(-2px);
     }
+
+    .post-card.locked {
+        opacity: 0.8;
+    }
+
 
 .post-votes {
-    width: 60px;
-    background-color: rgba(0, 0, 0, 0.2);
-    text-align: center;
-    padding: 15px 5px;
-    font-weight: bold;
-    color: var(--accent);
+    width: 65px;
+    background-color: rgba(0, 0, 0, 0.15);
     border-right: 1px solid var(--border);
+    flex-shrink: 0;
 }
 
-.post-content {
-    flex: 1;
-    padding: 1.5rem;
+
+.post-title-link {
+    text-decoration: none;
+    color: var(--text-main);
+    font-weight: 700;
+    font-size: 1.25rem;
+    transition: color 0.2s ease;
 }
 
-    .post-content h4 a {
-        text-decoration: none;
-        color: var(--text-main);
-        font-weight: 700;
+    .post-title-link:hover {
+        color: var(--accent);
     }
 
-        .post-content h4 a:hover {
-            color: var(--accent);
-        }
 
-.post-meta {
-    font-size: 0.85rem;
+.action-btn {
     color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: color 0.2s ease;
+    padding: 6px 10px;
+    border-radius: 6px;
+}
+
+    .action-btn:hover {
+        color: var(--text-main);
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+
+.premium-tag {
+    background-color: rgba(34, 211, 238, 0.1);
+    color: var(--accent);
+    border: 1px solid rgba(34, 211, 238, 0.2);
+    font-weight: 600;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    transition: all 0.2s ease;
+}
+
+    .premium-tag:hover {
+        background-color: var(--accent);
+        color: var(--bg-main);
+    }
+
+.btn-icon {
+    background: transparent;
+    transition: background 0.2s ease;
+}
+
+    .btn-icon:hover {
+        background: rgba(255,255,255,0.1);
+    }
+
+.dropdown-menu .dropdown-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
 }
 
 .custom-delete-modal .modal-content {
     background-color: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 24px;
-    color: var(--text-main);
+    border-radius: 20px;
 }
 
 .btn-confirm-delete {
     background: #ef4444;
     color: white;
     border: none;
-    padding: 8px 20px;
-    border-radius: 8px;
-    font-weight: bold;
+    transition: background 0.2s ease;
 }
+
+    .btn-confirm-delete:hover {
+        background: #dc2626;
+    }
 
 .btn-go-back {
-    background: var(--border);
+    background: transparent;
     color: var(--text-main);
-    border: none;
-    padding: 8px 20px;
-    border-radius: 8px;
-    font-weight: bold;
+    border: 1px solid var(--border);
+    transition: background 0.2s ease;
 }
 
+    .btn-go-back:hover {
+        background: rgba(255,255,255,0.05);
+        color: var(--text-main);
+    }
+
 .skeleton-card {
-    background-color: var(--bg-card);
-    border: 1px solid var(--border);
+    min-height: 180px;
+}
+
+.skeleton-votes {
+    width: 65px;
+    background-color: rgba(0,0,0,0.1);
 }
 
 .skeleton-line {
     background: var(--border);
+    height: 16px;
 }
+
+.shimmer {
+    background: linear-gradient(to right, var(--border) 4%, rgba(255,255,255,0.1) 25%, var(--border) 36%);
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite linear;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+.vote-btn {
+    color: var(--text-muted);
+    opacity: 0.4;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+    .vote-btn:hover {
+        opacity: 0.8;
+    }
+
+    .vote-btn.up.active {
+        color: #10B981 !important;
+        opacity: 1;
+    }
+
+    .vote-btn.down.active {
+        color: #EF4444 !important;
+        opacity: 1;
+    }
+
+    .vote-btn.active ~ .vote-count {
+        color: var(--accent) !important;
+    }

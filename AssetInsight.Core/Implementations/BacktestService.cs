@@ -3,11 +3,7 @@ using AssetInsight.Core.DTOs.Stock;
 using AssetInsight.Core.Interfaces;
 using AssetInsight.Core.StrategyEngine.Context;
 using AssetInsight.Core.StrategyEngine.Nodes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Skender.Stock.Indicators;
 
 namespace AssetInsight.Core.Implementations
 {
@@ -19,30 +15,31 @@ namespace AssetInsight.Core.Implementations
 			decimal sharesOwned = 0;
 			var logs = new List<string>();
 
-			var requirements = new List<(string, int)>();
-			requirements.AddRange(ExtractRequirements(strategy.Buy));
-			requirements.AddRange(ExtractRequirements(strategy.Sell));
+			var requirements = new List<(string Ind, int Per)>();
+			if (strategy.Buy != null) requirements.AddRange(ExtractRequirements(strategy.Buy));
+			if (strategy.Sell != null) requirements.AddRange(ExtractRequirements(strategy.Sell));
 			requirements = requirements.Distinct().ToList();
 
-			var indicatorMatrix = PrecomputeIndicators(history, requirements);
+			var indicatorCache = PrecomputeIndicators(history, requirements);
 
 			for (int i = 0; i < history.Count; i++)
 			{
-				var context = new IndicatorContext(indicatorMatrix[i]);
+				var currentPrice = history[i].ClosePrice;
+				var context = new IndicatorContext(indicatorCache, i, currentPrice);
 
 				bool shouldBuy = strategy.Buy?.Evaluate(context) ?? false;
 				bool shouldSell = strategy.Sell?.Evaluate(context) ?? false;
 
-				if (shouldBuy && balance > history[i].ClosePrice)
+				if (shouldBuy && balance > currentPrice)
 				{
-					sharesOwned = Math.Floor(balance / history[i].ClosePrice);
-					balance -= sharesOwned * history[i].ClosePrice;
-					logs.Add($"{history[i].Date:yyyy-MM-dd}: BUY at {history[i].ClosePrice}");
+					sharesOwned = Math.Floor(balance / currentPrice);
+					balance -= sharesOwned * currentPrice;
+					logs.Add($"{history[i].Date:yyyy-MM-dd}: BUY at {currentPrice:F2}");
 				}
 				else if (shouldSell && sharesOwned > 0)
 				{
-					balance += sharesOwned * history[i].ClosePrice;
-					logs.Add($"{history[i].Date:yyyy-MM-dd}: SELL at {history[i].ClosePrice} | Balance: {balance:F2}");
+					balance += sharesOwned * currentPrice;
+					logs.Add($"{history[i].Date:yyyy-MM-dd}: SELL at {currentPrice:F2} | Balance: {balance:F2}");
 					sharesOwned = 0;
 				}
 			}
@@ -51,13 +48,15 @@ namespace AssetInsight.Core.Implementations
 			return new BacktestResult { FinalBalance = finalValue, Logs = logs };
 		}
 
-		private List<(string, int)> ExtractRequirements(IStrategyNode node)
+		private List<(string Ind, int Per)> ExtractRequirements(IStrategyNode node)
 		{
 			var reqs = new List<(string, int)>();
 			if (node is ConditionNode c)
 			{
-				reqs.Add((c.Indicator.ToUpper(), c.Period));
-				if (c.CompareIndicator != null)
+				if (c.Indicator.ToUpper() != "PRICE")
+					reqs.Add((c.Indicator.ToUpper(), c.Period));
+
+				if (c.CompareIndicator != null && c.CompareIndicator.ToUpper() != "PRICE")
 					reqs.Add((c.CompareIndicator.ToUpper(), c.ComparePeriod!.Value));
 			}
 			else if (node is GroupNode g)
@@ -67,42 +66,51 @@ namespace AssetInsight.Core.Implementations
 			return reqs;
 		}
 
-		private List<Dictionary<string, decimal>> PrecomputeIndicators(List<ChartDataPoint> history, List<(string Ind, int Per)> reqs)
+		private Dictionary<string, decimal[]> PrecomputeIndicators(List<ChartDataPoint> history, List<(string Ind, int Per)> reqs)
 		{
-			var result = new List<Dictionary<string, decimal>>();
-			for (int i = 0; i < history.Count; i++)
+			var cache = new Dictionary<string, decimal[]>();
+			int count = history.Count;
+
+			var quotes = history.Select(h => new Quote
 			{
-				var dict = new Dictionary<string, decimal>();
-				foreach (var r in reqs)
+				Date = h.Date,
+				Open = h.ClosePrice,
+				High = h.ClosePrice,
+				Low = h.ClosePrice,
+				Close = h.ClosePrice,
+				Volume = 0
+			}).ToList();
+
+			foreach (var r in reqs)
+			{
+				var key = $"{r.Ind}_{r.Per}";
+				var valuesArray = new decimal[count];
+
+				switch (r.Ind.ToUpper())
 				{
-					dict[$"{r.Ind}_{r.Per}"] = r.Ind == "SMA" ? CalculateSma(history, i, r.Per) : CalculateRsi(history, i, r.Per);
+					case "SMA":
+						var sma = quotes.GetSma(r.Per).ToList();
+						for (int i = 0; i < count; i++) valuesArray[i] = (decimal)(sma[i].Sma ?? 0);
+						break;
+
+					case "RSI":
+						var rsi = quotes.GetRsi(r.Per).ToList();
+						for (int i = 0; i < count; i++) valuesArray[i] = (decimal)(rsi[i].Rsi ?? 50);
+						break;
+
+					case "EMA":
+						var ema = quotes.GetEma(r.Per).ToList();
+						for (int i = 0; i < count; i++) valuesArray[i] = (decimal)(ema[i].Ema ?? 0);
+						break;
+
+					default:
+						throw new Exception($"Indicator {r.Ind} is not supported by the engine yet.");
 				}
-				result.Add(dict);
-			}
-			return result;
-		}
 
-		private decimal CalculateSma(List<ChartDataPoint> history, int index, int period)
-		{
-			if (index + 1 < period) return 0;
-			decimal sum = 0;
-			for (int i = index - period + 1; i <= index; i++) sum += history[i].ClosePrice;
-			return sum / period;
-		}
-
-		private decimal CalculateRsi(List<ChartDataPoint> history, int index, int period)
-		{
-			if (index < period) return 50;
-			decimal gain = 0, loss = 0;
-			for (int i = index - period + 1; i <= index; i++)
-			{
-				var change = history[i].ClosePrice - history[i - 1].ClosePrice;
-				if (change > 0) gain += change;
-				else loss -= change;
+				cache[key] = valuesArray;
 			}
-			if (loss == 0) return 100;
-			var rs = gain / loss;
-			return 100 - (100 / (1 + rs));
+
+			return cache;
 		}
 	}
 }

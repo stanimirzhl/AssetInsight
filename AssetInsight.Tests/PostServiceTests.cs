@@ -247,7 +247,7 @@ namespace AssetInsight.Tests.Core.Implementations
 
 			_testPosts.AddRange(new[] { post1, post2, post3 });
 
-			var result = await _postService.GetAllPagedPostsAsync(1, 2);
+			var result = await _postService.GetAllPagedPostsAsync(1, 2, null);
 
 			Assert.That(result.Items, Has.Count.EqualTo(2));
 			Assert.That(result.PageIndex, Is.EqualTo(1));
@@ -275,7 +275,7 @@ namespace AssetInsight.Tests.Core.Implementations
 				_testPosts.Add(CreateTestPost(Guid.NewGuid(), $"Post {i}", "Content", "user", "User", now.AddDays(-i)));
 			}
 
-			var result = await _postService.GetAllPagedPostsAsync(2, 2);
+			var result = await _postService.GetAllPagedPostsAsync(2, 2, null);
 
 			Assert.That(result.Items, Has.Count.EqualTo(2));
 			Assert.That(result.PageIndex, Is.EqualTo(2));

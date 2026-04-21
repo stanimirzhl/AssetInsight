@@ -1,0 +1,161 @@
+﻿@using AssetInsight.Models.Account
+@model ManageProfileViewModel
+
+<div class="container mt-5 pb-5">
+    <h2 class="mb-4 fw-bold">Account Settings</h2>
+
+    @if (!string.IsNullOrEmpty(Model.StatusMessage))
+    {
+        var alertClass = Model.StatusMessage.StartsWith("Error") ? "alert-danger" : "alert-success";
+        <div class="alert @alertClass alert-dismissible fade show" role="alert">
+            @Model.StatusMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="content-card mb-4">
+                <h5 class="mb-3 border-bottom border-secondary pb-2">Profile Information</h5>
+                <div class="mb-3">
+                    <label class="form-label text-muted small">Email Address</label>
+                    <input type="text" class="form-control custom-input bg-dark text-muted" value="@Model.Email" disabled />
+                </div>
+                <div class="mb-2">
+                    <label class="form-label text-muted small">Username</label>
+                    <input type="text" class="form-control custom-input bg-dark text-muted" value="@Model.Username" disabled />
+                </div>
+            </div>
+
+            <div class="content-card">
+                <h5 class="mb-3 border-bottom border-secondary pb-2">Security</h5>
+
+                @if (Model.HasPassword)
+                {
+                    <form asp-action="ChangePassword" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+                        <div class="mb-3">
+                            <label asp-for="ChangePassword.OldPassword" class="form-label text-muted small"></label>
+                            <input asp-for="ChangePassword.OldPassword" class="form-control custom-input" />
+                            <span asp-validation-for="ChangePassword.OldPassword" class="text-danger small"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="ChangePassword.NewPassword" class="form-label text-muted small"></label>
+                            <input asp-for="ChangePassword.NewPassword" class="form-control custom-input" />
+                            <span asp-validation-for="ChangePassword.NewPassword" class="text-danger small"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="ChangePassword.ConfirmPassword" class="form-label text-muted small"></label>
+                            <input asp-for="ChangePassword.ConfirmPassword" class="form-control custom-input" />
+                            <span asp-validation-for="ChangePassword.ConfirmPassword" class="text-danger small"></span>
+                        </div>
+                        <button type="submit" class="btn btn-accent w-100">Update Password</button>
+                    </form>
+                }
+                else
+                {
+                    <div class="alert alert-dark border border-warning text-warning mb-3" style="background-color: var(--bg-main);">
+                        <i class="bi bi-exclamation-triangle me-2"></i> You do not have a local username/password for this site. Add a local password so you can log in without an external login.
+                    </div>
+                    <form asp-action="SetPassword" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+                        <div class="mb-3">
+                            <label asp-for="SetPassword.NewPassword" class="form-label text-muted small"></label>
+                            <input asp-for="SetPassword.NewPassword" class="form-control custom-input" />
+                            <span asp-validation-for="SetPassword.NewPassword" class="text-danger small"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="SetPassword.ConfirmPassword" class="form-label text-muted small"></label>
+                            <input asp-for="SetPassword.ConfirmPassword" class="form-control custom-input" />
+                            <span asp-validation-for="SetPassword.ConfirmPassword" class="text-danger small"></span>
+                        </div>
+                        <button type="submit" class="btn btn-accent w-100">Set Password</button>
+                    </form>
+                }
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="content-card h-100">
+                <h5 class="mb-3 border-bottom border-secondary pb-2">Connected Accounts</h5>
+
+                @if (Model.CurrentLogins.Any())
+                {
+                    <p class="text-muted small">You are successfully authenticated with the following providers:</p>
+                    <div class="list-group list-group-flush border border-secondary rounded mb-4" style="background-color: var(--bg-main);">
+                        @foreach (var login in Model.CurrentLogins)
+                        {
+                            <div class="list-group-item bg-transparent border-secondary d-flex justify-content-between align-items-center p-3">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-shield-check text-success fs-4 me-3"></i>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold" style="color: var(--text-main);">@login.ProviderDisplayName</h6>
+                                    </div>
+                                </div>
+                                <span class="badge bg-success-subtle text-success">Connected</span>
+                            </div>
+                        }
+                    </div>
+                }
+
+                @if (Model.OtherLogins.Any())
+                {
+                    <h6 class="mt-4 mb-3">Link Another Service</h6>
+                    <form asp-action="LinkLogin" method="post" class="form-horizontal">
+                        <div class="d-grid gap-2">
+                            @foreach (var provider in Model.OtherLogins)
+                            {
+                                <button type="submit" class="btn btn-outline-secondary p-3 text-start" name="provider" value="@provider.Name">
+                                    <i class="bi bi-link me-2"></i> Connect with <strong>@provider.DisplayName</strong>
+                                </button>
+                            }
+                        </div>
+                    </form>
+                }
+                else if (!Model.CurrentLogins.Any())
+                {
+                    <p class="text-muted">There are no external authentication services configured.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
+<style>
+    .content-card {
+        background-color: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .custom-input {
+        background-color: var(--bg-main) !important;
+        border: 1px solid var(--border) !important;
+        color: var(--text-main) !important;
+        padding: 0.75rem;
+        border-radius: 8px;
+    }
+
+        .custom-input:focus {
+            border-color: var(--accent) !important;
+            box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.2);
+        }
+
+    .btn-accent {
+        background-color: var(--accent) !important;
+        color: white !important;
+        font-weight: 600;
+        border-radius: 8px;
+        padding: 0.75rem;
+    }
+
+    .bg-success-subtle {
+        background-color: rgba(25, 135, 84, 0.2);
+    }
+</style>

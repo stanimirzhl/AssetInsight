@@ -30,9 +30,21 @@ namespace AssetInsight.Controllers
 		[HttpGet]
 		public async Task<IActionResult> Details(string symbol = "AAPL", string range = "1mo")
 		{
+			if (string.IsNullOrWhiteSpace(symbol))
+			{
+				TempData["Error"] = "Please enter a valid stock ticker.";
+				return RedirectToAction("Details", "Stock");
+			}
+
 			try
 			{
-				var viewModel = await stockService.GetStockHistoryAsync(symbol, range);
+				var chartTask = stockService.GetStockHistoryAsync(symbol, range);
+				var newsTask = stockService.GetCompanyNewsAsync(symbol);
+
+				await Task.WhenAll(chartTask, newsTask);
+
+				var viewModel = chartTask.Result;
+				viewModel.CompanyNews = newsTask.Result;
 
 				viewModel.IsFollowing = User.Identity.IsAuthenticated
 					? await watchListService.IsFollowing(User.FindFirstValue(ClaimTypes.NameIdentifier), symbol)
@@ -40,10 +52,10 @@ namespace AssetInsight.Controllers
 
 				return View(viewModel);
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
-				TempData["ErrorMessage"] = $"Could not find market data for '{symbol}'.";
-				return RedirectToAction("Index", "Home");
+				TempData["Error"] = $"Could not find market data for '{symbol}'. Make sure the ticker is correct.";
+				return RedirectToAction("Details", "Stock");
 			}
 		}
 

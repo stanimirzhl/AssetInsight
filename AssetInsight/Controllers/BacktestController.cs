@@ -34,7 +34,7 @@ namespace AssetInsight.Controllers
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> Run(int strategyId, string symbol, decimal initialBalance = 10000)
+		public async Task<IActionResult> Run(int strategyId, string symbol, string timeRange = "1y", decimal initialBalance = 10000)
 		{
 			var strategy = await strategyService.GetStrategyByIdAsync(strategyId);
 
@@ -45,18 +45,21 @@ namespace AssetInsight.Controllers
 					Converters = { new StrategyNodeConverter() },
 					PropertyNameCaseInsensitive = true
 				});
-			var stockData = await stockService.GetStockHistoryAsync(symbol, "1y");
+
+			var stockData = await stockService.GetStockHistoryAsync(symbol, timeRange);
 
 			var result = backtestService.Run(stockData.History.ToList(), definition!, initialBalance);
 
 			var viewModel = new BacktestResultViewModel
 			{
-				Symbol = symbol,
+				Symbol = symbol.ToUpper(),
 				StrategyName = strategy.Name,
 				InitialBalance = initialBalance,
 				FinalBalance = result.FinalBalance,
 				TradeLogs = result.Logs
 			};
+
+			ViewData["TimeRange"] = timeRange;
 
 			return View("Result", viewModel);
 		}

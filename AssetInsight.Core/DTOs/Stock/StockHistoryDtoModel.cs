@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AssetInsight.Models.ApiNews;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,5 +13,6 @@ namespace AssetInsight.Core.DTOs.Stock
 		public string CurrentRange { get; set; }
 		public bool IsFollowing { get; set; }
 		public List<ChartDataPoint> History { get; set; } = new();
+		public List<NewsItem> CompanyNews { get; set; } = new();
 	}
 }

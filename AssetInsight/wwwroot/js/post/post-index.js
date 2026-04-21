@@ -144,44 +144,100 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (postList) {
         postList.addEventListener('click', async function (event) {
-            const btn = event.target.closest('.js-save-btn');
+            const voteBtn = event.target.closest('.js-vote-btn');
+            if (voteBtn) {
+                event.preventDefault();
+                const container = voteBtn.closest('.reddit-voting');
+                const postId = container.dataset.postId;
+                const isUpVote = voteBtn.dataset.isUpvote === 'true';
 
-            if (!btn) return;
+                await handleVote(postId, isUpVote, voteBtn);
+                return; 
+            }
 
-            event.preventDefault();
+            const saveBtn = event.target.closest('.js-save-btn');
+            if (saveBtn) {
+                event.preventDefault();
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                const postId = saveBtn.dataset.postId;
 
-            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
-            const postId = btn.dataset.postId;
+                try {
+                    const response = await fetch(`/Post/ToggleSave?postId=${postId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': token,
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
 
-            try {
-                const response = await fetch(`/Post/ToggleSave?postId=${postId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'RequestVerificationToken': token,
-                        'X-Requested-With': 'XMLHttpRequest'
+                    const contentType = response.headers.get("content-type");
+                    let data;
+                    if (contentType && contentType.includes("application/json")) {
+                        data = await response.json();
                     }
-                });
 
-                const contentType = response.headers.get("content-type");
+                    if (data?.loginUrl) {
+                        window.location.href = data.loginUrl;
+                        return;
+                    }
 
-                let data;
-                if (contentType && contentType.includes("application/json")) {
-                    data = await response.json();
+                    if (response.ok && data) {
+                        showToast(data.message);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
                 }
-
-                if (data?.loginUrl) {
-                    window.location.href = data.loginUrl;
-                    return;
-                }
-
-                if (response.ok && data) {
-                    showToast(data.message);
-                }
-            } catch (error) {
-                console.error('Error:', error);
             }
         });
+    }
+
+    async function handleVote(postId, isUpVote, btnElement) {
+        const container = btnElement.closest('.reddit-voting');
+        const scoreLabel = container.querySelector('.vote-count');
+        const upBtn = container.querySelector('.vote-btn.up');
+        const downBtn = container.querySelector('.vote-btn.down');
+
+        const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+        const token = tokenInput ? tokenInput.value : '';
+
+        const url = `/PostReaction/React?postId=${postId}&isUpVote=${isUpVote}`;
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': token,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            const contentType = response.headers.get("content-type");
+            let data = null;
+
+            if (contentType && contentType.includes("application/json")) {
+                data = await response.json();
+            }
+
+            if (data && data.loginUrl) {
+                window.location.href = data.loginUrl;
+                return;
+            }
+
+            if (response.ok && data) {
+                scoreLabel.innerText = data.score;
+
+                upBtn.classList.remove('active');
+                downBtn.classList.remove('active');
+
+                if (data.status === 'upvoted') upBtn.classList.add('active');
+                if (data.status === 'downvoted') downBtn.classList.add('active');
+            } else {
+                console.warn("Vote action returned non-OK response or no JSON data.");
+            }
+        } catch (err) {
+            console.error("Voting failed due to network or parsing error:", err);
+        }
     }
     /*
     document.querySelectorAll('.js-save-btn').forEach(btn => {

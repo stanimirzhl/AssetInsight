@@ -14,5 +14,7 @@ namespace AssetInsight.Core.Interfaces
 		Task<TradingStrategy> GetStrategyByIdAsync(int id);
 		Task CreateCustomStrategyAsync(StrategyDto dto, string userId);
 		Task<List<TradingStrategy>> GetAllUserStrategiesAsync(string userId);
+		Task UpdateCustomStrategyAsync(int id, StrategyDto dto, string userId);
+		Task DeleteStrategyAsync(int id, string userId);
 	}
 }

@@ -76,6 +76,9 @@ namespace AssetInsight.Controllers
 				IsLocked = dto.IsLocked,
 				CommentsCount = dto.CommentsCount,
 				ReactionsCount = dto.ReactionsCount,
+				HasUpvoted = User.Identity.IsAuthenticated ? postReactionService.UserVote(dto.Id, User.FindFirstValue(ClaimTypes.NameIdentifier)).Result == true : false,
+				HasDownvoted = User.Identity.IsAuthenticated ? postReactionService.UserVote(dto.Id, User.FindFirstValue(ClaimTypes.NameIdentifier)).Result == false : false,
+				IsAuthor = User.Identity.IsAuthenticated && dto.AuthorId == User.FindFirstValue(ClaimTypes.NameIdentifier)
 			});
 
 			foreach (PostVM post in pagedVMs.Items)
@@ -293,10 +296,21 @@ namespace AssetInsight.Controllers
 		{
 			try
 			{
-				await postService.GetByIdAsync(id);
+				var post = await postService.GetByIdAsync(id);
+
+				if(post.AuthorId != User.FindFirstValue(ClaimTypes.NameIdentifier) || 
+					!User.IsInRole("Admin") || !User.IsInRole("Moderator"))
+				{
+					return Unauthorized();
+				}
 
 				try
 				{
+					await notificationService.CreateNotification(
+							post.AuthorId,
+							$"One of your posts have been taken down by our team!",
+							$"/Post/Index");
+
 					await imageService.DeleteAsync(id, [.. (await postImageService.GetAllByPostIdAsync(id)).Select(x => x.PublicId)]);
 				}
 				catch (Exception ex)
@@ -336,6 +350,8 @@ namespace AssetInsight.Controllers
 					ImgUrls = await postImageService.GetAllByPostIdAsync(postDto.Id),
 					Comments = await commentService.GetRootCommentsPaginated(postDto.Id, 1, userId),
 					UserHasSaved = await savedPostService.HasUserSavedPost(postDto.Id, userId),
+					UserVote = await postReactionService.UserVote(postDto.Id, userId),
+					TrendingTags = await tagService.GetTrendingTagsAsync(5)
 				};
 			}
 			catch (NoEntityException ex)
@@ -414,7 +430,7 @@ namespace AssetInsight.Controllers
 				{
 					"comments" => PartialView("_UserCommentPartial", viewModel.Comments.Items),
 					"posts" => PartialView("_PostPartial", viewModel.Posts.Items),
-					"saved" => PartialView("PostPartial", viewModel.Saved.Items),
+					"saved" => PartialView("_PostPartial", viewModel.Saved.Items),
 					"upvoted" => PartialView("_PostPartial", viewModel.UpVoted.Items),
 					"downvoted" => PartialView("_PostPartial", viewModel.DownVoted.Items),
 					_ => NoContent()

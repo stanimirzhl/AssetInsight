@@ -23,6 +23,12 @@ namespace AssetInsight.Models.Post
 
 		public int CommentsCount { get; set; }
 
+		public bool HasUpvoted { get; set; }
+
+		public bool HasDownvoted { get; set; }
+
+		public bool IsAuthor { get; set; }
+
 		public List<TagDto> Tags { get; set; } = new List<TagDto>();
 	}
 }

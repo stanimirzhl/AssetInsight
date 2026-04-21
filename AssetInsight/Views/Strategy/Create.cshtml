@@ -2,106 +2,202 @@
 @model StrategyFormModel
 
 <div class="container mt-5 pb-5">
-    <form asp-action="Create" id="strategyForm">
+    <form asp-action="Create" id="strategyForm" method="post">
+
+        <div class="content-card mb-4 border-primary border-top border-4">
+            <h5 class="mb-3"><i class="bi bi-lightning-charge-fill text-warning me-2"></i>Quick-Start Templates</h5>
+            <p class="text-muted small">New to algorithmic trading? Start with a proven strategy template.</p>
+            <div class="d-flex flex-wrap gap-2">
+                <button type="button" class="btn btn-outline-primary" onclick="loadPreset('goldenCross')">
+                    Golden Cross (SMA)
+                </button>
+                <button type="button" class="btn btn-outline-info" onclick="loadPreset('rsiOversold')">
+                    RSI Oversold/Overbought
+                </button>
+                <button type="button" class="btn btn-outline-secondary" onclick="loadPreset('clear')">
+                    <i class="bi bi-trash"></i> Start from Scratch
+                </button>
+            </div>
+        </div>
+
         <div class="content-card mb-4">
             <h4 class="mb-4 d-flex align-items-center"><i class="bi bi-cpu me-2"></i> Strategy Designer</h4>
             <label class="form-label fw-bold">Strategy Name</label>
-            <input asp-for="Name" class="form-control custom-input form-control-lg" placeholder="e.g. Golden Cross Strategy" required />
+            <input asp-for="Name" class="form-control custom-input form-control-lg" placeholder="e.g., My Awesome Strategy" required />
             <input type="hidden" asp-for="DefinitionJson" id="DefinitionJson" />
         </div>
 
         <div class="row g-4">
             <div class="col-lg-6">
-                <div class="content-card h-100 border-top border-success border-4">
+                <div class="content-card h-100 border-top border-success border-4 shadow-sm">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="text-success mb-0">BUY Rules (Entry)</h5>
-                        <button type="button" class="btn btn-sm btn-outline-success" onclick="addRuleRow('buy')">+ Add</button>
+                        <h5 class="text-success mb-0"><i class="bi bi-arrow-down-circle-fill me-2"></i>BUY Rules (Entry)</h5>
+                        <button type="button" class="btn btn-sm btn-success rounded-pill px-3" onclick="addRuleRow('buy')">+ Add Rule</button>
                     </div>
                     <div id="buy-rules-list"></div>
                 </div>
             </div>
 
             <div class="col-lg-6">
-                <div class="content-card h-100 border-top border-danger border-4">
+                <div class="content-card h-100 border-top border-danger border-4 shadow-sm">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="text-danger mb-0">SELL Rules (Exit)</h5>
-                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="addRuleRow('sell')">+ Add</button>
+                        <h5 class="text-danger mb-0"><i class="bi bi-arrow-up-circle-fill me-2"></i>SELL Rules (Exit)</h5>
+                        <button type="button" class="btn btn-sm btn-danger rounded-pill px-3" onclick="addRuleRow('sell')">+ Add Rule</button>
                     </div>
                     <div id="sell-rules-list"></div>
                 </div>
             </div>
         </div>
 
-        <div class="content-card mt-4">
-            <button type="submit" class="btn btn-accent btn-lg w-100" onclick="generateJson()">
-                <i class="bi bi-save"></i> Save Strategy & Initialize Logic
+        <div class="content-card mt-4 d-flex justify-content-between align-items-center">
+            <a asp-action="Index" asp-controller="Backtest" class="btn btn-outline-secondary btn-lg">Cancel</a>
+            <button type="submit" class="btn btn-accent btn-lg px-5 shadow" onclick="generateJson()">
+                <i class="bi bi-save me-2"></i> Save & Compile Strategy
             </button>
         </div>
     </form>
 </div>
 
 <script>
-    function addRuleRow(type) {
+    // Templates for quick loading
+    const presets = {
+        goldenCross: {
+            name: "Golden Cross Trend Follower",
+            buy:  [{ indicator: "SMA", period: 50, operator: ">", compareIndicator: "SMA", comparePeriod: 200 }],
+            sell: [{ indicator: "SMA", period: 50, operator: "<", compareIndicator: "SMA", comparePeriod: 200 }]
+        },
+        rsiOversold: {
+            name: "RSI Reversal Strategy",
+            buy:  [{ indicator: "RSI", period: 14, operator: "<", value: 30 }],
+            sell: [{ indicator: "RSI", period: 14, operator: ">", value: 70 }]
+        }
+    };
+
+    function loadPreset(presetName) {
+        document.getElementById('buy-rules-list').innerHTML = '';
+        document.getElementById('sell-rules-list').innerHTML = '';
+
+        if (presetName === 'clear') {
+            addRuleRow('buy');
+            addRuleRow('sell');
+            document.getElementById('Name').value = "";
+            return;
+        }
+
+        const data = presets[presetName];
+        document.getElementById('Name').value = data.name;
+
+        data.buy.forEach(rule => addRuleRow('buy', rule));
+        data.sell.forEach(rule => addRuleRow('sell', rule));
+    }
+
+    function addRuleRow(type, ruleData = null) {
         const container = document.getElementById(`${type}-rules-list`);
-        const rowId = Date.now();
+        const isCompareIndicator = ruleData?.compareIndicator ? true : false;
+
         const row = `
-                <div class="rule-row p-3 rounded border border-secondary mb-3" style="background-color: var(--bg-main);">
-                    <div class="row g-2">
-                        <div class="col-md-4">
-                            <label class="small text-muted">Indicator</label>
-                            <select class="form-select custom-input indicator">
-                                <option value="RSI">RSI</option>
-                                <option value="SMA">SMA</option>
+            <div class="rule-row p-3 rounded border border-secondary mb-3 position-relative" style="background-color: var(--bg-main);">
+                <button type="button" class="btn-close position-absolute top-0 end-0 m-2" aria-label="Close" onclick="this.closest('.rule-row').remove()"></button>
+
+                <div class="row g-2 align-items-end mt-1">
+                    <div class="col-md-4">
+                        <label class="small text-muted fw-bold mb-1">When this happens...</label>
+                        <div class="d-flex gap-2">
+                            <select class="form-select custom-input indicator flex-grow-1" onchange="updateUI(this)">
+                                <option value="PRICE" ${ruleData?.indicator === 'PRICE' ? 'selected' : ''}>PRICE</option>
+                                <option value="SMA" ${ruleData?.indicator === 'SMA' ? 'selected' : ''}>SMA</option>
+                                <option value="RSI" ${ruleData?.indicator === 'RSI' ? 'selected' : ''}>RSI</option>
+                                <option value="EMA" ${ruleData?.indicator === 'EMA' ? 'selected' : ''}>EMA</option>
                             </select>
-                            <input type="number" class="form-control custom-input mt-1 period" value="14">
-                        </div>
-                        <div class="col-md-2 text-center">
-                            <label class="small text-muted">Is</label>
-                            <select class="form-select custom-input operator">
-                                <option value=">">></option>
-                                <option value="<"><</option>
-                                <option value=">=">>=</option>
-                                <option value="<="><=</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="small text-muted">Compare To</label>
-                            <select class="form-select custom-input compare-type mb-1" onchange="toggleCompare(this)">
-                                <option value="value">Static Value</option>
-                                <option value="indicator">Another Indicator</option>
-                            </select>
-                            <div class="value-input-div">
-                                <input type="number" class="form-control custom-input value" placeholder="Value">
-                            </div>
-                            <div class="indicator-compare-div d-none p-2 border border-secondary rounded">
-                                <select class="form-select custom-input compare-indicator">
-                                    <option value="SMA">SMA</option>
-                                    <option value="RSI">RSI</option>
-                                </select>
-                                <input type="number" class="form-control custom-input mt-1 compare-period" placeholder="Period">
-                            </div>
+                            <input type="number" class="form-control custom-input period" style="width: 70px;" value="${ruleData?.period || 14}" placeholder="Days" onchange="updateUI(this)" ${ruleData?.indicator === 'PRICE' ? 'disabled' : ''}>
                         </div>
                     </div>
-                    <div class="text-end mt-2">
-                        <button type="button" class="btn btn-link btn-sm text-danger p-0" onclick="this.closest('.rule-row').remove()">Remove Rule</button>
+
+                    <div class="col-md-3">
+                        <select class="form-select custom-input operator" onchange="updateUI(this)">
+                            <option value=">" ${ruleData?.operator === '>' ? 'selected' : ''}>Goes Above</option>
+                            <option value="<" ${ruleData?.operator === '<' ? 'selected' : ''}>Drops Below</option>
+                            <option value=">=" ${ruleData?.operator === '>=' ? 'selected' : ''}>Is >= To</option>
+                            <option value="<=" ${ruleData?.operator === '<=' ? 'selected' : ''}>Is <= To</option>
+                        </select>
                     </div>
-                </div>`;
+
+                    <div class="col-md-5">
+                        <label class="small text-muted fw-bold mb-1">Compare against...</label>
+                        <select class="form-select custom-input compare-type mb-2" onchange="toggleCompare(this)">
+                            <option value="value" ${!isCompareIndicator ? 'selected' : ''}>A Specific Number</option>
+                            <option value="indicator" ${isCompareIndicator ? 'selected' : ''}>Another Indicator</option>
+                        </select>
+
+                        <div class="value-input-div ${isCompareIndicator ? 'd-none' : ''}">
+                            <input type="number" class="form-control custom-input value" placeholder="e.g. 30" value="${ruleData?.value || ''}" step="0.01" onchange="updateUI(this)">
+                        </div>
+
+                        <div class="indicator-compare-div ${!isCompareIndicator ? 'd-none' : ''} d-flex gap-2">
+                            <select class="form-select custom-input compare-indicator flex-grow-1" onchange="updateUI(this)">
+                                <option value="PRICE" ${ruleData?.compareIndicator === 'PRICE' ? 'selected' : ''}>PRICE</option>
+                                <option value="SMA" ${ruleData?.compareIndicator === 'SMA' ? 'selected' : ''}>SMA</option>
+                                <option value="RSI" ${ruleData?.compareIndicator === 'RSI' ? 'selected' : ''}>RSI</option>
+                                <option value="EMA" ${ruleData?.compareIndicator === 'EMA' ? 'selected' : ''}>EMA</option>
+                            </select>
+                            <input type="number" class="form-control custom-input compare-period" style="width: 70px;" placeholder="Days" value="${ruleData?.comparePeriod || 50}" onchange="updateUI(this)">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-3 p-2 rounded bg-dark border border-secondary">
+                    <i class="bi bi-info-circle text-info me-2"></i>
+                    <span class="translation-text text-light small fw-semibold">Loading...</span>
+                </div>
+            </div>`;
 
         container.insertAdjacentHTML('beforeend', row);
+
+        // Trigger UI update immediately for the new row
+        const newRow = container.lastElementChild;
+        updateUI(newRow.querySelector('.indicator'));
     }
 
     function toggleCompare(select) {
         const row = select.closest('.rule-row');
-        const valDiv = row.querySelector('.value-input-div');
-        const indDiv = row.querySelector('.indicator-compare-div');
-
         if(select.value === 'indicator') {
-            valDiv.classList.add('d-none');
-            indDiv.classList.remove('d-none');
+            row.querySelector('.value-input-div').classList.add('d-none');
+            row.querySelector('.indicator-compare-div').classList.remove('d-none');
         } else {
-            valDiv.classList.remove('d-none');
-            indDiv.classList.add('d-none');
+            row.querySelector('.value-input-div').classList.remove('d-none');
+            row.querySelector('.indicator-compare-div').classList.add('d-none');
         }
+        updateUI(select);
+    }
+
+    // This handles both disabling the 'Period' input if PRICE is selected, AND updating the English text.
+    function updateUI(element) {
+        const row = element.closest('.rule-row');
+
+        // Handle Price disabling
+        const ind = row.querySelector('.indicator').value;
+        const periodInput = row.querySelector('.period');
+        periodInput.disabled = (ind === 'PRICE');
+
+        const cInd = row.querySelector('.compare-indicator').value;
+        const cPeriodInput = row.querySelector('.compare-period');
+        cPeriodInput.disabled = (cInd === 'PRICE');
+
+        // Translate to English
+        const type = row.closest('#buy-rules-list') ? 'Buy' : 'Sell';
+        const op = row.querySelector('.operator').options[row.querySelector('.operator').selectedIndex].text.toLowerCase();
+
+        let leftSide = ind === 'PRICE' ? 'the current PRICE' : `the ${periodInput.value || 'X'}-period ${ind}`;
+        let rightSide = '';
+
+        if (row.querySelector('.compare-type').value === 'value') {
+            const val = row.querySelector('.value').value;
+            rightSide = val ? `the number ${val}` : '[enter a value]';
+        } else {
+            rightSide = cInd === 'PRICE' ? 'the current PRICE' : `the ${cPeriodInput.value || 'X'}-period ${cInd}`;
+        }
+
+        row.querySelector('.translation-text').innerText = `${type} when ${leftSide} ${op} ${rightSide}.`;
     }
 
     function buildGroupJson(containerId) {
@@ -111,7 +207,7 @@
             return {
                 type: "Condition",
                 indicator: row.querySelector('.indicator').value,
-                period: parseInt(row.querySelector('.period').value),
+                period: parseInt(row.querySelector('.period').value) || 0,
                 operator: row.querySelector('.operator').value,
                 value: compareType === 'value' ? parseFloat(row.querySelector('.value').value || 0) : null,
                 compareIndicator: compareType === 'indicator' ? row.querySelector('.compare-indicator').value : null,
@@ -119,39 +215,61 @@
             };
         });
 
-        return {
-            type: "Group",
-            logicalOperator: "AND",
-            children: children
-        };
+        return { type: "Group", logicalOperator: "AND", children: children };
     }
 
     function generateJson() {
-        const strategy = {
+        document.getElementById('DefinitionJson').value = JSON.stringify({
             buy: buildGroupJson('buy-rules-list'),
             sell: buildGroupJson('sell-rules-list')
-        };
-        document.getElementById('DefinitionJson').value = JSON.stringify(strategy);
+        });
     }
 
-    addRuleRow('buy');
-    addRuleRow('sell');
+    // Initialization
+    document.addEventListener("DOMContentLoaded", function() {
+        const jsonInput = document.getElementById('DefinitionJson').value;
+        if (jsonInput) {
+            try {
+                const strategy = JSON.parse(jsonInput);
+                if (strategy.buy?.children?.length > 0) strategy.buy.children.forEach(rule => addRuleRow('buy', rule));
+                else addRuleRow('buy');
+
+                if (strategy.sell?.children?.length > 0) strategy.sell.children.forEach(rule => addRuleRow('sell', rule));
+                else addRuleRow('sell');
+            } catch (e) {
+                addRuleRow('buy'); addRuleRow('sell');
+            }
+        } else {
+            addRuleRow('buy'); addRuleRow('sell');
+        }
+    });
 </script>
 
 <style>
+    .content-card {
+        background-color: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.5rem;
+    }
+
     .rule-row {
-        transition: all 0.2s;
+        transition: border-color 0.2s, box-shadow 0.2s;
     }
 
         .rule-row:hover {
-            border-color: #0d6efd !important;
+            border-color: var(--accent) !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
-    .bg-success-soft {
-        background-color: #e6f4ea;
+    .custom-input {
+        background-color: var(--bg-main) !important;
+        border: 1px solid var(--border) !important;
+        color: var(--text-main) !important;
     }
 
-    .bg-danger-soft {
-        background-color: #fce8e6;
+    .btn-accent {
+        background-color: var(--accent) !important;
+        color: white !important;
     }
 </style>

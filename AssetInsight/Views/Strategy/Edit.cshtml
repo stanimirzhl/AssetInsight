@@ -1,0 +1,177 @@
+﻿@using AssetInsight.Models.TradingStrategy
+@model StrategyFormModel
+
+<div class="container mt-5 pb-5">
+    <form asp-action="Edit" asp-route-id="@Model.Id" id="strategyForm">
+        <input type="hidden" asp-for="Id" />
+        
+        <div class="content-card mb-4">
+            <h4 class="mb-4 d-flex align-items-center"><i class="bi bi-cpu me-2"></i> Edit Strategy</h4>
+            <label class="form-label fw-bold">Strategy Name</label>
+            <input asp-for="Name" class="form-control custom-input form-control-lg" required />
+            <input type="hidden" asp-for="DefinitionJson" id="DefinitionJson" />
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="content-card h-100 border-top border-success border-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="text-success mb-0">BUY Rules (Entry)</h5>
+                        <button type="button" class="btn btn-sm btn-outline-success" onclick="addRuleRow('buy')">+ Add</button>
+                    </div>
+                    <div id="buy-rules-list"></div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="content-card h-100 border-top border-danger border-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="text-danger mb-0">SELL Rules (Exit)</h5>
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="addRuleRow('sell')">+ Add</button>
+                    </div>
+                    <div id="sell-rules-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-card mt-4 d-flex justify-content-between">
+            <a asp-action="Index" asp-controller="Backtest" class="btn btn-outline-secondary btn-lg">Cancel</a>
+            <button type="submit" class="btn btn-accent btn-lg px-5" onclick="generateJson()">
+                <i class="bi bi-save"></i> Update Strategy
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    function addRuleRow(type, ruleData = null) {
+        const container = document.getElementById(`${type}-rules-list`);
+        const isCompareIndicator = ruleData?.compareIndicator ? true : false;
+        
+        const row = `
+            <div class="rule-row p-3 rounded border border-secondary mb-3" style="background-color: var(--bg-main);">
+                <div class="row g-2">
+                    <div class="col-md-4">
+                        <label class="small text-muted">Indicator</label>
+                        <select class="form-select custom-input indicator">
+                            <option value="PRICE" ${ruleData?.indicator === 'PRICE' ? 'selected' : ''}>PRICE</option>
+                            <option value="SMA" ${ruleData?.indicator === 'SMA' ? 'selected' : ''}>SMA</option>
+                            <option value="RSI" ${ruleData?.indicator === 'RSI' ? 'selected' : ''}>RSI</option>
+                            <option value="EMA" ${ruleData?.indicator === 'EMA' ? 'selected' : ''}>EMA</option>
+                        </select>
+                        <input type="number" class="form-control custom-input mt-1 period" value="${ruleData?.period || 14}">
+                    </div>
+                    <div class="col-md-2 text-center">
+                        <label class="small text-muted">Is</label>
+                        <select class="form-select custom-input operator">
+                            <option value=">" ${ruleData?.operator === '>' ? 'selected' : ''}>></option>
+                            <option value="<" ${ruleData?.operator === '<' ? 'selected' : ''}><</option>
+                            <option value=">=" ${ruleData?.operator === '>=' ? 'selected' : ''}>>=</option>
+                            <option value="<=" ${ruleData?.operator === '<=' ? 'selected' : ''}><=</option>
+                            <option value="==" ${ruleData?.operator === '==' ? 'selected' : ''}>==</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="small text-muted">Compare To</label>
+                        <select class="form-select custom-input compare-type mb-1" onchange="toggleCompare(this)">
+                            <option value="value" ${!isCompareIndicator ? 'selected' : ''}>Static Value</option>
+                            <option value="indicator" ${isCompareIndicator ? 'selected' : ''}>Another Indicator</option>
+                        </select>
+                        <div class="value-input-div ${isCompareIndicator ? 'd-none' : ''}">
+                            <input type="number" class="form-control custom-input value" placeholder="Value" value="${ruleData?.value || ''}" step="0.01">
+                        </div>
+                        <div class="indicator-compare-div ${!isCompareIndicator ? 'd-none' : ''} p-2 border border-secondary rounded">
+                            <select class="form-select custom-input compare-indicator">
+                                <option value="PRICE" ${ruleData?.compareIndicator === 'PRICE' ? 'selected' : ''}>PRICE</option>
+                                <option value="SMA" ${ruleData?.compareIndicator === 'SMA' ? 'selected' : ''}>SMA</option>
+                                <option value="RSI" ${ruleData?.compareIndicator === 'RSI' ? 'selected' : ''}>RSI</option>
+                                <option value="EMA" ${ruleData?.compareIndicator === 'EMA' ? 'selected' : ''}>EMA</option>
+                            </select>
+                            <input type="number" class="form-control custom-input mt-1 compare-period" placeholder="Period" value="${ruleData?.comparePeriod || ''}">
+                        </div>
+                    </div>
+                </div>
+                <div class="text-end mt-2">
+                    <button type="button" class="btn btn-link btn-sm text-danger p-0" onclick="this.closest('.rule-row').remove()">Remove Rule</button>
+                </div>
+            </div>`;
+
+        container.insertAdjacentHTML('beforeend', row);
+    }
+
+    function toggleCompare(select) {
+        const row = select.closest('.rule-row');
+        if(select.value === 'indicator') {
+            row.querySelector('.value-input-div').classList.add('d-none');
+            row.querySelector('.indicator-compare-div').classList.remove('d-none');
+        } else {
+            row.querySelector('.value-input-div').classList.remove('d-none');
+            row.querySelector('.indicator-compare-div').classList.add('d-none');
+        }
+    }
+
+    function buildGroupJson(containerId) {
+        const rows = document.querySelectorAll(`#${containerId} .rule-row`);
+        const children = Array.from(rows).map(row => {
+            const compareType = row.querySelector('.compare-type').value;
+            return {
+                type: "Condition",
+                indicator: row.querySelector('.indicator').value,
+                period: parseInt(row.querySelector('.period').value) || 0,
+                operator: row.querySelector('.operator').value,
+                value: compareType === 'value' ? parseFloat(row.querySelector('.value').value || 0) : null,
+                compareIndicator: compareType === 'indicator' ? row.querySelector('.compare-indicator').value : null,
+                comparePeriod: compareType === 'indicator' ? parseInt(row.querySelector('.compare-period').value || 0) : null
+            };
+        });
+
+        return { type: "Group", logicalOperator: "AND", children: children };
+    }
+
+    function generateJson() {
+        document.getElementById('DefinitionJson').value = JSON.stringify({
+            buy: buildGroupJson('buy-rules-list'),
+            sell: buildGroupJson('sell-rules-list')
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const jsonInput = document.getElementById('DefinitionJson').value;
+        if (jsonInput) {
+            try {
+                const strategy = JSON.parse(jsonInput);
+                
+                if (strategy.buy?.children?.length > 0) {
+                    strategy.buy.children.forEach(rule => addRuleRow('buy', rule));
+                } else addRuleRow('buy');
+
+                if (strategy.sell?.children?.length > 0) {
+                    strategy.sell.children.forEach(rule => addRuleRow('sell', rule));
+                } else addRuleRow('sell');
+            } catch (e) {
+                console.error("Parse error", e);
+                addRuleRow('buy'); addRuleRow('sell');
+            }
+        } else {
+            addRuleRow('buy'); addRuleRow('sell');
+        }
+    });
+</script>
+
+<style>
+    .rule-row {
+        transition: all 0.2s;
+    }
+
+        .rule-row:hover {
+            border-color: #0d6efd !important;
+        }
+
+    .bg-success-soft {
+        background-color: #e6f4ea;
+    }
+
+    .bg-danger-soft {
+        background-color: #fce8e6;
+    }
+</style>

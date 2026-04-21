@@ -7,87 +7,114 @@
 {
     <div id="post-@post.Id" class="post-card @(post.IsLocked ? "locked" : "")">
 
-        <div class="post-votes">
-            <span class="vote-count">@post.ReactionsCount</span>
+        <div class="post-votes d-flex flex-column align-items-center pt-4 reddit-voting" data-post-id="@post.Id">
+
+            <button type="button" class="vote-btn up border-0 bg-transparent p-0 js-vote-btn @(post.HasUpvoted ? "active" : "")" data-is-upvote="true">
+                <i class="bi bi-caret-up-fill fs-4"></i>
+            </button>
+
+            <span class="vote-count fs-5 fw-bold my-1" style="color: var(--text-main);">@post.ReactionsCount</span>
+
+            <button type="button" class="vote-btn down border-0 bg-transparent p-0 js-vote-btn @(post.HasDownvoted ? "active" : "")" data-is-upvote="false">
+                <i class="bi bi-caret-down-fill fs-4"></i>
+            </button>
+
         </div>
 
-        <div class="post-content">
+        <div class="post-content p-4 d-flex flex-column">
 
-            <div class="dropdown d-flex justify-content-end">
-                <button class="btn-dots" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-three-dots"></i>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item text-decoration-none" asp-action="Edit" asp-route-id="@post.Id">@Localizer["Edit"]</a></li>
-                    <li>
-                        <button type="button" class="dropdown-item text-danger"
-                                data-bs-toggle="modal" data-bs-target="#deletePostModal"
-                                data-post-id="@post.Id"
-                                data-post-title="@post.Title">
-                            @Localizer["Delete"]
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="post-meta d-flex align-items-center flex-wrap gap-2 text-muted small">
+
+                    @if (post.AuthorUserName == "[deleted]")
+                    {
+                        <span class="fw-semibold"><i class="bi bi-person-fill-slash me-1"></i>@Localizer["PostedBy"] @post.AuthorUserName</span>
+                    }
+                    else
+                    {
+                        <span class="fw-semibold">
+                            <i class="bi bi-person-circle me-1"></i>@Localizer["PostedBy"]
+                            <a class="text-decoration-none" style="color: var(--accent);" asp-action="UserPosts" asp-controller="Post" asp-route-userName="@post.AuthorUserName">
+                                @post.AuthorUserName
+                            </a>
+                        </span>
+                    }
+
+                    <span class="opacity-50">•</span>
+                    <span class="time-ago fw-medium" data-time="@post.CreatedAt.ToUniversalTime().ToString("o")"></span>
+
+                    @if (post.EditedAt.HasValue)
+                    {
+                        <span class="opacity-50">•</span>
+                        <span class="edited fw-medium fst-italic" data-time="@post.EditedAt.Value.ToUniversalTime().ToString("o")"><i class="bi bi-pencil me-1"></i>Edited</span>
+                    }
+
+                    @if (post.IsLocked)
+                    {
+                        <span class="badge rounded-pill ms-2" style="background-color: rgba(239, 68, 68, 0.1); color: #ef4444;">
+                            <i class="bi bi-lock-fill me-1"></i>@Localizer["Locked"]
+                        </span>
+                    }
+                </div>
+
+                @if (post.IsAuthor || User.IsInRole("Admin") || User.IsInRole("Moderator"))
+                {
+                    <div class="dropdown ms-3">
+                        <button class="btn btn-sm btn-icon border-0 text-muted" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-three-dots"></i>
                         </button>
-                    </li>
-                </ul>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="background-color: var(--bg-card); border: 1px solid var(--border);">
+                            @if (post.IsAuthor)
+                            {
+                                <li>
+                                    <a class="dropdown-item text-decoration-none d-flex align-items-center gap-2" style="color: var(--text-main);" asp-action="Edit" asp-route-id="@post.Id">
+                                        <i class="bi bi-pencil-square"></i> @Localizer["Edit"]
+                                    </a>
+                                </li>
+                            }
+                            <li><hr class="dropdown-divider" style="border-color: var(--border);"></li>
+                            <li>
+                                <button type="button" class="dropdown-item text-danger d-flex align-items-center gap-2"
+                                        data-bs-toggle="modal" data-bs-target="#deletePostModal"
+                                        data-post-id="@post.Id"
+                                        data-post-title="@post.Title">
+                                    <i class="bi bi-trash"></i> @Localizer["Delete"]
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                }
             </div>
 
-            <div class="post-meta">
-                @if (post.AuthorUserName == "[deleted]")
+            <h4 class="mb-3">
+                <a asp-action="Details" asp-route-id="@post.Id" class="post-title-link">
+                    @post.Title
+                </a>
+            </h4>
+
+            <p class="post-preview text-muted mb-4" style="font-size: 0.95rem; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+                @(post.Content.Length > 200 ? post.Content.Substring(0, 200) + "..." : post.Content)
+            </p>
+
+            <div class="post-footer mt-auto d-flex flex-wrap align-items-center justify-content-between gap-3 pt-3 border-top" style="border-color: rgba(255,255,255,0.05) !important;">
+
+                <div class="d-flex align-items-center gap-3">
+                    <a asp-action="Details" asp-route-id="@post.Id" class="action-btn text-decoration-none">
+                        <i class="bi bi-chat-square-text me-1"></i> @post.CommentsCount @Localizer["Comments"]
+                    </a>
+
+                    <button type="button" class="action-btn js-save-btn border-0 bg-transparent" data-post-id="@post.Id">
+                        <i class="bi bi-bookmark me-1"></i> @Localizer["Save"]
+                    </button>
+                </div>
+
+                @if (post.Tags.Any())
                 {
-                    <span class="author">
-                        @Localizer["PostedBy"] @post.AuthorUserName
-                    </span>
-                }
-                else
-                {
-                    <span class="author">
-                        @Localizer["PostedBy"]
-                        <a class="text-decoration-none" asp-action="UserPosts" asp-controller="Post" asp-route-userName="@post.AuthorUserName">
-                            @post.AuthorUserName
-                        </a>
-                    </span>
-                }
-                <span class="time-ago" data-time="@post.CreatedAt.ToUniversalTime().ToString("o")"></span>
-
-                @if (post.EditedAt.HasValue)
-                {
-                    <span class="edited" data-time="@post.EditedAt.Value.ToUniversalTime().ToString("o")"></span>
-                }
-
-                @if (post.IsLocked)
-                {
-                    <span class="locked-badge">🔒 @Localizer["Locked"]</span>
-                }
-        </div>
-
-        <h4>
-            <a asp-action="Details" asp-route-id="@post.Id">
-                @post.Title
-            </a>
-        </h4>
-
-        <p class="post-preview">
-            @(post.Content.Length > 200
-                        ? post.Content.Substring(0, 200) + "..."
-                        : post.Content)
-        </p>
-
-            <div class="post-footer">
-
-                <span class="comments">
-                    💬 @post.CommentsCount @Localizer["Comments"]
-                </span>
-
-                <button type="submit" class="btn-save js-save-btn" data-post-id="@post.Id">
-                    ⭐ @Localizer["Save"]
-                </button>
-
-            @if (post.Tags.Any())
-                {
-                    <div class="tag-container">
+                    <div class="d-flex flex-wrap gap-2">
                         @foreach (var tag in post.Tags)
                         {
-                            <a asp-action="Index" asp-route-tag="@tag.Name" class="tag-link">
-                                <span class="tag-pill">#@tag.Name</span>
+                            <a asp-action="Index" asp-route-tag="@tag.Name" class="text-decoration-none">
+                                <span class="badge premium-tag px-3 py-2 rounded-pill">#@tag.Name</span>
                             </a>
                         }
                     </div>

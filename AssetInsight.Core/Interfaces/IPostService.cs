@@ -26,5 +26,7 @@ namespace AssetInsight.Core.Interfaces
 		Task EditAsync(PostDto postDto);
 
 		Task DeleteAsync(Guid id);
+
+		Task<bool> IsAuthor(Guid postId, string userId);
 	}
 }

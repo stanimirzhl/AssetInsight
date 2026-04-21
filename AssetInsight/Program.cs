@@ -1,6 +1,8 @@
+using AssetInsight.Core.Caches;
 using AssetInsight.Data;
 using AssetInsight.Extensions;
 using AssetInsight.Hubs;
+using AssetInsight.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
@@ -10,17 +12,20 @@ ServiceCollectionExtensions.InitializeLogger(builder.Services.BuildServiceProvid
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbServices(builder.Configuration);
 builder.Services.AddAzureKeyVaultSecrets(builder.Configuration);
-builder.Configuration.MapCloudinarySecret();
+//builder.Configuration.MapCloudinarySecret();
 builder.Services.AddCoreServices(builder.Configuration);
 builder.Services.AddIdentityServices();
-builder.Configuration.MapGoogleOAuthSecret();
-builder.Configuration.MapFacebookOAuthSecret();
-builder.Configuration.MapMicrosoftOAuthSecret();
+//builder.Configuration.MapFinnhubSecret();
+//builder.Configuration.MapGoogleOAuthSecret();
+//builder.Configuration.MapFacebookOAuthSecret();
+//builder.Configuration.MapMicrosoftOAuthSecret();
 builder.Services.Authentication(builder.Configuration);
 builder.Services.AddRouteOptions();
 builder.Services.AddAccountOptions();
 builder.Services.Localization();
 builder.Services.AddSignalR();
+builder.Services.AddSingleton<NewsCacheService>();
+builder.Services.AddHostedService<NewsBackgroundService>();
 
 
 var app = builder.Build();

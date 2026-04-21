@@ -1,63 +1,350 @@
-﻿@using Microsoft.AspNetCore.Mvc.Localization
+﻿@using AssetInsight.Models.ApiNews
+@using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 @{
     ViewData["Title"] = "Home Page";
+    var newsItems = ViewBag.MarketNews as List<NewsItem> ?? new List<NewsItem>();
+    var tickerNewsItems = newsItems.Take(5).ToList();
 }
 
-@* Hero Section - Matching the dark theme *@
-<div class="py-5 px-4 text-center rounded-4 mb-5 border" style="background-color: var(--bg-card); border-color: var(--border) !important;">
-    <h1 class="display-4 fw-bold mb-3" style="color: var(--text-main);">@Localizer["WelcomeToAssetInsight"]</h1>
-    <p class="lead mx-auto mb-4" style="max-width: 700px; color: var(--text-muted);">
-        The all-in-one platform for algorithmic trading, community insights, and real-time market analysis.
-    </p>
-
-    @if (!User.Identity.IsAuthenticated)
+<div class="landing-wrapper">
+    @if (tickerNewsItems.Any())
     {
-        <div class="d-flex justify-content-center gap-3">
-            <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-lg px-5" style="background-color: var(--accent); color: var(--bg-main); font-weight: 700;">Get Started</a>
-            <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-outline-light btn-lg px-5">Login</a>
-        </div>
-    }
-    else
-    {
-        <span class="badge px-4 py-2 fs-6 border" style="background: rgba(34, 211, 238, 0.1); color: var(--accent); border-color: var(--accent);">
-            <i class="bi bi-person-check-fill me-2"></i>Welcome back, @User.Identity.Name!
-        </span>
-    }
-</div>
+        <div class="d-flex align-items-center mb-5 rounded-3 border ticker-wrapper shadow-sm" style="background-color: var(--bg-card); border-color: var(--border) !important; overflow: hidden;">
 
-<div class="row g-4 pb-4">
-    @{
-        var features = new[] {
-        new { Icon = "bi-cpu", Title = "Strategy Builder", Desc = "Construct complex Buy/Sell logic using RSI, SMA, and more.", Link = "Backtest/Index", Text = "Try Builder" },
-        new { Icon = "bi-chat-left-dots", Title = "Community Hub", Desc = "Share backtest results and discuss market trends.", Link = "Post/Index", Text = "View Posts" },
-        new { Icon = "bi-bar-chart", Title = "Real-time Data", Desc = "Analyze live performance against historical price action.", Link = "Stock/Details", Text = "Market View" }
-        };
-    }
+            <button type="button" class="btn px-4 py-3 fw-bold text-uppercase d-flex align-items-center rounded-0 border-0"
+                    style="background-color: var(--accent); color: var(--bg-main); font-size: 0.85rem; z-index: 2; box-shadow: 3px 0 10px rgba(0,0,0,0.3); cursor: pointer;"
+                    data-bs-toggle="modal" data-bs-target="#liveNewsModal">
+                <span class="pulsing-dot me-2"></span> LIVE NEWS <i class="bi bi-arrows-angle-expand ms-2" style="font-size: 0.7rem;"></i>
+            </button>
 
-    @foreach (var f in features)
-    {
-        <div class="col-md-4">
-            <div class="card h-100 p-4 hover-lift" style="background-color: var(--bg-card); border: 1px solid var(--border);">
-                <div class="mb-3" style="color: var(--accent);">
-                    <i class="bi @f.Icon fs-1"></i>
-                </div>
-                <h5 class="fw-bold" style="color: var(--text-main);">@f.Title</h5>
-                <p class="small flex-grow-1" style="color: var(--text-muted);">@f.Desc</p>
-                <a href="/@f.Link" class="text-decoration-none fw-bold" style="color: var(--accent);">@f.Text &rarr;</a>
+            <div id="news-ticker-container" class="d-flex flex-grow-1" style="overflow-x: auto; white-space: nowrap; scrollbar-width: none; -ms-overflow-style: none;">
+                @for (int i = 0; i < 2; i++)
+                {
+                    @foreach (var news in tickerNewsItems)
+                    {
+                        <div class="ticker-item px-4 py-2 border-end d-inline-flex align-items-center" style="border-color: var(--border) !important;">
+                            <span class="fw-bolder me-2" style="color: @(news.IsPositive ? "#10B981" : "#EF4444"); letter-spacing: 0.5px;">@news.Ticker</span>
+                            <a href="@news.Url" target="_blank" class="text-decoration-none ticker-link" style="color: var(--text-main); font-size: 0.9rem;">@news.Headline</a>
+                        </div>
+                    }
+                }
             </div>
         </div>
     }
+
+    <div class="modal fade" id="liveNewsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable modal-dialog-centered">
+            <div class="modal-content shadow-lg" style="background-color: var(--bg-main); border: 1px solid var(--border); height: 85vh;">
+
+                <div class="modal-header border-bottom flex-column align-items-start px-4 py-3" style="background-color: var(--bg-card); border-color: var(--border) !important;">
+                    <div class="d-flex justify-content-between w-100 mb-3">
+                        <h5 class="modal-title fw-bold text-uppercase d-flex align-items-center" style="color: var(--text-main); letter-spacing: 1px;">
+                            <span class="pulsing-dot me-3" style="background-color: var(--accent);"></span> Global Market Feed
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="d-flex gap-2 w-100 overflow-auto pb-1" id="news-category-filters" style="scrollbar-width: none;">
+                        <button class="btn btn-sm px-4 fw-bold filter-btn active" data-category="all" style="border-radius: 50px;">All</button>
+                        <button class="btn btn-sm px-4 fw-bold filter-btn" data-category="general" style="border-radius: 50px;">General</button>
+                        <button class="btn btn-sm px-4 fw-bold filter-btn" data-category="crypto" style="border-radius: 50px;">Crypto</button>
+                        <button class="btn btn-sm px-4 fw-bold filter-btn" data-category="forex" style="border-radius: 50px;">Forex</button>
+                        <button class="btn btn-sm px-4 fw-bold filter-btn" data-category="merger" style="border-radius: 50px;">Mergers</button>
+                    </div>
+                </div>
+
+                <div class="modal-body p-0 position-relative" style="background-color: var(--bg-main);">
+                    <div id="news-loader" class="position-absolute w-100 h-100 d-flex justify-content-center align-items-center" style="background: rgba(0,0,0,0.5); z-index: 10; display: none !important;">
+                        <div class="spinner-border text-info" role="status"></div>
+                    </div>
+
+                    <div class="list-group list-group-flush" id="news-list-container">
+                    </div>
+                </div>
+
+                <div class="modal-footer justify-content-between border-top px-4" style="background-color: var(--bg-card); border-color: var(--border) !important;">
+                    <span class="small fw-bold text-muted" id="page-info">Page 1 of 1</span>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-outline-secondary px-3" id="prev-page-btn" disabled>Previous</button>
+                        <button class="btn btn-sm px-3" id="next-page-btn" style="background-color: var(--accent); color: var(--bg-main); font-weight: 600;">Next</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row align-items-center py-5 mb-5 reveal-on-scroll">
+        <div class="col-lg-6 pe-lg-5 mb-5 mb-lg-0 text-center text-lg-start position-relative">
+            <div class="hero-glow position-absolute top-50 start-0 translate-middle-y"></div>
+
+            <div class="badge mb-3 px-3 py-2 border" style="background: rgba(34, 211, 238, 0.05); color: var(--accent); border-color: var(--accent) !important; border-radius: 50px;">
+                <i class="bi bi-stars me-2"></i> Next-Gen Algorithmic Trading
+            </div>
+
+            <h1 class="display-3 fw-bolder mb-4" style="color: var(--text-main); line-height: 1.1;">
+                Master the Markets with <span style="color: var(--accent);">AssetInsight</span>
+            </h1>
+
+            <p class="lead mb-5" style="color: var(--text-muted); font-size: 1.2rem;">
+                The all-in-one platform integrating algorithmic strategy building, community-driven insights, and lightning-fast real-time market analysis.
+            </p>
+
+            @if (!User.Identity.IsAuthenticated)
+            {
+                <div class="d-flex flex-column flex-sm-row justify-content-center justify-content-lg-start gap-3">
+                    <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-lg px-5 py-3 shadow-lg btn-glow" style="background-color: var(--accent); color: var(--bg-main); font-weight: 700; border-radius: 8px;">Start Building Strategies</a>
+                    <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-outline-light btn-lg px-5 py-3" style="border-radius: 8px; border-color: var(--border);">Sign In</a>
+                </div>
+            }
+            else
+            {
+                <div class="d-inline-flex align-items-center px-4 py-3 border rounded-3 shadow-sm glass-panel" style="border-color: var(--accent) !important;">
+                    <div class="me-3 fs-3" style="color: var(--accent);"><i class="bi bi-shield-check"></i></div>
+                    <div class="text-start">
+                        <div class="fw-bold" style="color: var(--text-main);">Welcome back, @User.Identity.Name</div>
+                        <div class="small" style="color: var(--text-muted);">Your dashboard is ready.</div>
+                    </div>
+                    <a href="/Backtest/Index" class="btn btn-sm ms-4 px-3 py-2" style="background-color: var(--accent); color: var(--bg-main); font-weight: 600;">Go to Hub &rarr;</a>
+                </div>
+            }
+        </div>
+
+        <div class="col-lg-6 position-relative z-index-1">
+            <div class="terminal-window border shadow-lg" style="background-color: var(--bg-card); border-color: var(--border) !important; border-radius: 12px; overflow: hidden;">
+                <div class="terminal-header d-flex px-3 py-2 border-bottom" style="background-color: rgba(0,0,0,0.2); border-color: var(--border) !important;">
+                    <div class="d-flex gap-2 align-items-center">
+                        <div class="rounded-circle" style="width: 12px; height: 12px; background-color: #EF4444;"></div>
+                        <div class="rounded-circle" style="width: 12px; height: 12px; background-color: #F59E0B;"></div>
+                        <div class="rounded-circle" style="width: 12px; height: 12px; background-color: #10B981;"></div>
+                    </div>
+                    <div class="ms-3 text-muted small fw-bold" style="font-family: monospace;">asset_insight_algo.cs</div>
+                </div>
+                <div class="terminal-body p-4 text-start" style="font-family: 'Courier New', Courier, monospace; color: #10B981; font-size: 0.9rem; line-height: 1.6; height: 350px; overflow: hidden; position: relative;">
+                    <div class="code-line"><span style="color: #60A5FA;">public class</span> <span style="color: #FCD34D;">MomentumStrategy</span> : <span style="color: #34D399;">IAlgoStrategy</span></div>
+                    <div class="code-line">{</div>
+                    <div class="code-line ps-4"><span style="color: #60A5FA;">public void</span> <span style="color: #FCD34D;">OnTick</span>(MarketData data)</div>
+                    <div class="code-line ps-4">{</div>
+                    <div class="code-line ps-5"><span style="color: #8B5CF6;">var</span> rsi = Indicators.RSI(data.ClosePrices, <span style="color: #F87171;">14</span>);</div>
+                    <div class="code-line ps-5"><span style="color: #8B5CF6;">var</span> sma = Indicators.SMA(data.ClosePrices, <span style="color: #F87171;">50</span>);</div>
+                    <div class="code-line ps-5 mt-2"><span style="color: #60A5FA;">if</span> (rsi < <span style="color: #F87171;">30</span> && data.CurrentPrice > sma)</div>
+                    <div class="code-line ps-5">{</div>
+                    <div class="code-line ps-6 text-warning">Order.ExecuteBuy(data.Ticker, <span style="color: #F87171;">100</span>);</div>
+                    <div class="code-line ps-5">}</div>
+                    <div class="code-line ps-4">}</div>
+                    <div class="code-line">}</div>
+                    <div class="terminal-overlay"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row py-5 mb-5 border-top border-bottom text-center reveal-on-scroll glass-panel" style="border-color: var(--border) !important;">
+        <div class="col-md-3 col-6 mb-4 mb-md-0">
+            <h2 class="display-5 fw-bolder mb-1" style="color: var(--accent);">99.9%</h2>
+            <p class="mb-0 fw-bold text-uppercase" style="color: var(--text-muted); font-size: 0.85rem; letter-spacing: 1px;">Uptime API</p>
+        </div>
+        <div class="col-md-3 col-6 mb-4 mb-md-0">
+            <h2 class="display-5 fw-bolder mb-1" style="color: var(--text-main);">10K+</h2>
+            <p class="mb-0 fw-bold text-uppercase" style="color: var(--text-muted); font-size: 0.85rem; letter-spacing: 1px;">Strategies Tested</p>
+        </div>
+        <div class="col-md-3 col-6">
+            <h2 class="display-5 fw-bolder mb-1" style="color: var(--text-main);">50ms</h2>
+            <p class="mb-0 fw-bold text-uppercase" style="color: var(--text-muted); font-size: 0.85rem; letter-spacing: 1px;">Execution Latency</p>
+        </div>
+        <div class="col-md-3 col-6">
+            <h2 class="display-5 fw-bolder mb-1" style="color: var(--text-main);">24/7</h2>
+            <p class="mb-0 fw-bold text-uppercase" style="color: var(--text-muted); font-size: 0.85rem; letter-spacing: 1px;">Market Monitoring</p>
+        </div>
+    </div>
+
+    <div class="text-center mb-5 reveal-on-scroll">
+        <h2 class="fw-bolder mb-3" style="color: var(--text-main);">Comprehensive Toolset</h2>
+        <p class="mx-auto" style="color: var(--text-muted); max-width: 600px;">Everything you need to conceptualize, backtest, and deploy high-performance trading strategies in one unified ecosystem.</p>
+    </div>
+
+    <div class="row g-4 pb-5 reveal-on-scroll">
+        @{
+            var features = new[] {
+                new { Icon = "bi-cpu-fill", Title = "Strategy Builder", Desc = "Construct complex Buy/Sell logic using RSI, SMA, MACD, and custom technical indicators with zero coding required.", Link = "Backtest/Index", Text = "Try Builder", Color = "#3b82f6" },
+                new { Icon = "bi-globe2", Title = "Community Hub", Desc = "Share your backtest results, discover new algorithmic approaches, and discuss real-time market trends with top traders.", Link = "Post/Index", Text = "View Posts", Color = "#10b981" },
+                new { Icon = "bi-bar-chart-line-fill", Title = "Real-time Data", Desc = "Analyze live performance against historical price action with sub-second websocket data streaming directly to your charts.", Link = "Stock/Details", Text = "Market View", Color = "#8b5cf6" },
+                new { Icon = "bi-shield-lock-fill", Title = "Risk Management", Desc = "Automate stop-loss, trailing stops, and portfolio exposure limits to protect your capital during high volatility.", Link = "Backtest/Index", Text = "Set Parameters", Color = "#f59e0b" }
+                };
+        }
+
+        @foreach (var f in features)
+        {
+            <div class="col-md-6">
+                <div class="card h-100 p-5 feature-card" style="background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;">
+                    <div class="feature-icon-wrapper mb-4 d-inline-flex justify-content-center align-items-center rounded-3" style="width: 60px; height: 60px; background-color: @(f.Color)15; color: @f.Color;">
+                        <i class="bi @f.Icon fs-3"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3" style="color: var(--text-main);">@f.Title</h4>
+                    <p class="flex-grow-1 mb-4" style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">@f.Desc</p>
+                    <div class="mt-auto">
+                        <a href="/@f.Link" class="text-decoration-none fw-bold hover-arrow" style="color: @f.Color; font-size: 1.1rem;">
+                            @f.Text <span class="arrow">&rarr;</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 </div>
 
-<style>
-    .hover-lift {
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const ticker = document.getElementById('news-ticker-container');
+        if (ticker) {
+            let isHovered = false;
+            let isDragging = false;
+            let startX, scrollLeft;
+            let animationId;
 
-        .hover-lift:hover {
-            transform: translateY(-5px);
-            border-color: var(--accent) !important;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.4) !important;
+            function scrollTicker() {
+                if (!isHovered && !isDragging) {
+                    ticker.scrollLeft += 1.5;
+                    if (ticker.scrollLeft >= ticker.scrollWidth / 2) {
+                        ticker.scrollLeft = 0;
+                    }
+                }
+                animationId = requestAnimationFrame(scrollTicker);
+            }
+
+            ticker.addEventListener('mouseenter', () => isHovered = true);
+            ticker.addEventListener('mouseleave', () => { isHovered = false; isDragging = false; });
+            ticker.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                startX = e.pageX - ticker.offsetLeft;
+                scrollLeft = ticker.scrollLeft;
+                ticker.style.cursor = 'grabbing';
+            });
+            ticker.addEventListener('mouseup', () => { isDragging = false; ticker.style.cursor = 'default'; });
+            ticker.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                e.preventDefault();
+                const x = e.pageX - ticker.offsetLeft;
+                const walk = (x - startX) * 2;
+                ticker.scrollLeft = scrollLeft - walk;
+            });
+            ticker.addEventListener('touchstart', () => isDragging = true);
+            ticker.addEventListener('touchend', () => isDragging = false);
+
+            animationId = requestAnimationFrame(scrollTicker);
         }
-</style>
+
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.15
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal-on-scroll').forEach(el => {
+            observer.observe(el);
+        });
+    });
+
+        document.addEventListener("DOMContentLoaded", function () {
+        let currentCategory = 'all';
+        let currentPage = 1;
+        let totalPages = 1;
+
+        const modal = document.getElementById('liveNewsModal');
+        const container = document.getElementById('news-list-container');
+        const loader = document.getElementById('news-loader');
+        const prevBtn = document.getElementById('prev-page-btn');
+        const nextBtn = document.getElementById('next-page-btn');
+        const pageInfo = document.getElementById('page-info');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+
+        modal.addEventListener('show.bs.modal', function () {
+            if (container.innerHTML.trim() === "") {
+                fetchNews();
+            }
+        });
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentCategory = this.getAttribute('data-category');
+                currentPage = 1;
+                fetchNews();
+            });
+        });
+
+        prevBtn.addEventListener('click', () => { if (currentPage > 1) { currentPage--; fetchNews(); } });
+        nextBtn.addEventListener('click', () => { if (currentPage < totalPages) { currentPage++; fetchNews(); } });
+
+        function fetchNews() {
+            loader.style.setProperty("display", "flex", "important");
+            container.style.opacity = "0.3";
+
+            fetch(`/Home/GetPaginatedNews?category=${currentCategory}&page=${currentPage}`)
+                .then(response => response.json())
+                .then(res => {
+                    totalPages = res.totalPages;
+                    currentPage = res.currentPage;
+                    renderNews(res.data);
+                    updatePaginationControls();
+                })
+                .catch(err => console.error("Failed to load news", err))
+                .finally(() => {
+                    loader.style.setProperty("display", "none", "important");
+                    container.style.opacity = "1";
+                });
+        }
+
+        function renderNews(newsArray) {
+            container.innerHTML = "";
+            if (newsArray.length === 0) {
+                container.innerHTML = `<div class="text-center py-5 text-muted"><h5>No news found for this category.</h5></div>`;
+                return;
+            }
+
+            newsArray.forEach(news => {
+                const date = new Date(news.publishedAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' });
+                const colorClass = news.isPositive ? "#10B981" : "#EF4444";
+                const bgClass = news.isPositive ? "rgba(16, 185, 129, 0.15)" : "rgba(239, 68, 68, 0.15)";
+
+                const imageHtml = news.imageUrl
+                    ? `<div class="flex-shrink-0 d-none d-sm-block"><img src="${news.imageUrl}" class="rounded-3 object-fit-cover shadow-sm" style="width: 140px; height: 90px;" onerror="this.style.display='none';"></div>`
+                    : '';
+
+                const itemHtml = `
+                    <a href="${news.url}" target="_blank" class="list-group-item list-group-item-action d-flex gap-4 p-4 border-bottom news-modal-item" style="background-color: transparent; border-color: var(--border) !important;">
+                        ${imageHtml}
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge fw-bold" style="background-color: ${bgClass}; color: ${colorClass};">${news.ticker}</span>
+                                    <span class="badge bg-secondary opacity-75">${news.category.toUpperCase()}</span>
+                                </div>
+                                <small class="text-muted fw-bold">${date}</small>
+                            </div>
+                            <h6 class="fw-bold mb-1" style="color: var(--text-main); font-size: 1.05rem;">${news.headline}</h6>
+                            <p class="mb-0 text-muted small text-truncate" style="max-width: 100%; white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">${news.summary}</p>
+                        </div>
+                    </a>
+                `;
+                container.insertAdjacentHTML('beforeend', itemHtml);
+            });
+        }
+
+        function updatePaginationControls() {
+            pageInfo.innerText = totalPages > 0 ? `Page ${currentPage} of ${totalPages}` : 'No results';
+            prevBtn.disabled = currentPage <= 1;
+            nextBtn.disabled = currentPage >= totalPages;
+        }
+    });
+</script>

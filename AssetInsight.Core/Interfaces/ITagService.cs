@@ -12,5 +12,7 @@ namespace AssetInsight.Core.Interfaces
 		Task<List<Guid>> ExtractAndAddTagsIfAny(string content);
 
 		Task<List<TagDto>> GetAllTagsbyPostId(Guid postId);
+
+		Task<IEnumerable<TagDto>> GetTrendingTagsAsync(int count = 5);
 	}
 }

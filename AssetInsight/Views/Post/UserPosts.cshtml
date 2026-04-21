@@ -11,140 +11,157 @@
     ViewData["Title"] = $"u/{userName} - AssetInsight";
 }
 
-<div class="container py-4">
-    <div class="row g-4">
-        <div class="col-lg-8">
-            <div class="profile-nav-card mb-4 shadow-sm">
-                <ul class="nav nav-pills nav-fill p-1">
-                    <li class="nav-item">
-                        <a class="nav-link @(Model.Section == "posts" ? "active" : "")"
-                           asp-action="UserPosts" asp-route-userName="@userName" asp-route-section="posts">
-                            <i class="bi bi-stickies me-2"></i>@Localizer["Posts"]
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link @(Model.Section == "comments" ? "active" : "")"
-                           asp-action="UserPosts" asp-route-userName="@userName" asp-route-section="comments">
-                            <i class="bi bi-chat-dots me-2"></i>@Localizer["Comments"]
-                        </a>
-                    </li>
-                    @if (Model.IsUser)
-                    {
+<div class="forum-bg py-5">
+    <div class="container forum-container" style="max-width: 1100px;">
+        <div class="row g-4">
+
+            <div class="col-lg-8">
+
+                <div class="mb-4 p-2 rounded-pill shadow-sm" style="background-color: var(--bg-card); border: 1px solid var(--border);">
+                    <ul class="nav nav-pills nav-fill gap-1">
                         <li class="nav-item">
-                            <a class="nav-link @(Model.Section == "saved" ? "active" : "")"
-                               asp-action="UserPosts" asp-route-section="saved">
-                                <i class="bi bi-bookmark me-2"></i>@Localizer["Saved"]
+                            <a class="nav-link rounded-pill fw-bold @(Model.Section == "posts" ? "active" : "")"
+                               asp-action="UserPosts" asp-route-userName="@userName" asp-route-section="posts">
+                                <i class="bi bi-stickies me-2"></i>@Localizer["Posts"]
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link @(Model.Section == "upvoted" ? "active" : "")"
-                               asp-action="UserPosts" asp-route-section="upvoted">
-                                @Localizer["Upvoted"]
+                            <a class="nav-link rounded-pill fw-bold @(Model.Section == "comments" ? "active" : "")"
+                               asp-action="UserPosts" asp-route-userName="@userName" asp-route-section="comments">
+                                <i class="bi bi-chat-dots me-2"></i>@Localizer["Comments"]
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link @(Model.Section == "downvoted" ? "active" : "")"
-                               asp-action="UserPosts" asp-route-section="downvoted">
-                                @Localizer["Downvoted"]
-                            </a>
-                        </li>
-                    }
-                </ul>
-            </div>
-
-            <div class="sort-bar mb-3 d-flex align-items-center justify-content-between px-3 py-2 shadow-sm">
-                <div class="d-flex gap-2">
-                    <a asp-action="UserPosts" asp-route-section="@Model.Section" asp-route-sortBy="newest" class="btn btn-sm btn-sort @(Model.SortBy == "newest" ? "active" : "")"><i class="bi bi-brightness-high"></i> @Localizer["New"]</a>
-                    <a asp-action="UserPosts" asp-route-section="@Model.Section" asp-route-sortBy="top" class="btn btn-sm btn-sort @(Model.SortBy == "top" ? "active" : "")"><i class="bi bi-fire"></i> @Localizer["Top"]</a>
-                </div>
-                <div class="view-options d-none d-md-block">
-                    <i class="bi bi-view-list text-muted"></i>
-                </div>
-            </div>
-
-            <div id="posts-feed">
-                @if (Model.Section == "posts")
-                {
-                    @if (Model.Posts?.Items.Any() == true)
-                    {
-                        <partial name="_PostPartial" model="Model.Posts.Items" />
-                    }
-                    else
-                    {
-                        <div class="empty-state">
-                            <i class="bi bi- layers fs-1"></i>
-                            <p>@Localizer["NoPostsYet"]</p>
-                        </div>
-                    }
-                }
-                else if (Model.Section == "comments")
-                {
-                    @if (Model.Comments?.Items.Any() == true)
-                    {
-                        <partial name="_UserCommentPartial" model="Model.Comments.Items" />
-                    }
-                    else
-                    {
-                        <div class="empty-state">
-                            <i class="bi bi-chat-square-dots fs-1"></i>
-                            <p>@Localizer["NoCommentsYet"]</p>
-                        </div>
-                    }
-                }
-            </div>
-
-            <div id="loading-sentinel" class="py-4 text-center" style="display: block;">
-                <div class="spinner-grow text-primary spinner-grow-sm" role="status"></div>
-            </div>
-        </div>
-
-        <div class="col-lg-4 d-none d-lg-block">
-            <div class="sticky-top" style="top: 20px;">
-                <div class="card user-profile-card border-0 shadow-sm overflow-hidden mb-3">
-                    <div class="user-card-banner"></div>
-                    <div class="card-body pt-0 text-center">
-                        <div class="avatar-wrapper">
-                            <img src="https://ui-avatars.com/api/?name=@userName&background=0D6EFD&color=fff&size=128"
-                                 class="profile-avatar-img shadow-sm" alt="avatar" />
-                        </div>
-                        <h4 class="mt-2 mb-1 fw-bold">u/@userName</h4>
-                        <p class="text-muted small mb-4">@@@userName.ToLower()</p>
-
-                        <div class="d-grid gap-2">
-                            @if (Model.IsUser)
-                            {
-                                <a href="/Identity/Account/Manage" class="btn btn-outline-secondary rounded-pill fw-bold py-2">
-                                    <i class="bi bi-gear"></i>
+                        @if (Model.IsUser)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link rounded-pill fw-bold @(Model.Section == "saved" ? "active" : "")"
+                                   asp-action="UserPosts" asp-route-section="saved">
+                                    <i class="bi bi-bookmark me-2"></i>@Localizer["Saved"]
                                 </a>
-                            }
-                            else
-                            {
-                                @if (Model.IsFollowing)
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link rounded-pill fw-bold @(Model.Section == "upvoted" ? "active" : "")"
+                                   asp-action="UserPosts" asp-route-section="upvoted">
+                                    <i class="bi bi-arrow-up-circle me-1"></i>@Localizer["Upvoted"]
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link rounded-pill fw-bold @(Model.Section == "downvoted" ? "active" : "")"
+                                   asp-action="UserPosts" asp-route-section="downvoted">
+                                    <i class="bi bi-arrow-down-circle me-1"></i>@Localizer["Downvoted"]
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+
+                <div class="sort-bar mb-4 d-flex align-items-center justify-content-between px-4 py-3 rounded-4 shadow-sm" style="background-color: var(--bg-card); border: 1px solid var(--border);">
+                    <div class="d-flex gap-2">
+                        <a asp-action="UserPosts" asp-route-section="@Model.Section" asp-route-sortBy="newest" class="btn btn-sm px-3 rounded-pill fw-bold @(Model.SortBy == "newest" ? "btn-sort-active" : "btn-sort-inactive")">
+                            <i class="bi bi-brightness-high me-1"></i> @Localizer["New"]
+                        </a>
+                        <a asp-action="UserPosts" asp-route-section="@Model.Section" asp-route-sortBy="top" class="btn btn-sm px-3 rounded-pill fw-bold @(Model.SortBy == "top" ? "btn-sort-active" : "btn-sort-inactive")">
+                            <i class="bi bi-fire me-1"></i> @Localizer["Top"]
+                        </a>
+                    </div>
+                    <div class="d-none d-md-block text-muted">
+                        <i class="bi bi-view-list fs-5"></i>
+                    </div>
+                </div>
+
+                <div id="posts-feed" class="d-flex flex-column gap-3">
+                    @if (Model.Section == "posts" || Model.Section == "saved" || Model.Section == "upvoted" || Model.Section == "downvoted")
+                    {
+                        var postsSource = Model.Section == "saved" ? Model.Saved :
+                        Model.Section == "upvoted" ? Model.UpVoted :
+                        Model.Section == "downvoted" ? Model.DownVoted :
+                        Model.Posts;
+
+                        @if (postsSource?.Items.Any() == true)
+                        {
+                            <partial name="_PostPartial" model="postsSource.Items" />
+                        }
+                        else
+                        {
+                            <div class="empty-state text-center p-5 rounded-4 shadow-sm" style="background-color: var(--bg-card); border: 1px dashed var(--border);">
+                                <i class="bi bi-layers fs-1 text-muted mb-3 d-block"></i>
+                                <h5 class="fw-bold" style="color: var(--text-main);">@Localizer["NoPostsYet"]</h5>
+                                <p class="text-muted small">Nothing to see here right now.</p>
+                            </div>
+                        }
+                    }
+                    else if (Model.Section == "comments")
+                    {
+                        @if (Model.Comments?.Items.Any() == true)
+                        {
+                            <div class="rounded-4 overflow-hidden" style="border: 1px solid var(--border);">
+                                <partial name="_UserCommentPartial" model="Model.Comments.Items" />
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="empty-state text-center p-5 rounded-4 shadow-sm" style="background-color: var(--bg-card); border: 1px dashed var(--border);">
+                                <i class="bi bi-chat-square-dots fs-1 text-muted mb-3 d-block"></i>
+                                <h5 class="fw-bold" style="color: var(--text-main);">@Localizer["NoCommentsYet"]</h5>
+                                <p class="text-muted small">This user hasn't joined any discussions.</p>
+                            </div>
+                        }
+                    }
+                </div>
+
+                <div id="loading-sentinel" class="py-4 text-center mt-3" style="display: block;">
+                    <div class="spinner-grow text-info spinner-grow-sm" role="status"></div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 d-none d-lg-block">
+                <div class="sticky-top" style="top: 100px;">
+
+                    <div class="sidebar-card mb-4 p-0 rounded-4 shadow-sm overflow-hidden" style="background-color: var(--bg-card); border: 1px solid var(--border);">
+                        <div style="height: 100px; background: linear-gradient(135deg, var(--accent) 0%, #1e1e2f 100%); position: relative;">
+                            <img src="https://ui-avatars.com/api/?name=@userName&background=0D6EFD&color=fff&size=128"
+                                 class="rounded-circle shadow"
+                                 style="width: 90px; height: 90px; border: 4px solid var(--bg-card); position: absolute; bottom: -45px; left: 50%; transform: translateX(-50%);"
+                                 alt="avatar" />
+                        </div>
+
+                        <div class="text-center pt-5 pb-4 px-4 mt-3">
+                            <h4 class="fw-bolder mb-0" style="color: var(--text-main);">u/@userName</h4>
+                            <p class="text-muted small mb-4">Community Member</p>
+
+                            <div class="d-grid gap-2">
+                                @if (Model.IsUser)
                                 {
-                                    <button class="btn btn-primary rounded-pill fw-bold py-2 follow-btn" data-user-name="@userName">
-                                        <i class="bi bi-person-plus-fill me-2"></i>@Localizer["Following"]
-                                    </button>
+                                    <a href="/Identity/Account/Manage" class="btn btn-outline-secondary rounded-pill fw-bold py-2">
+                                        <i class="bi bi-gear me-2"></i>Profile Settings
+                                    </a>
                                 }
                                 else
                                 {
-                                    <button class="btn btn-primary rounded-pill fw-bold py-2 follow-btn" data-user-name="@userName">
-                                        <i class="bi bi-person-plus-fill me-2"></i>@Localizer["Follow"]
-                                    </button>
+                                    @if (Model.IsFollowing)
+                                    {
+                                        <button class="btn rounded-pill fw-bold py-2 follow-btn active text-white" data-user-name="@userName" style="background-color: var(--accent);">
+                                            <i class="bi bi-person-check-fill me-2"></i>@Localizer["Following"]
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-outline-primary rounded-pill fw-bold py-2 follow-btn" data-user-name="@userName" style="border-color: var(--accent); color: var(--accent);">
+                                            <i class="bi bi-person-plus-fill me-2"></i>@Localizer["Follow"]
+                                        </button>
+                                    }
                                 }
-                            }
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="footer-links-card p-3 shadow-sm border-0 small">
-                    <div class="row g-2 mb-3">
-                        <div class="col-6"><a href="#" class="link-secondary text-decoration-none">User Agreement</a></div>
-                        <div class="col-6"><a href="#" class="link-secondary text-decoration-none">Privacy Policy</a></div>
-                        <div class="col-6"><a href="#" class="link-secondary text-decoration-none">Content Policy</a></div>
-                        <div class="col-6"><a href="#" class="link-secondary text-decoration-none">Help Center</a></div>
-                    </div>
-                    <div class="pt-3 border-top text-center text-muted">
-                        © @DateTime.Now.Year AssetInsight, Inc.
+                    <div class="p-3 text-center small text-muted">
+                        <div class="d-flex justify-content-center gap-3 mb-2 flex-wrap">
+                            <a href="#" class="text-decoration-none text-muted hover-accent">User Agreement</a>
+                            <a href="#" class="text-decoration-none text-muted hover-accent">Privacy Policy</a>
+                            <a href="#" class="text-decoration-none text-muted hover-accent">Help Center</a>
+                        </div>
+                        <div>© @DateTime.Now.Year AssetInsight, Inc.</div>
                     </div>
                 </div>
             </div>
@@ -154,18 +171,53 @@
 
 @Html.AntiForgeryToken()
 
+<style>
+    .nav-pills .nav-link {
+        color: var(--text-muted);
+        transition: all 0.2s ease;
+    }
+
+        .nav-pills .nav-link:hover:not(.active) {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-pills .nav-link.active {
+            background-color: var(--accent) !important;
+            color: var(--bg-main) !important;
+            box-shadow: 0 4px 10px rgba(34, 211, 238, 0.3);
+        }
+
+    .btn-sort-inactive {
+        color: var(--text-muted);
+        background-color: transparent;
+        transition: all 0.2s ease;
+    }
+
+        .btn-sort-inactive:hover {
+            background-color: rgba(255,255,255,0.05);
+            color: var(--text-main);
+        }
+
+    .btn-sort-active {
+        background-color: rgba(34, 211, 238, 0.1);
+        color: var(--accent);
+    }
+
+    .hover-accent:hover {
+        color: var(--accent) !important;
+        text-decoration: underline !important;
+    }
+</style>
+
 @section Scripts {
     <script src="~/js/post/post-userposts.js"></script>
     <script>
-
         let currentPage = 1;
         let isLoading = false;
         let hasMore = true;
-
         const userName = "@userName";
         const currentSection = "@Model.Section";
         const currentSortBy = "@Model.SortBy";
-
         const feed = document.getElementById('posts-feed');
         const sentinel = document.getElementById('loading-sentinel');
 
@@ -174,47 +226,34 @@
             if (entry.isIntersecting && !isLoading && hasMore) {
                 loadMoreContent();
             }
-        }, {
-                //rootMargin: '2px'
-                threshold: 0.1,
-        });
+        }, { threshold: 0.1 });
 
         observer.observe(sentinel);
 
         async function loadMoreContent() {
             if (isLoading || !hasMore) return;
-
             isLoading = true;
             currentPage++;
             sentinel.style.display = 'block';
 
             try {
                 const url = `/u/${userName}?section=${currentSection}&sortBy=${currentSortBy}&page=${currentPage}`;
-
-                const response = await fetch(url, {
-                    headers: { "X-Requested-With": "XMLHttpRequest" }
-                });
+                const response = await fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } });
 
                 if (response.status === 204) {
-                    handleNoMoreContent();
-                    return;
+                    handleNoMoreContent(); return;
                 }
-
                 if (!response.ok) throw new Error("Network response was not ok");
 
                 const html = await response.text();
-
                 if (!html.trim()) {
-                    handleNoMoreContent();
-                    return;
+                    handleNoMoreContent(); return;
                 }
 
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = html;
-
                 tempDiv.style.opacity = '0';
                 feed.appendChild(tempDiv);
-
                 tempDiv.offsetHeight;
                 tempDiv.style.transition = 'opacity 0.3s ease';
                 tempDiv.style.opacity = '1';
@@ -231,56 +270,8 @@
             hasMore = false;
             isLoading = false;
             sentinel.style.display = 'block';
-            sentinel.innerHTML = `<div class="py-3 text-muted small">@Localizer["NoMoreContent"]</div>`;
+            sentinel.innerHTML = `<div class="py-3 text-muted small fw-bold"><i class="bi bi-check2-circle me-1"></i>@Localizer["NoMoreContent"]</div>`;
             observer.unobserve(sentinel);
         }
     </script>
 }
-
-<style>
-    :root {
-        --profile-accent: var(--accent);
-        --card-bg: var(--bg-card);
-    }
-
-    body {
-        background-color: var(--bg-main) !important;
-        color: var(--text-main) !important;
-    }
-
-    .profile-nav-card, .sort-bar, .card, .footer-links-card, .empty-state {
-        background-color: var(--card-bg) !important;
-        border: 1px solid var(--border) !important;
-        color: var(--text-main) !important;
-    }
-
-    .nav-pills .nav-link {
-        color: var(--text-muted);
-    }
-
-    .nav-pills .nav-link.active {
-        background-color: var(--profile-accent) !important;
-        color: var(--bg-main) !important;
-    }
-
-    .btn-sort {
-        color: var(--text-muted) !important;
-    }
-
-    .btn-sort.active {
-        background-color: var(--bg-main) !important;
-        color: var(--profile-accent) !important;
-    }
-
-    .text-muted { color: var(--text-muted) !important; }
-
-    .profile-avatar-img {
-        border: 5px solid var(--card-bg) !important;
-    }
-
-    .user-card-banner {
-        background: linear-gradient(135deg, var(--accent) 0%, #444 100%);
-    }
-
-    .empty-state { border-style: dashed; }
-</style>

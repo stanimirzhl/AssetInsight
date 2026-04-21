@@ -2,111 +2,123 @@
 @model PostDetailsViewModel
 
 <link rel="stylesheet" href="~/css/post/post-details.css" />
+<link rel="stylesheet" href="~/css/post/forum.css" />
+<div class="forum-bg py-5">
+    <div class="container forum-container" style="max-width: 1100px;">
+        <div class="row g-4">
 
-<div class="forum-bg py-4">
-    <div class="container forum-container">
-        <div class="row">
             <div class="col-lg-8">
-                <article class="reddit-post-card @(Model.IsLocked ? "locked" : "") mb-3">
-                    <div class="reddit-voting">
-                        <button class="vote-btn up @(Model.UserVote == true ? "active" : "")"
-                                onclick="handleVote('@Model.Id', true, this)">
-                            <i class="bi bi-arrow-up-short"></i>
+
+                <article class="post-card d-flex flex-column flex-sm-row @(Model.IsLocked ? "locked" : "") mb-4 p-0" style="border-radius: 16px;">
+
+                    <div class="post-votes d-flex flex-column align-items-center pt-4 reddit-voting border-end" style="width: 70px; background-color: rgba(0,0,0,0.1);">
+                        <button class="vote-btn up border-0 bg-transparent p-0 @(Model.UserVote == true ? "active" : "")" onclick="handleVote('@Model.Id', true, this)">
+                            <i class="bi bi-caret-up-fill fs-3"></i>
                         </button>
 
-                        <span class="vote-count" id="post-score-@Model.Id">@Model.UpvoteCount</span>
+                        <span class="vote-count fs-5 fw-bold my-2" id="post-score-@Model.Id" style="color: var(--text-main);">@Model.UpvoteCount</span>
 
-                        <button class="vote-btn down @(Model.UserVote == false ? "active" : "")"
-                                onclick="handleVote('@Model.Id', false, this)">
-                            <i class="bi bi-arrow-down-short"></i>
+                        <button class="vote-btn down border-0 bg-transparent p-0 @(Model.UserVote == false ? "active" : "")" onclick="handleVote('@Model.Id', false, this)">
+                            <i class="bi bi-caret-down-fill fs-3"></i>
                         </button>
                     </div>
 
-                    <div class="reddit-post-body">
-                        <div class="post-meta">
-                            <img src="https://ui-avatars.com/api/?name=@Model.AuthorName&background=random" class="author-avatar" />
-                            <span class="author">
-                                <a asp-action="UserPosts" asp-route-userName="@Model.AuthorName" class="text-white text-decoration-none">
+                    <div class="reddit-post-body flex-grow-1 p-4 p-md-5">
+
+                        <div class="post-meta d-flex align-items-center flex-wrap gap-2 mb-3 text-muted small">
+                            <img src="https://ui-avatars.com/api/?name=@Model.AuthorName&background=random" class="rounded-circle shadow-sm" width="28" height="28" alt="Avatar" />
+                            <span class="fw-semibold">
+                                <a asp-action="UserPosts" asp-route-userName="@Model.AuthorName" class="text-decoration-none" style="color: var(--accent);">
                                     u/@Model.AuthorName
                                 </a>
                             </span>
-                            <span class="dot">•</span>
-                            <span class="date">@Model.CreatedAt.ToString("MMM dd")</span>
+                            <span class="opacity-50">•</span>
+                            <span class="date fw-medium"><i class="bi bi-clock me-1"></i>@Model.CreatedAt.ToString("MMM dd, yyyy")</span>
+
                             @if (Model.IsLocked)
                             {
-                                <span class="locked-badge"><i class="bi bi-lock-fill"></i></span>
+                                <span class="badge rounded-pill ms-2" style="background-color: rgba(239, 68, 68, 0.1); color: #ef4444;">
+                                    <i class="bi bi-lock-fill me-1"></i> Locked
+                                </span>
                             }
                         </div>
 
-                        <h1 class="post-title">@Model.Title</h1>
+                        <h1 class="post-title fw-bolder mb-3" style="color: var(--text-main); font-size: 1.75rem; letter-spacing: -0.5px;">@Model.Title</h1>
 
-                        <div class="tag-container mb-3">
-                            @foreach (var tag in Model.Tags)
-                            {
-                                <a asp-action="Index" asp-controller="Post" asp-route-tag="@tag.Name" class="tag-pill">
-                                    #@tag.Name
-                                </a>
-                            }
-                        </div>
+                        @if (Model.Tags.Any())
+                        {
+                            <div class="tag-container d-flex flex-wrap gap-2 mb-4">
+                                @foreach (var tag in Model.Tags)
+                                {
+                                    <a asp-action="Index" asp-controller="Post" asp-route-tag="@tag.Name" class="text-decoration-none">
+                                        <span class="badge premium-tag px-3 py-2 rounded-pill">#@tag.Name</span>
+                                    </a>
+                                }
+                            </div>
+                        }
 
-                        <div class="post-content-text">
+                        <div class="post-content-text mb-4" style="color: var(--text-main); font-size: 1.05rem; line-height: 1.7;">
                             @Model.Content
                         </div>
 
                         @if (Model.ImgUrls.Any())
                         {
-                            <div id="postImageCarousel" class="carousel slide mt-3 mb-3 post-media-container" data-bs-ride="false">
-                                <div class="carousel-inner rounded-3">
+                            <div id="postImageCarousel" class="carousel slide mt-4 mb-4 shadow-sm rounded-4 overflow-hidden" data-bs-ride="false" style="border: 1px solid var(--border);">
+                                <div class="carousel-inner">
                                     @for (int i = 0; i < Model.ImgUrls.Count; i++)
                                     {
-                                        <div class="carousel-item @(i == 0 ? "active" : "")">
-                                            <img src="@Model.ImgUrls.ElementAt(i).ImgUrl" class="d-block w-100 carousel-img" alt="Post content">
+                                        <div class="carousel-item @(i == 0 ? "active" : "") bg-dark text-center">
+                                            <img src="@Model.ImgUrls.ElementAt(i).ImgUrl" class="img-fluid" style="max-height: 500px; object-fit: contain;" alt="Post content">
                                         </div>
                                     }
                                 </div>
                                 @if (Model.ImgUrls.Count > 1)
                                 {
                                     <button class="carousel-control-prev" type="button" data-bs-target="#postImageCarousel" data-bs-slide="prev">
-                                        <span class="carousel-control-prev-icon"></span>
+                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                                     </button>
                                     <button class="carousel-control-next" type="button" data-bs-target="#postImageCarousel" data-bs-slide="next">
-                                        <span class="carousel-control-next-icon"></span>
+                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
                                     </button>
                                 }
                             </div>
                         }
 
-                        <div class="post-footer">
-                            <button class="footer-btn"><i class="bi bi-chat-square-text"></i> @Model.Comments.TotalCount Comments</button>
-                            <button class="footer-btn"><i class="bi bi-share"></i> Share</button>
-                            <button class="js-save-btn footer-btn" data-post-id="@Model.Id">
-                                <i class="bi @(Model.UserHasSaved ? "bi-bookmark-fill" : "bi-bookmark")"></i>
+                        <div class="post-footer d-flex flex-wrap gap-3 pt-4 mt-2 border-top" style="border-color: rgba(255,255,255,0.05) !important;">
+                            <button class="btn action-btn border-0"><i class="bi bi-chat-square-text me-2"></i>@Model.Comments.TotalCount Comments</button>
+                            <button class="btn action-btn border-0"><i class="bi bi-share me-2"></i>Share</button>
+                            <button class="btn action-btn js-save-btn border-0 @(Model.UserHasSaved ? "active text-accent" : "")" data-post-id="@Model.Id">
+                                <i class="bi @(Model.UserHasSaved ? "bi-bookmark-fill" : "bi-bookmark") me-2"></i>
                                 <span class="save-text">@(Model.UserHasSaved ? "Saved" : "Save")</span>
                             </button>
                         </div>
                     </div>
                 </article>
 
-                <div class="comment-section">
+                <div class="comment-section p-4 p-md-5 rounded-4 shadow-sm" style="background-color: var(--bg-card); border: 1px solid var(--border);">
+
                     @if (!Model.IsLocked)
                     {
-                        <div class="comment-box-container mb-4">
+                        <div class="comment-box-container mb-5 p-3 rounded-3" style="background-color: rgba(0,0,0,0.1); border: 1px solid var(--border);">
                             <div class="d-flex align-items-center mb-2">
-                                <span class="small">Comment as <span class="text-primary fw-bold">@User.Identity.Name</span></span>
+                                <span class="small text-muted">Comment as <span style="color: var(--accent); font-weight: 700;">@User.Identity.Name</span></span>
                             </div>
-                            <textarea id="mainCommentInput" class="form-control" placeholder="What are your thoughts?" rows="4"></textarea>
-                            <div class="comment-box-footer">
-                                <button onclick="submitComment()" class="btn-reddit-post">Comment</button>
+                            <textarea id="mainCommentInput" class="form-control bg-transparent text-white border-secondary mb-3" placeholder="What are your thoughts on this strategy?" rows="3" style="box-shadow: none;"></textarea>
+                            <div class="d-flex justify-content-end">
+                                <button onclick="submitComment()" class="btn btn-create py-2 px-4">Post Comment</button>
                             </div>
                         </div>
                     }
 
-                    <div class="comment-sort-options mb-3 d-flex align-items-center gap-2">
-                        <span class="text-muted small fw-bold text-uppercase">Sort By:</span>
-                        <select id="commentSortSelect" class="form-select form-select-sm w-auto border-0 bg-transparent fw-bold" onchange="handleSortChange()">
-                            <option value="best">Best</option>
-                            <option value="newest">Newest</option>
-                        </select>
+                    <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+                        <h5 class="fw-bold m-0" style="color: var(--text-main);">Discussion</h5>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="text-muted small fw-bold text-uppercase">Sort By:</span>
+                            <select id="commentSortSelect" class="form-select form-select-sm border-0 shadow-none fw-bold" style="background-color: rgba(255,255,255,0.05); color: var(--text-main); width: 100px;" onchange="handleSortChange()">
+                                <option value="best" class="text-dark">Best</option>
+                                <option value="newest" class="text-dark">Newest</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div id="comments-container">
@@ -116,37 +128,53 @@
                         }
                     </div>
 
-                    <div id="infinite-scroll-sentinel" class="text-center p-4">
-                        <div id="loader" class="spinner-border text-primary spinner-border-sm @(Model.Comments.HasNextPage ? "" : "d-none")" role="status"></div>
-
-                        <div id="status-message" class="text-muted small @(Model.Comments.HasNextPage ? "d-none" : "")">
-                            No more comments.
+                    <div id="infinite-scroll-sentinel" class="text-center p-4 mt-3">
+                        <div id="loader" class="spinner-border text-info spinner-border-sm @(Model.Comments.HasNextPage ? "" : "d-none")" role="status"></div>
+                        <div id="status-message" class="text-muted small fw-bold @(Model.Comments.HasNextPage ? "d-none" : "")">
+                            <i class="bi bi-check2-circle me-1"></i> You've reached the end of the thread.
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="col-lg-4 d-none d-lg-block">
-                <div class="sidebar-card mb-3">
-                    <div class="sidebar-header">Forum Information</div>
-                    <div class="sidebar-body">
-                        <p class="small text-muted">Welcome to the asset discussion forum. Use tags to filter specific financial instruments or topics.</p>
-                        <div class="stats d-flex justify-content-between mb-3">
-                            <div><strong>1.2k</strong><br /><small>Members</small></div>
-                            <div><strong>42</strong><br /><small>Online</small></div>
+
+                <div class="sidebar-card mb-4 p-4 rounded-4 shadow-sm" style="background-color: var(--bg-card); border: 1px solid var(--border);">
+                    <h5 class="fw-bold mb-3 border-bottom pb-2" style="color: var(--text-main);"><i class="bi bi-info-circle text-muted me-2"></i>Forum Info</h5>
+                    <p class="small text-muted mb-4" style="line-height: 1.6;">Welcome to the AssetInsight community. Discuss algorithms, market trends, and backtesting results. Keep it professional.</p>
+
+                    <div class="d-flex justify-content-between mb-4 text-center">
+                        <div class="p-3 rounded-3 flex-grow-1 me-2" style="background-color: rgba(255,255,255,0.03); border: 1px solid var(--border);">
+                            <h4 class="fw-bolder m-0" style="color: var(--text-main);">1.2k</h4>
+                            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Members</small>
                         </div>
-                        <button class="btn btn-primary w-100 rounded-pill fw-bold">Create Post</button>
+                        <div class="p-3 rounded-3 flex-grow-1 ms-2" style="background-color: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2);">
+                            <h4 class="fw-bolder m-0" style="color: #10B981;">42</h4>
+                            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem; color: #10B981 !important;">Online</small>
+                        </div>
                     </div>
+
+                    <a asp-action="Create" asp-controller="Post" class="btn btn-create w-100"><i class="bi bi-pencil-square me-2"></i>Create Post</a>
                 </div>
 
-                <div class="sidebar-card">
-                    <div class="sidebar-header">Trending Tags</div>
-                    <div class="sidebar-body p-2">
-                        <div class="d-flex flex-wrap gap-1">
-                            <span class="tag-pill">#investing</span>
-                            <span class="tag-pill">#stocks</span>
-                            <span class="tag-pill">#crypto</span>
-                        </div>
+                <div class="sidebar-card p-4 rounded-4 shadow-sm" style="background-color: var(--bg-card); border: 1px solid var(--border);">
+                    <h5 class="fw-bold mb-3 border-bottom pb-2" style="color: var(--text-main);"><i class="bi bi-hash text-muted me-2"></i>Trending Tags</h5>
+                    <div class="d-flex flex-wrap gap-2 mt-3">
+
+                        @if (Model.TrendingTags != null && Model.TrendingTags.Any())
+                        {
+                            @foreach (var tag in Model.TrendingTags)
+                            {
+                                <a asp-action="Index" asp-controller="Post" asp-route-tag="@tag.Name" class="text-decoration-none">
+                                    <span class="badge premium-tag px-3 py-2 rounded-pill">#@tag.Name</span>
+                                </a>
+                            }
+                        }
+                        else
+                        {
+                            <span class="text-muted small fst-italic">No trending tags yet.</span>
+                        }
+
                     </div>
                 </div>
             </div>
@@ -156,7 +184,6 @@
 
 @Html.AntiForgeryToken()
 <input type="hidden" id="currentSort" value="best" />
-<input type="hidden" id="currentPage" value="1" />
 <input type="hidden" id="currentPage" value="1" />
 <input type="hidden" id="postId" value="@Model.Id" />
 <input type="hidden" id="hasMore" value="@Model.Comments.HasNextPage.ToString().ToLower()" />

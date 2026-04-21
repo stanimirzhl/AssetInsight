@@ -8,7 +8,7 @@ function getPreferredTheme() {
 
     return window.matchMedia("(prefers-color-scheme: dark)").matches
         ? "dark"
-        : "light";
+        : "dark";
 }
 document.getElementById('cultureSelect').addEventListener('change', function () {
     const culture = this.value;
@@ -99,25 +99,30 @@ document.querySelectorAll(".toggle-password").forEach(toggle => {
     });
 });
 
-const toggleBtn = document.getElementById("themeToggle");
+/*const toggleBtn = document.getElementById("themeToggle");
 const html = document.documentElement;
 const navbar = document.getElementById("mainNavbar");
+const themeIcon = toggleBtn.querySelector("i");
 
-function applyNavbarTheme(theme) {
-    if (theme === "dark") {
-        navbar.classList.remove("bg-white", "navbar-light");
-        navbar.classList.add("bg-dark", "navbar-dark");
-    } else {
-        navbar.classList.remove("bg-dark", "navbar-dark");
-        navbar.classList.add("bg-white", "navbar-light");
-    }
+function getPreferredTheme() {
+    const saved = localStorage.getItem("theme");
+    if (saved) return saved;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
-
 
 function setTheme(theme) {
     html.setAttribute("data-bs-theme", theme);
     localStorage.setItem("theme", theme);
-    applyNavbarTheme(theme);
+
+    if (theme === "dark") {
+        navbar.classList.replace("navbar-light", "navbar-dark");
+        navbar.classList.replace("bg-white", "bg-dark");
+        themeIcon.className = "bi bi-moon-fill"; 
+    } else {
+        navbar.classList.replace("navbar-dark", "navbar-light");
+        navbar.classList.replace("bg-dark", "bg-white");
+        themeIcon.className = "bi bi-sun-fill";
+    }
 }
 
 const initialTheme = getPreferredTheme();
@@ -127,8 +132,7 @@ toggleBtn.addEventListener("click", () => {
     const current = html.getAttribute("data-bs-theme");
     const newTheme = current === "dark" ? "light" : "dark";
     setTheme(newTheme);
-});
-
+});*/
 function timeAgo(date) {
     const seconds = Math.floor((new Date() - new Date(date)) / 1000);
     if (seconds < 60) return seconds + " sec. ago";

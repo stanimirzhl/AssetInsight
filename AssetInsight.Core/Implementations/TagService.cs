@@ -34,6 +34,21 @@ namespace AssetInsight.Core.Implementations
 				.ToListAsync();
 		}
 
+		public async Task<IEnumerable<TagDto>> GetTrendingTagsAsync(int count = 5)
+		{
+			var trendingTags = await repository.All()
+				.OrderByDescending(t => t.PostTags.Count)
+				.Take(count)
+				.Select(t => new TagDto
+				{
+					Id = t.Id,
+					Name = t.Name
+				})
+				.ToListAsync();
+
+			return trendingTags;
+		}
+
 		public async Task<List<Guid>> ExtractAndAddTagsIfAny(string content)
 		{
 			List<string> tags = Regex.Matches(content, @"(?<!\w)#([\p{L}\p{N}_]{3,})")

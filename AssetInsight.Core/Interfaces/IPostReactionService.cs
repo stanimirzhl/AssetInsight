@@ -11,5 +11,7 @@ namespace AssetInsight.Core.Interfaces
 		Task<(int score, string status)> ToggleReactionAsync(Guid postId, string userId, bool isUpVote);
 
 		Task<int> GetPostReactionScoreAsync(Guid postId);
+
+		Task<bool?> UserVote(Guid postId, string userId);
 	}
 }

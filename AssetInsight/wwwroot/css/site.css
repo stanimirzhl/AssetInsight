@@ -36,7 +36,6 @@ footer.footer a {
     color: var(--accent) !important;
 }
 
-/* --- Updated Navbar for Dark Theme --- */
 #mainNavbar {
     background-color: var(--bg-card) !important;
     border-bottom: 1px solid var(--border) !important;
@@ -56,7 +55,6 @@ footer.footer a {
         color: var(--accent) !important;
     }
 
-/* --- Language Select Fix --- */
 .lang-select {
     background-color: var(--bg-card) !important;
     color: var(--text-main) !important;

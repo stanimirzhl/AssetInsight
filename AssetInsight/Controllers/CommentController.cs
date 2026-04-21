@@ -7,6 +7,7 @@ using Azure.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using System.Security.Claims;
 using System.Text.Json;
 
@@ -162,7 +163,8 @@ namespace AssetInsight.Controllers
 			{
 				CommentDto comment = await commentService.GetByIdAsync(commentId);
 
-				if (comment.AuthorId != User.FindFirstValue(ClaimTypes.NameIdentifier))
+				if (comment.AuthorId != User.FindFirstValue(ClaimTypes.NameIdentifier)
+					|| !User.IsInRole("Admin") || !User.IsInRole("Moderator"))
 					return Forbid();
 
 				var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -174,6 +176,11 @@ namespace AssetInsight.Controllers
 				}
 
 				await commentService.DeleteAsync(postId, commentId);
+
+				await notificationService.CreateNotification(
+						comment.AuthorId,
+						$"One of your comments have been taken down by our team!",
+						$"/Post/Details/{postId}");
 
 			}
 			catch (NoEntityException ex)

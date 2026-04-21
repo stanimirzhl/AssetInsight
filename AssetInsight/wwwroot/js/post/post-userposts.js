@@ -50,10 +50,10 @@ if (btn) {
 
         if (isFollowing) {
             btn.classList.add('active');
-            if (btn) btn.textContent = t.following;
+            btn.innerHTML = `<i class="bi bi-person-check-fill me-2"></i>${t.following}`;
         } else {
             btn.classList.remove('active');
-            if (btn) btn.textContent = t.follow;
+            btn.innerHTML = `<i class="bi bi-person-plus-fill me-2"></i>${t.follow}`;
         }
     }
 
