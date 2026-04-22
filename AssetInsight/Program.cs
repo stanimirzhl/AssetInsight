@@ -12,7 +12,7 @@ ServiceCollectionExtensions.InitializeLogger(builder.Services.BuildServiceProvid
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbServices(builder.Configuration);
 builder.Services.AddAzureKeyVaultSecrets(builder.Configuration);
-//builder.Configuration.MapCloudinarySecret();
+builder.Configuration.MapCloudinarySecret();
 builder.Services.AddCoreServices(builder.Configuration);
 builder.Services.AddIdentityServices();
 builder.Configuration.MapFinnhubSecret();
