@@ -59,7 +59,6 @@
 </div>
 
 <script>
-    // Templates for quick loading
     const presets = {
         goldenCross: {
             name: "Golden Cross Trend Follower",
@@ -153,7 +152,6 @@
 
         container.insertAdjacentHTML('beforeend', row);
 
-        // Trigger UI update immediately for the new row
         const newRow = container.lastElementChild;
         updateUI(newRow.querySelector('.indicator'));
     }
@@ -170,11 +168,9 @@
         updateUI(select);
     }
 
-    // This handles both disabling the 'Period' input if PRICE is selected, AND updating the English text.
     function updateUI(element) {
         const row = element.closest('.rule-row');
 
-        // Handle Price disabling
         const ind = row.querySelector('.indicator').value;
         const periodInput = row.querySelector('.period');
         periodInput.disabled = (ind === 'PRICE');
@@ -183,7 +179,6 @@
         const cPeriodInput = row.querySelector('.compare-period');
         cPeriodInput.disabled = (cInd === 'PRICE');
 
-        // Translate to English
         const type = row.closest('#buy-rules-list') ? 'Buy' : 'Sell';
         const op = row.querySelector('.operator').options[row.querySelector('.operator').selectedIndex].text.toLowerCase();
 
@@ -225,7 +220,6 @@
         });
     }
 
-    // Initialization
     document.addEventListener("DOMContentLoaded", function() {
         const jsonInput = document.getElementById('DefinitionJson').value;
         if (jsonInput) {

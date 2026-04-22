@@ -1,5 +1,6 @@
 ﻿using AssetInsight.Areas.Admin.Models;
 using AssetInsight.Areas.Admin.Models.Users;
+using AssetInsight.Core.Interfaces;
 using AssetInsight.Data;
 using AssetInsight.Data.Models;
 using InfoSurge.Areas.Admin.Models.Users;
@@ -17,12 +18,17 @@ namespace AssetInsight.Areas.Admin.Controllers
 		private readonly UserManager<User> _userManager;
 		private readonly RoleManager<IdentityRole> _roleManager;
 		private readonly AssetInsightDbContext dbContext;
+		private readonly INotificationService _notificationService;
 
-		public UsersController(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, AssetInsightDbContext dbContext)
+		public UsersController(UserManager<User> userManager, 
+			RoleManager<IdentityRole> roleManager, 
+			AssetInsightDbContext dbContext,
+			INotificationService notificationService)
 		{
 			_userManager = userManager;
 			_roleManager = roleManager;
 			this.dbContext = dbContext;
+			_notificationService = notificationService;	
 		}
 
 		[HttpGet]
@@ -140,6 +146,16 @@ namespace AssetInsight.Areas.Admin.Controllers
 				if (model.SelectedRoles != null)
 				{
 					await _userManager.AddToRolesAsync(user, model.SelectedRoles);
+
+					string roleList = model.SelectedRoles != null && model.SelectedRoles.Any()
+						? string.Join(", ", model.SelectedRoles)
+						: "No Roles Assigned";
+
+					await _notificationService.CreateNotification(
+						user.Id,
+						$"Your account roles have been updated to: {roleList}.",
+						"/"
+					);
 				}
 
 				TempData["Success"] = "User updated successfully.";
@@ -165,6 +181,9 @@ namespace AssetInsight.Areas.Admin.Controllers
 
 				var follows = dbContext.Follows.Where(f => f.FollowerId == id || f.FollowedUserId == id);
 				dbContext.Follows.RemoveRange(follows);
+
+				var strategies = dbContext.TradingStrategies.Where(x => x.UserId == id);
+				dbContext.TradingStrategies.RemoveRange(strategies);
 
 				await dbContext.SaveChangesAsync();
 

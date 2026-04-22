@@ -28,5 +28,7 @@ namespace AssetInsight.Core.Interfaces
 		Task DeleteAsync(Guid id);
 
 		Task<bool> IsAuthor(Guid postId, string userId);
+
+		Task<(bool Success, bool IsLocked)> ToggleLockAsync(Guid postId);
 	}
 }

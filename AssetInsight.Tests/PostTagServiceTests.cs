@@ -118,7 +118,27 @@ namespace AssetInsight.Tests.Core.Implementations
 
 			_repoMock.Verify(r => r.RemoveRange(It.IsAny<IQueryable<PostTag>>()), Times.Once);
 		}
+		[Test]
+		public async Task AddAsync_EmptyTagList_ShouldNotAddAnything()
+		{
+			var postId = Guid.NewGuid();
 
+			await _service.AddAsync(postId, new List<Guid>());
+
+			Assert.That(_postTags, Is.Empty);
+			_repoMock.Verify(r => r.AddAsync(It.IsAny<PostTag>()), Times.Never);
+		}
+
+		[Test]
+		public async Task DeleteAsync_EmptyTagList_ShouldNotDeleteAnything()
+		{
+			_postTags.Add(new PostTag { Id = Guid.NewGuid(), TagId = Guid.NewGuid() });
+
+			await _service.DeleteAsync(new List<Guid>());
+
+			Assert.That(_postTags.Count, Is.EqualTo(1));
+			_repoMock.Verify(r => r.RemoveRange(It.IsAny<IQueryable<PostTag>>()), Times.Once);
+		}
 
 	}
 }

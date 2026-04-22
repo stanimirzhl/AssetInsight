@@ -132,5 +132,35 @@ namespace AssetInsight.Tests.Core.Implementations
 
 			Assert.That(result.score, Is.EqualTo(1));
 		}
+
+		[Test]
+		public async Task UserVote_WhenUserHasUpvoted_ShouldReturnTrue()
+		{
+			var postId = Guid.NewGuid();
+			_reactions.Add(new PostReaction { PostId = postId, UserId = "user1", IsUpVote = true });
+
+			var result = await _service.UserVote(postId, "user1");
+
+			Assert.That(result, Is.True);
+		}
+
+		[Test]
+		public async Task UserVote_WhenUserHasDownvoted_ShouldReturnFalse()
+		{
+			var postId = Guid.NewGuid();
+			_reactions.Add(new PostReaction { PostId = postId, UserId = "user1", IsUpVote = false });
+
+			var result = await _service.UserVote(postId, "user1");
+
+			Assert.That(result, Is.False);
+		}
+
+		[Test]
+		public async Task UserVote_WhenUserHasNoVote_ShouldReturnNull()
+		{
+			var result = await _service.UserVote(Guid.NewGuid(), "user1");
+
+			Assert.That(result, Is.Null);
+		}
 	}
 }

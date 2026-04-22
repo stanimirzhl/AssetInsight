@@ -173,9 +173,9 @@
     @if (User.Identity.IsAuthenticated)
     {
         <script>
-            const connection = new signalR.HubConnectionBuilder().withUrl("/notificationHub").build();
+            window.connection = new signalR.HubConnectionBuilder().withUrl("/notificationHub").build();
 
-            connection.on("ReceiveNotification", (message, url) => {
+            window.connection.on("ReceiveNotification", (message, url) => {
                 let $badge = $("#notification-count");
                 let count = parseInt($badge.text()) || 0;
                 $badge.text(count + 1).show();
@@ -198,7 +198,7 @@
                 $("#no-notifications-msg").remove();
             });
 
-            connection.start().catch(err => console.error(err.toString()));
+            window.connection.start().catch(err => console.error(err.toString()));
         </script>
         <script>
             $('#notificationDropdown').on('show.bs.dropdown', function ()

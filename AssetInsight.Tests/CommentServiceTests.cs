@@ -424,5 +424,118 @@ namespace AssetInsight.Tests.Core.Implementations
 
 			Assert.That(result, Is.Empty);
 		}
+
+		[Test]
+		public async Task GetPostCommentCountAsync_ShouldReturnCorrectCount()
+		{
+			var postId = Guid.NewGuid();
+
+			_comments.Add(new Comment { Id = Guid.NewGuid(), PostId = postId });
+			_comments.Add(new Comment { Id = Guid.NewGuid(), PostId = postId });
+			_comments.Add(new Comment { Id = Guid.NewGuid(), PostId = Guid.NewGuid() });
+
+			var result = await _service.GetPostCommentCountAsync(postId);
+
+			Assert.That(result, Is.EqualTo(2));
+		}
+
+		[Test]
+		public async Task GetByIdAsync_WhenAuthorExists_ShouldReturnAuthorName()
+		{
+			var commentId = Guid.NewGuid();
+			_comments.Add(new Comment
+			{
+				Id = commentId,
+				Content = "test",
+				AuthorId = "user1",
+				// Explicitly setting the Author navigation property
+				Author = new User { UserName = "JohnDoe" }
+			});
+
+			var result = await _service.GetByIdAsync(commentId);
+
+			Assert.That(result.Id, Is.EqualTo(commentId));
+			Assert.That(result.AuthorName, Is.EqualTo("JohnDoe"));
+		}
+
+		[Test]
+		public async Task GetByIdAsync_WhenAuthorIsNull_ShouldReturnDeleted()
+		{
+			var commentId = Guid.NewGuid();
+			_comments.Add(new Comment
+			{
+				Id = commentId,
+				Content = "test",
+				AuthorId = "user1",
+				Author = null
+			});
+
+			var result = await _service.GetByIdAsync(commentId);
+
+			Assert.That(result.Id, Is.EqualTo(commentId));
+			Assert.That(result.AuthorName, Is.EqualTo("[deleted]"));
+		}
+
+		[Test]
+		public async Task AddAsync_ShouldReturnDtoWithCorrectData()
+		{
+			var postId = Guid.NewGuid();
+			var parentId = Guid.NewGuid();
+			var authorId = "user1";
+
+			var result = await _service.AddAsync(postId, "New comment", authorId, parentId);
+
+			Assert.That(result.Id, Is.Not.EqualTo(Guid.Empty));
+			Assert.That(result.Content, Is.EqualTo("New comment"));
+			Assert.That(result.ReplyCount, Is.EqualTo(0));
+			Assert.That(result.ParentCommentId, Is.EqualTo(parentId));
+			Assert.That(result.IsAuthor, Is.True);
+
+			Assert.That(result.AuthorName, Is.EqualTo("[deleted]"));
+		}
+
+		[Test]
+		public async Task GetPagedCommentsByUserAsync_TernaryBranches_ShouldMapCorrectly()
+		{
+			var userId = "user1";
+			var post = new Post { Id = Guid.NewGuid(), Title = "Title" };
+			var author = new User { Id = userId, UserName = "User1" };
+
+			_comments.Add(new Comment
+			{
+				Id = Guid.NewGuid(),
+				AuthorId = userId,
+				Post = post,
+				Author = author,
+				ParentComment = null
+			});
+
+			_comments.Add(new Comment
+			{
+				Id = Guid.NewGuid(),
+				AuthorId = userId,
+				Post = post,
+				Author = author,
+				ParentComment = new Comment { Author = null }
+			});
+
+			_comments.Add(new Comment
+			{
+				Id = Guid.NewGuid(),
+				AuthorId = userId,
+				Post = post,
+				Author = author,
+				ParentComment = new Comment { Author = new User { UserName = "ParentUser" } }
+			});
+
+			var result = await _service.GetPagedCommentsByUserAsync(userId, 1, 10, "new");
+
+			var items = result.Items.ToList();
+
+			Assert.That(items, Has.Count.EqualTo(3));
+			Assert.That(items.Any(i => i.ParentCommentAuthorName == null), Is.True, "Failed to map null parent");
+			Assert.That(items.Any(i => i.ParentCommentAuthorName == "[deleted]"), Is.True, "Failed to map deleted parent author");
+			Assert.That(items.Any(i => i.ParentCommentAuthorName == "ParentUser"), Is.True, "Failed to map valid parent author");
+		}
 	}
 }

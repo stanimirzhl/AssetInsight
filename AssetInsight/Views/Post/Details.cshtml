@@ -85,12 +85,24 @@
                         }
 
                         <div class="post-footer d-flex flex-wrap gap-3 pt-4 mt-2 border-top" style="border-color: rgba(255,255,255,0.05) !important;">
-                            <button class="btn action-btn border-0"><i class="bi bi-chat-square-text me-2"></i>@Model.Comments.TotalCount Comments</button>
-                            <button class="btn action-btn border-0"><i class="bi bi-share me-2"></i>Share</button>
+                            <button class="btn action-btn border-0"><i class="bi bi-chat-square-text me-2"></i>@Model.CommentCount Comments</button>
+                            <button class="btn action-btn js-share-btn border-0"
+                                    data-title="@Model.Title"
+                                    data-url="@Url.Action("Details", "Post", new { id = Model.Id }, Context.Request.Scheme)">
+                                <i class="bi bi-share me-2"></i>Share
+                            </button>
                             <button class="btn action-btn js-save-btn border-0 @(Model.UserHasSaved ? "active text-accent" : "")" data-post-id="@Model.Id">
                                 <i class="bi @(Model.UserHasSaved ? "bi-bookmark-fill" : "bi-bookmark") me-2"></i>
                                 <span class="save-text">@(Model.UserHasSaved ? "Saved" : "Save")</span>
                             </button>
+
+                            @if (User.IsInRole("Admin") || User.IsInRole("Moderator"))
+                            {
+                                <button type="button" id="lock-post-btn" class="btn action-btn border-0 @(Model.IsLocked ? "text-success" : "text-warning") ms-auto">
+                                    <i class="bi @(Model.IsLocked ? "bi-unlock-fill" : "bi-lock-fill") me-2"></i>
+                                    <span id="lock-btn-text">@(Model.IsLocked ? "Unlock Post" : "Lock Post")</span>
+                                </button>
+                            }
                         </div>
                     </div>
                 </article>
@@ -107,6 +119,13 @@
                             <div class="d-flex justify-content-end">
                                 <button onclick="submitComment()" class="btn btn-create py-2 px-4">Post Comment</button>
                             </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert text-center mt-2 mb-5 rounded-4 shadow-sm" role="alert" style="background-color: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2);">
+                            <i class="bi bi-lock-fill me-2 fs-5 align-middle"></i>
+                            <span class="fw-semibold">This post has been locked by a moderator. New comments cannot be added.</span>
                         </div>
                     }
 
@@ -145,11 +164,11 @@
 
                     <div class="d-flex justify-content-between mb-4 text-center">
                         <div class="p-3 rounded-3 flex-grow-1 me-2" style="background-color: rgba(255,255,255,0.03); border: 1px solid var(--border);">
-                            <h4 class="fw-bolder m-0" style="color: var(--text-main);">1.2k</h4>
+                            <h4 class="fw-bolder m-0" style="color: var(--text-main);">@Model.TotalMembersFormatted</h4>
                             <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Members</small>
                         </div>
                         <div class="p-3 rounded-3 flex-grow-1 ms-2" style="background-color: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2);">
-                            <h4 class="fw-bolder m-0" style="color: #10B981;">42</h4>
+                            <h4 id="online-count" class="fw-bolder m-0" style="color: #10B981;">@Model.OnlineMembers</h4>
                             <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem; color: #10B981 !important;">Online</small>
                         </div>
                     </div>
@@ -190,4 +209,84 @@
 
 @section Scripts {
     <script src="~/js/post/post-details.js"></script>
+    <script>
+        if (window.connection) {
+            window.connection.on("UpdateOnlineCount", (count) => {
+                const $el = $("#online-count");
+                if ($el.length) {
+                    $el.text(count);
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            $("#lock-post-btn").click(function () {
+                var postId = $("#postId").val();
+                var token = $('input[name="__RequestVerificationToken"]').val();
+
+                $.ajax({
+                    url: '/Post/ToggleLock',
+                    type: 'POST',
+                    data: {
+                        id: postId,
+                        __RequestVerificationToken: token
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            location.reload();
+                        }
+                    },
+                    error: function (xhr) {
+                        if (xhr.status === 403 || xhr.status === 401) {
+                            alert("You do not have permission to perform this action.");
+                        } else {
+                            alert("An error occurred while updating the post.");
+                        }
+                    }
+                });
+            });
+        });
+
+        $(document).ready(function () {
+
+            $('.js-share-btn').click(async function () {
+                const $btn = $(this);
+                const title = $btn.data('title');
+                const url = $btn.data('url');
+                const originalText = $btn.html();
+
+                if (navigator.share) {
+                    try {
+                        await navigator.share({
+                            title: title,
+                            text: 'Check out this discussion on AssetInsight!',
+                            url: url
+                        });
+                        console.log('Successfully shared');
+                    } catch (err) {
+                        //console.log('Share cancelled or failed:', err);
+                    }
+                }
+                else if (navigator.clipboard) {
+                    try {
+                        await navigator.clipboard.writeText(url);
+
+                        $btn.html('<i class="bi bi-check-circle-fill text-success me-2"></i>Copied!');
+
+                        setTimeout(() => {
+                            $btn.html(originalText);
+                        }, 2000);
+
+                    } catch (err) {
+                        //console.error('Failed to copy text: ', err);
+                        alert("Failed to copy link to clipboard.");
+                    }
+                }
+                else {
+                    alert("Copy this link to share: " + url);
+                }
+            });
+
+        });
+    </script>
 }

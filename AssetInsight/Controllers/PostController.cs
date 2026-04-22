@@ -6,12 +6,15 @@ using AssetInsight.Core.DTOs.Post_Image;
 using AssetInsight.Core.DTOs.Tag;
 using AssetInsight.Core.Implementations;
 using AssetInsight.Core.Interfaces;
+using AssetInsight.Core.Trackers;
 using AssetInsight.Data.Models;
 using AssetInsight.Models.Account;
 using AssetInsight.Models.Post;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using System.Data;
@@ -33,6 +36,7 @@ namespace AssetInsight.Controllers
 		private readonly UserManager<User> userManager;
 		private readonly IFollowService followService;
 		private readonly INotificationService notificationService;
+		private readonly PresenceTracker presenceTracker;
 
 		public PostController(IPostService postService,
 			ITagService tagService,
@@ -45,7 +49,8 @@ namespace AssetInsight.Controllers
 			ISavedPostService savedPostService,
 			UserManager<User> userManager,
 			IFollowService followService,
-			INotificationService notificationService)
+			INotificationService notificationService,
+			PresenceTracker presenceTracker)
 		{
 			this.postService = postService;
 			this.tagService = tagService;
@@ -58,7 +63,8 @@ namespace AssetInsight.Controllers
 			this.savedPostService = savedPostService;
 			this.userManager = userManager;
 			this.followService = followService;
-			 this.notificationService = notificationService;
+			this.notificationService = notificationService;
+			this.presenceTracker = presenceTracker;
 		}
 
 		public async Task<IActionResult> Index(int page = 1, string? tag = null)
@@ -103,14 +109,14 @@ namespace AssetInsight.Controllers
 			return View(pagedVMs);
 		}
 
-		//[Authorize]
+		[Authorize]
 		public async Task<IActionResult> Create()
 		{
 			return View();
 		}
 
 		[HttpPost]
-		//[Authorize]
+		[Authorize]
 		public async Task<IActionResult> Create(PostFormModel model)
 		{
 			TryValidateTitleAndContent(model);
@@ -351,8 +357,19 @@ namespace AssetInsight.Controllers
 					Comments = await commentService.GetRootCommentsPaginated(postDto.Id, 1, userId),
 					UserHasSaved = await savedPostService.HasUserSavedPost(postDto.Id, userId),
 					UserVote = await postReactionService.UserVote(postDto.Id, userId),
-					TrendingTags = await tagService.GetTrendingTagsAsync(5)
+					TrendingTags = await tagService.GetTrendingTagsAsync(5),
+					CommentCount = await commentService.GetPostCommentCountAsync(postDto.Id)
 				};
+
+				int totalUsers = await userManager.Users.CountAsync();
+				string formattedTotal = totalUsers >= 1000
+					? (totalUsers / 1000D).ToString("0.#") + "k"
+					: totalUsers.ToString();
+
+				int onlineUsers = await presenceTracker.GetOnlineUsersCount();
+
+				model.OnlineMembers = onlineUsers;
+				model.TotalMembersFormatted = formattedTotal;
 			}
 			catch (NoEntityException ex)
 			{
@@ -469,6 +486,21 @@ namespace AssetInsight.Controllers
 				saved = isSaved,
 				message = isSaved ? "Post saved!" : "Post removed from saved."
 			});
+		}
+
+		[HttpPost]
+		[Authorize(Roles = "Admin, Moderator")]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> ToggleLock(Guid id)
+		{
+			var (success, isLocked) = await postService.ToggleLockAsync(id);
+
+			if (!success)
+			{
+				return NotFound();
+			}
+
+			return Json(new { success = true, isLocked = isLocked });
 		}
 
 		private async Task<PagingModel<PostVM>> MapToPostVM(PagingModel<PostDto> source)

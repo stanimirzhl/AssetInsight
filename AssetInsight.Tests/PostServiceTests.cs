@@ -2,10 +2,11 @@ using AssetInsight.Core;
 using AssetInsight.Core.DTOs.Post;
 using AssetInsight.Core.Implementations;
 using AssetInsight.Core.Interfaces;
-using MockQueryable.Moq;
 using AssetInsight.Data.Common;
 using AssetInsight.Data.Models;
 using Microsoft.EntityFrameworkCore;
+using MockQueryable;
+using MockQueryable.Moq;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -40,6 +41,10 @@ namespace AssetInsight.Tests.Core.Implementations
 						.BuildMockDbSet()
 						.Object;
 				});
+
+			_mockRepository
+				.Setup(r => r.All())
+				.Returns(() => _testPosts.AsQueryable().BuildMock());
 
 			_mockRepository
 				.Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
@@ -503,6 +508,104 @@ namespace AssetInsight.Tests.Core.Implementations
 
 			var result = await _postService.GetDownvotedPostsPagedAsync(userId, 1, 10, "top");
 
+			Assert.That(result.Items.First().Id, Is.EqualTo(post1.Id));
+		}
+
+		[Test]
+		public async Task ToggleLockAsync_ExistingPost_ShouldToggleLockState()
+		{
+			var postId = Guid.NewGuid();
+			var post = CreateTestPost(postId, isLocked: false);
+			_testPosts.Add(post);
+
+			var result = await _postService.ToggleLockAsync(postId);
+
+			Assert.That(result.Success, Is.True);
+			Assert.That(result.IsLocked, Is.True);
+			Assert.That(_testPosts.First().IsLocked, Is.True);
+
+			_mockRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
+		}
+
+		[Test]
+		public async Task ToggleLockAsync_ShouldToggleBack_WhenCalledTwice()
+		{
+			var postId = Guid.NewGuid();
+			var post = CreateTestPost(postId, isLocked: false);
+			_testPosts.Add(post);
+
+			await _postService.ToggleLockAsync(postId);
+			var result = await _postService.ToggleLockAsync(postId);
+
+			Assert.That(result.IsLocked, Is.False);
+		}
+
+		[Test]
+		public async Task ToggleLockAsync_NonExistingPost_ShouldReturnFalse()
+		{
+			var result = await _postService.ToggleLockAsync(Guid.NewGuid());
+
+			Assert.That(result.Success, Is.False);
+			Assert.That(result.IsLocked, Is.False);
+
+			_mockRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
+		}
+
+		[Test]
+		public async Task IsAuthor_WhenUserIsAuthor_ShouldReturnTrue()
+		{
+			var postId = Guid.NewGuid();
+			var post = CreateTestPost(postId, authorId: "user1");
+			_testPosts.Add(post);
+
+			var result = await _postService.IsAuthor(postId, "user1");
+
+			Assert.That(result, Is.True);
+		}
+
+		[Test]
+		public async Task IsAuthor_WhenUserIsNotAuthor_ShouldReturnFalse()
+		{
+			var postId = Guid.NewGuid();
+			var post = CreateTestPost(postId, authorId: "user1");
+			_testPosts.Add(post);
+
+			var result = await _postService.IsAuthor(postId, "user2");
+
+			Assert.That(result, Is.False);
+		}
+
+		[Test]
+		public async Task IsAuthor_WhenPostDoesNotExist_ShouldReturnFalse()
+		{
+			var result = await _postService.IsAuthor(Guid.NewGuid(), "user1");
+
+			Assert.That(result, Is.False);
+		}
+
+		[Test]
+		public async Task GetAllPagedPostsAsync_WithTag_ShouldFilterCorrectly()
+		{
+			var tagName = "CSharp";
+
+			var post1 = CreateTestPost(Guid.NewGuid(), "Post 1");
+			var post2 = CreateTestPost(Guid.NewGuid(), "Post 2");
+
+			post1.PostTags = new List<PostTag>
+			{
+				new PostTag { Tag = new Tag { Name = tagName } }
+			};
+
+					post2.PostTags = new List<PostTag>
+			{
+				new PostTag { Tag = new Tag { Name = "Other" } }
+			};
+
+			_testPosts.AddRange(new[] { post1, post2 });
+
+			var result = await _postService.GetAllPagedPostsAsync(1, 10, tagName);
+
+			Assert.That(result.Items, Has.Count.EqualTo(1));
 			Assert.That(result.Items.First().Id, Is.EqualTo(post1.Id));
 		}
 	}

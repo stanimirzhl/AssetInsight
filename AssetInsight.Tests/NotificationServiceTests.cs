@@ -138,5 +138,37 @@ namespace AssetInsight.Tests.Core.Implementations
 
 			Assert.That(result, Is.EqualTo(2));
 		}
+
+		[Test]
+		public async Task MarkAsReadAsync_ShouldDoNothing_WhenNotificationNotFound()
+		{
+			_notifications.Add(new Notification { Id = 1, ReceiverId = "user2", IsRead = false });
+
+			await _service.MarkAsReadAsync(1, "user1"); 
+			await _service.MarkAsReadAsync(99, "user2");
+			Assert.That(_notifications[0].IsRead, Is.False);
+			_repoMock.Verify(r => r.SaveChangesAsync(), Times.Never);
+		}
+
+		[Test]
+		public async Task GetLatestAsync_ShouldReturnAll_WhenFewerThan5Exist()
+		{
+			var userId = "u1";
+
+			for (int i = 0; i < 3; i++)
+			{
+				_notifications.Add(new Notification
+				{
+					Id = i + 1,
+					ReceiverId = userId,
+					Message = $"msg{i}",
+					CreatedAt = DateTime.UtcNow
+				});
+			}
+
+			var result = await _service.GetLatestAsync(userId);
+
+			Assert.That(result.Count, Is.EqualTo(3));
+		}
 	}
 }

@@ -118,5 +118,53 @@ namespace AssetInsight.Tests.Core.Implementations
 			Assert.That(result.Count, Is.EqualTo(1));
 			Assert.That(result[0].Name, Is.EqualTo("test"));
 		}
+
+		[Test]
+		public async Task GetTrendingTagsAsync_ShouldReturnTopTagsByPostCount()
+		{
+			_tags.Add(new Tag
+			{
+				Id = Guid.NewGuid(),
+				Name = "unpopular",
+				PostTags = new List<PostTag> { new PostTag() }
+			});
+
+			_tags.Add(new Tag
+			{
+				Id = Guid.NewGuid(),
+				Name = "very-popular",
+				PostTags = new List<PostTag> { new PostTag(), new PostTag(), new PostTag() }
+			});
+
+			_tags.Add(new Tag
+			{
+				Id = Guid.NewGuid(),
+				Name = "medium",
+				PostTags = new List<PostTag> { new PostTag(), new PostTag() }
+			});
+
+			var result = (await _tagService.GetTrendingTagsAsync(2)).ToList();
+
+			Assert.That(result.Count, Is.EqualTo(2));
+
+			Assert.That(result.First().Name, Is.EqualTo("very-popular"));
+			Assert.That(result.Last().Name, Is.EqualTo("medium"));
+		}
+
+		[Test]
+		public async Task GetTrendingTagsAsync_WithFewerTagsThanRequested_ShouldReturnAllAvailable()
+		{
+			_tags.Add(new Tag
+			{
+				Id = Guid.NewGuid(),
+				Name = "lonely-tag",
+				PostTags = new List<PostTag> { new PostTag() }
+			});
+
+			var result = (await _tagService.GetTrendingTagsAsync(5)).ToList();
+
+			Assert.That(result.Count, Is.EqualTo(1));
+			Assert.That(result.First().Name, Is.EqualTo("lonely-tag"));
+		}
 	}
 }

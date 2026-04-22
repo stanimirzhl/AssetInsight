@@ -36,6 +36,20 @@ namespace AssetInsight.Core.Implementations
 			return post.Id;
 		}
 
+		public async Task<(bool Success, bool IsLocked)> ToggleLockAsync(Guid postId)
+		{
+			var post = await repository.All().FirstOrDefaultAsync(p => p.Id == postId);
+			if (post == null)
+			{
+				return (false, false);
+			}
+
+			post.IsLocked = !post.IsLocked;
+			await repository.SaveChangesAsync();
+
+			return (true, post.IsLocked);
+		}
+
 		public async Task<PostDto> GetByIdAsync(Guid id)
 		{
 			return await repository.AllAsReadOnly()
@@ -137,28 +151,23 @@ namespace AssetInsight.Core.Implementations
 
 		public async Task<PagingModel<PostDto>> GetSavedPostsPagedAsync(string userId, int pageIndex, int pageSize, string sortBy)
 		{
-			IQueryable<PostDto> query = repository.AllAsReadOnly()
-				.Include(x => x.Author)
-				.Include(x => x.Comments)
-				.Include(x => x.Reactions)
-				.Include(x => x.SavedPosts)
-			.Where(p => p.SavedPosts.Any(sp => sp.UserId == userId))
-			.Select(p => new PostDto
-			{
-				Id = p.Id,
-				Title = p.Title,
-				Content = p.Content,
-				AuthorName = p.Author == null ? "[deleted]" : p.Author.UserName,
-				CreatedAt = p.CreatedAt,
-				EditedAt = p.EditedAt,
-				IsLocked = p.IsLocked,
-				CommentsCount = p.Comments.Count,
-				ReactionsCount = p.Reactions.Count
-			})
-			.OrderByDescending(p => p.CreatedAt);
+			var query = repository.AllAsReadOnly()
+				.Where(p => p.SavedPosts.Any(sp => sp.UserId == userId))
+				.Select(p => new PostDto
+				{
+					Id = p.Id,
+					Title = p.Title,
+					Content = p.Content,
+					AuthorName = p.Author == null ? "[deleted]" : p.Author.UserName,
+					CreatedAt = p.CreatedAt,
+					EditedAt = p.EditedAt,
+					IsLocked = p.IsLocked,
+					CommentsCount = p.Comments.Count,
+					ReactionsCount = p.Reactions.Count
+				});
 
 			query = sortBy == "top"
-					? query.OrderByDescending(p => p.ReactionsCount).ThenByDescending(p => p.CreatedAt)
+				? query.OrderByDescending(p => p.ReactionsCount).ThenByDescending(p => p.CreatedAt)
 				: query.OrderByDescending(p => p.CreatedAt);
 
 			return await PagingModel<PostDto>.CreateAsync(query, pageIndex, pageSize);
@@ -166,27 +175,23 @@ namespace AssetInsight.Core.Implementations
 
 		public async Task<PagingModel<PostDto>> GetUpvotedPostsPagedAsync(string userId, int pageIndex, int pageSize, string sortBy)
 		{
-			IQueryable<PostDto> query = repository.AllAsReadOnly()
-				.Include(x => x.Author)
-				.Include(x => x.Comments)
-				.Include(x => x.Reactions)
-			.Where(p => p.Reactions.Any(pr => pr.UserId == userId && pr.IsUpVote))
-			.Select(p => new PostDto
-			{
-				Id = p.Id,
-				Title = p.Title,
-				Content = p.Content,
-				AuthorName = p.Author == null ? "[deleted]" : p.Author.UserName,
-				CreatedAt = p.CreatedAt,
-				EditedAt = p.EditedAt,
-				IsLocked = p.IsLocked,
-				CommentsCount = p.Comments.Count,
-				ReactionsCount = p.Reactions.Count
-			})
-			.OrderByDescending(p => p.CreatedAt);
+			var query = repository.AllAsReadOnly()
+				.Where(p => p.Reactions.Any(pr => pr.UserId == userId && pr.IsUpVote))
+				.Select(p => new PostDto
+				{
+					Id = p.Id,
+					Title = p.Title,
+					Content = p.Content,
+					AuthorName = p.Author == null ? "[deleted]" : p.Author.UserName,
+					CreatedAt = p.CreatedAt,
+					EditedAt = p.EditedAt,
+					IsLocked = p.IsLocked,
+					CommentsCount = p.Comments.Count,
+					ReactionsCount = p.Reactions.Count
+				});
 
 			query = sortBy == "top"
-					? query.OrderByDescending(p => p.ReactionsCount).ThenByDescending(p => p.CreatedAt)
+				? query.OrderByDescending(p => p.ReactionsCount).ThenByDescending(p => p.CreatedAt)
 				: query.OrderByDescending(p => p.CreatedAt);
 
 			return await PagingModel<PostDto>.CreateAsync(query, pageIndex, pageSize);
@@ -194,27 +199,23 @@ namespace AssetInsight.Core.Implementations
 
 		public async Task<PagingModel<PostDto>> GetDownvotedPostsPagedAsync(string userId, int pageIndex, int pageSize, string sortBy)
 		{
-			IQueryable<PostDto> query = repository.AllAsReadOnly()
-				.Include(x => x.Author)
-				.Include(x => x.Comments)
-				.Include(x => x.Reactions)
-			.Where(p => p.Reactions.Any(pr => pr.UserId == userId && !pr.IsUpVote))
-			.Select(p => new PostDto
-			{
-				Id = p.Id,
-				Title = p.Title,
-				Content = p.Content,
-				AuthorName = p.Author == null ? "[deleted]" : p.Author.UserName,
-				CreatedAt = p.CreatedAt,
-				EditedAt = p.EditedAt,
-				IsLocked = p.IsLocked,
-				CommentsCount = p.Comments.Count,
-				ReactionsCount = p.Reactions.Count
-			})
-			.OrderByDescending(p => p.CreatedAt);
+			var query = repository.AllAsReadOnly()
+				.Where(p => p.Reactions.Any(pr => pr.UserId == userId && !pr.IsUpVote))
+				.Select(p => new PostDto
+				{
+					Id = p.Id,
+					Title = p.Title,
+					Content = p.Content,
+					AuthorName = p.Author == null ? "[deleted]" : p.Author.UserName,
+					CreatedAt = p.CreatedAt,
+					EditedAt = p.EditedAt,
+					IsLocked = p.IsLocked,
+					CommentsCount = p.Comments.Count,
+					ReactionsCount = p.Reactions.Count
+				});
 
 			query = sortBy == "top"
-					? query.OrderByDescending(p => p.ReactionsCount).ThenByDescending(p => p.CreatedAt)
+				? query.OrderByDescending(p => p.ReactionsCount).ThenByDescending(p => p.CreatedAt)
 				: query.OrderByDescending(p => p.CreatedAt);
 
 			return await PagingModel<PostDto>.CreateAsync(query, pageIndex, pageSize);

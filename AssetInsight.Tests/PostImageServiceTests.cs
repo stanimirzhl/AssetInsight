@@ -125,6 +125,20 @@ namespace AssetInsight.Tests.Core.Implementations
 			await _service.DeleteAsync(postId, new List<int> { 1 });
 
 			Assert.That(_images.Count, Is.EqualTo(1));
+
+			_repoMock.Verify(r => r.DeleteAsync(It.IsAny<object>()), Times.Never);
 		}
+
+		[Test]
+		public async Task DeleteAsync_ShouldDoNothing_WhenImageDoesNotExist()
+		{
+			var postId = Guid.NewGuid();
+
+			await _service.DeleteAsync(postId, new List<int> { 99 });
+
+			_repoMock.Verify(r => r.DeleteAsync(It.IsAny<object>()), Times.Never);
+		}
+
+
 	}
 }

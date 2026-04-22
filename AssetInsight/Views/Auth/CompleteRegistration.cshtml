@@ -7,63 +7,68 @@
     ViewData["Title"] = "Complete Registration";
 }
 
-<link rel="stylesheet" href="~/css/complete-registration.css"/>
+<div class="container mt-5 pb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
 
-<div class="wot-container">
-    <div class="wot-card">
-
-        <h3 class="text-center mb-4">@Localizer["ChooseUsernameHeading"]</h3>
-
-        <form method="post" action="/complete-registration">
-
-            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-
-            <input type="hidden" asp-for="LoginProvider" />
-            <input type="hidden" asp-for="ProviderDisplayName" />
-            <input type="hidden" asp-for="ReturnUrl" />
-            <input type="hidden" asp-for="Email" />
-            <input type="hidden" asp-for="FirstName" />
-            <input type="hidden" asp-for="LastName" />
-
-            <div class="username-container d-flex flex-column gap-3">
-                <div class="username-left">
-                    <label asp-for="UserName" class="form-label fw-bold"></label>
-                    <input asp-for="UserName" id="usernameInput" class="form-control wot-input" autocomplete="off" />
-                    <small id="usernameError" class="text-danger d-none mt-2"></small>
-                </div>
-
-                <div id="usernameSuggestions" class="username-suggestions d-none">
-                    <small class="text-muted d-block mb-2">Suggestions:</small>
-                </div>
+            <div class="text-center mb-4">
+                <h2 class="fw-bold"><i class="bi bi-person-badge text-accent me-2"></i>Almost Done!</h2>
+                <p class="text-muted">You've successfully authenticated with <strong class="text-accent">@Model.ProviderDisplayName</strong>. Just one more step.</p>
             </div>
 
-            <button id="continueBtn" class="btn wot-btn w-100" type="submit">
-                @Localizer["Continue"]
-            </button>
+            <div class="content-card shadow-sm">
+                <h4 class="mb-4 text-center">@Localizer["ChooseUsernameHeading"]</h4>
 
-            @Html.AntiForgeryToken()
-        </form>
+                <form method="post" action="/complete-registration">
 
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                    <input type="hidden" asp-for="LoginProvider" />
+                    <input type="hidden" asp-for="ProviderDisplayName" />
+                    <input type="hidden" asp-for="ReturnUrl" />
+                    <input type="hidden" asp-for="Email" />
+                    <input type="hidden" asp-for="FirstName" />
+                    <input type="hidden" asp-for="LastName" />
+
+                    <div class="mb-4">
+                        <label asp-for="UserName" class="form-label text-muted fw-bold"></label>
+                        <input asp-for="UserName" id="usernameInput" class="form-control custom-input form-control-lg" autocomplete="off" placeholder="e.g., cooltrader99" />
+                        <small id="usernameError" class="text-danger d-none mt-2 d-block fw-semibold"></small>
+                    </div>
+
+                    <div id="usernameSuggestions" class="username-suggestions d-none p-3 mb-4 rounded">
+                        <small class="text-muted d-block mb-2 fw-bold"><i class="bi bi-lightbulb text-warning me-1"></i> Suggestions:</small>
+                        <div id="suggestionsWrapper" class="d-flex flex-wrap gap-2">
+                        </div>
+                    </div>
+
+                    <button id="continueBtn" class="btn btn-accent btn-lg w-100" type="submit" disabled>
+                        @Localizer["Continue"] <i class="bi bi-arrow-right ms-1"></i>
+                    </button>
+
+                    @Html.AntiForgeryToken()
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 
 @section Scripts {
     <script>
-
-        let timeout = null;
+        let timeout2 = null;
 
         const usernameInput = document.getElementById("usernameInput");
         const error = document.getElementById("usernameError");
         const suggestions = document.getElementById("usernameSuggestions");
+        const suggestionsWrapper = document.getElementById("suggestionsWrapper");
         const continueBtn = document.getElementById("continueBtn");
 
         usernameInput.addEventListener("input", function(){
 
-            clearTimeout(timeout);
-
+            clearTimeout(timeout2);
             const username = this.value;
 
-            timeout = setTimeout(() => {
+            timeout2 = setTimeout(() => {
 
                 if(username.length === 0){
                     error.classList.add("d-none");
@@ -77,57 +82,97 @@
                 .then(data => {
 
                     if(data.available){
-
                         error.classList.add("d-none");
                         suggestions.classList.add("d-none");
                         continueBtn.disabled = false;
-
                     }
-                    else{
-
+                    else {
                         error.innerText = data.message;
                         error.classList.remove("d-none");
 
-                        suggestions.innerHTML =
-                        data.suggestions.map(x =>
-                        `<span class="suggest">${x}</span>`
+                        suggestionsWrapper.innerHTML = data.suggestions.map(x =>
+                            `<span class="suggest badge border border-secondary text-secondary p-2 fs-6">${x}</span>`
                         ).join("");
 
                         suggestions.classList.remove("d-none");
-
                         continueBtn.disabled = true;
                     }
-
                 });
-
-            },200);
-
+            }, 200);
         });
 
         document.addEventListener("click", function(e){
-
             if(e.target.classList.contains("suggest")){
-
                 const value = e.target.innerText;
-
                 usernameInput.value = value;
 
                 error.classList.add("d-none");
                 suggestions.classList.add("d-none");
-
                 continueBtn.disabled = false;
-
             }
-
         });
 
         window.addEventListener("load", function(){
-
             if(usernameInput.value.length > 0){
                 usernameInput.dispatchEvent(new Event("input"));
             }
-
         });
-
     </script>
 }
+
+<style>
+    .content-card {
+        background-color: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 2.5rem;
+    }
+
+    .custom-input {
+        background-color: var(--bg-main) !important;
+        border: 1px solid var(--border) !important;
+        color: var(--text-main) !important;
+    }
+
+    .custom-input:focus {
+        border-color: var(--accent) !important;
+        box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.2);
+    }
+
+    .btn-accent {
+        background-color: var(--accent) !important;
+        color: white !important;
+        font-weight: 600;
+        transition: filter 0.2s;
+    }
+
+    .btn-accent:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .btn-accent:hover:not(:disabled) {
+        filter: brightness(1.1);
+    }
+
+    .username-suggestions {
+        background-color: var(--bg-main);
+        border: 1px dashed var(--border);
+    }
+
+    .suggest {
+        cursor: pointer;
+        transition: all 0.2s;
+        background-color: var(--bg-card);
+    }
+
+    .suggest:hover {
+        background-color: var(--accent) !important;
+        color: white !important;
+        border-color: var(--accent) !important;
+    }
+
+    .text-accent {
+        color: var(--accent);
+    }
+</style>

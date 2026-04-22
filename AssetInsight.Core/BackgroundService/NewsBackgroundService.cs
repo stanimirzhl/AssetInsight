@@ -9,6 +9,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,11 +34,12 @@ namespace AssetInsight.Services
 			NewsCacheService newsCache,
 			ILogger<NewsBackgroundService> logger,
 			IConfiguration configuration,
-			IServiceScopeFactory scopeFactory)
+			IServiceScopeFactory scopeFactory,
+			IHttpClientFactory httpClientFactory)
 		{
 			_newsCache = newsCache;
 			_logger = logger;
-			_httpClient = new HttpClient();
+			_httpClient = httpClientFactory.CreateClient();
 			_scopeFactory = scopeFactory;
 
 			_finnhubApiKey = configuration["Finnhub:ApiKey"];
@@ -80,7 +83,14 @@ namespace AssetInsight.Services
 
 				_lastNotificationTime = currentRunTime;
 
-				await Task.Delay(_updateInterval, stoppingToken);
+				try
+				{
+					await Task.Delay(_updateInterval, stoppingToken);
+				}
+				catch (TaskCanceledException)
+				{
+					break;
+				}
 			}
 		}
 
@@ -92,7 +102,6 @@ namespace AssetInsight.Services
 			try
 			{
 				var response = await _httpClient.GetAsync(url);
-
 				response.EnsureSuccessStatusCode();
 
 				var jsonResponse = await response.Content.ReadAsStringAsync();

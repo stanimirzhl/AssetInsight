@@ -182,5 +182,20 @@ namespace AssetInsight.Tests.Core.Implementations
 			Assert.That(status, Is.EqualTo("upvoted"));
 			Assert.That(_reactions[0].IsUpVote, Is.True);
 		}
+
+		[Test]
+		public async Task ToggleReactionAsync_ShouldAddUpvote_WhenNoExistingReaction2()
+		{
+			var commentId = Guid.NewGuid();
+
+			var (score, status) = await _service.ToggleReactionAsync(commentId, "user1", true);
+
+			Assert.That(status, Is.EqualTo("upvoted"));
+			Assert.That(score, Is.EqualTo(1));
+			Assert.That(_reactions.Count, Is.EqualTo(1));
+			Assert.That(_reactions[0].IsUpVote, Is.True);
+
+			_repoMock.Verify(r => r.SaveChangesAsync(), Times.Once);
+		}
 	}
 }

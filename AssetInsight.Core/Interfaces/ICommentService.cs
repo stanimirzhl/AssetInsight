@@ -22,5 +22,7 @@ namespace AssetInsight.Core.Interfaces
 		Task EditAsync(Guid postId, Guid commentId, string content);
 
 		Task DeleteAsync(Guid commentId, Guid postId);
+
+		Task<int> GetPostCommentCountAsync(Guid postId);
 	}
 }

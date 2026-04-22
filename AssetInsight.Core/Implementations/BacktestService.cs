@@ -11,6 +11,11 @@ namespace AssetInsight.Core.Implementations
 	{
 		public BacktestResult Run(List<ChartDataPoint> history, StrategyDefinition strategy, decimal initialBalance)
 		{
+			if (history == null || !history.Any())
+			{
+				return new BacktestResult { FinalBalance = initialBalance, Logs = new List<string> { "No historical data available." } };
+			}
+
 			decimal balance = initialBalance;
 			decimal sharesOwned = 0;
 			var logs = new List<string>();
@@ -30,16 +35,20 @@ namespace AssetInsight.Core.Implementations
 				bool shouldBuy = strategy.Buy?.Evaluate(context) ?? false;
 				bool shouldSell = strategy.Sell?.Evaluate(context) ?? false;
 
-				if (shouldBuy && balance > currentPrice)
+				if (shouldBuy && balance >= currentPrice)
 				{
-					sharesOwned = Math.Floor(balance / currentPrice);
-					balance -= sharesOwned * currentPrice;
-					logs.Add($"{history[i].Date:yyyy-MM-dd}: BUY at {currentPrice:F2}");
+					var sharesToBuy = Math.Floor(balance / currentPrice);
+					if (sharesToBuy > 0)
+					{
+						sharesOwned += sharesToBuy;
+						balance -= sharesToBuy * currentPrice;
+						logs.Add($"{history[i].Date:yyyy-MM-dd}: BUY {sharesToBuy} shares at {currentPrice:F2}");
+					}
 				}
 				else if (shouldSell && sharesOwned > 0)
 				{
 					balance += sharesOwned * currentPrice;
-					logs.Add($"{history[i].Date:yyyy-MM-dd}: SELL at {currentPrice:F2} | Balance: {balance:F2}");
+					logs.Add($"{history[i].Date:yyyy-MM-dd}: SELL {sharesOwned} shares at {currentPrice:F2} | Balance: {balance:F2}");
 					sharesOwned = 0;
 				}
 			}

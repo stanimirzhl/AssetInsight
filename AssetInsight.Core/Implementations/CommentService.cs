@@ -191,6 +191,12 @@ namespace AssetInsight.Core.Implementations
 			await repository.SaveChangesAsync();
 		}
 
+		public async Task<int> GetPostCommentCountAsync(Guid postId)
+		{
+			return await repository.All()
+				.CountAsync(c => c.PostId == postId);
+		}
+
 		public async Task<CommentDto> GetByIdAsync(Guid commentId)
 		{
 			var comment = await repository.All()

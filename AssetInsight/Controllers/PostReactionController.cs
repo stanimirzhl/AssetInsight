@@ -11,10 +11,16 @@ namespace AssetInsight.Controllers
 	public class PostReactionController : Controller
 	{
 		private readonly IPostReactionService postReactService;
+		private readonly INotificationService notificationService;
+		private readonly IPostService postService;
 
-		public PostReactionController(IPostReactionService postReactService)
+		public PostReactionController(IPostReactionService postReactService,
+			INotificationService notificationService,
+			IPostService postService)
 		{
 			this.postReactService = postReactService;
+			this.notificationService = notificationService;
+			this.postService = postService;
 		}
 
 		[HttpPost]
@@ -27,6 +33,20 @@ namespace AssetInsight.Controllers
 				var returnUrl = Url.Action("Details", "Post", new { id = postId });
 				var loginUrl = Url.Page("/Account/Login", null, new { area = "Identity", ReturnUrl = returnUrl });
 				return Json(new { loginUrl });
+			}
+
+			string actionText = isUpVote ? "upvoted" : "downvoted";
+			string notificationMessage = $"{User.Identity.Name} {actionText} your post!";
+
+			var post = await postService.GetByIdAsync(postId);
+			var postAuthorId = post?.AuthorId;
+
+			if (postAuthorId != null && postAuthorId != userId)
+			{
+				await notificationService.CreateNotification(
+					postAuthorId,
+					notificationMessage,
+					$"/Post/Details/{postId}");
 			}
 
 			var (score, status) = await postReactService.ToggleReactionAsync(postId, userId, isUpVote);
